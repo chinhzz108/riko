@@ -1,0 +1,19 @@
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-border: var(--border);
+  --color-primary: var(--primary);
+  --color-secondary: #1D80C4;
+  --color-coral: #F15A3E;
+  --color-orange: #F5801F;
+  --color-reward: #FBAF37;
+  --color-success: #59B447;
+  --font-sans: 'Quicksand', sans-serif;
+  --font-display: 'Quicksand', sans-serif;
+}
+:root {
+  --background: #FFFEF0;
+  --foreground: #363B47;
+  --border: #374BA022;
+  --primary: #374BA0;
+}

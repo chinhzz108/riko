@@ -1,0 +1,10 @@
+{
+  "description": "Engage children aged 6-12 with an interactive platform that combines a children's book, educational videos, and fun quizzes, enhancing learning through play.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
