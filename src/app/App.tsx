@@ -108,6 +108,7 @@ import {
 } from "../lib/appwrite"
 import rikoWelcome from "../assets/riko/welcome.png"
 import rikokidLogo from "../assets/rikokid-logo.png"
+import rikokidLogoTransparent from "../assets/rikokid-logo-transparent.png"
 import rikoHappy from "../assets/riko/happy.png"
 import rikoPointing from "../assets/riko/pointing.png"
 import rikoThinking from "../assets/riko/thinking.png"
@@ -448,7 +449,10 @@ function Cover({
     </Tilt>
   )
 }
-function Logo({ compact = false }: { compact?: boolean }) {
+function Logo({
+  compact = false,
+  transparent = false,
+}: { compact?: boolean; transparent?: boolean }) {
   return (
     <Link
       to="/"
@@ -458,7 +462,7 @@ function Logo({ compact = false }: { compact?: boolean }) {
       }`}
     >
       <img
-        src={rikokidLogo}
+        src={transparent ? rikokidLogoTransparent : rikokidLogo}
         alt=""
         className={`absolute left-1/2 max-w-none -translate-x-1/2 -translate-y-1/2 ${
           compact ? "w-[170px]" : "w-[220px]"
@@ -569,7 +573,7 @@ function Footer() {
     <footer className="mt-10 border-t border-primary/10 bg-primary/5 px-6 py-12">
       <div className="mx-auto grid max-w-[1160px] gap-8 md:grid-cols-[2fr_1fr_1fr_1fr]">
         <div>
-          <Logo />
+          <Logo transparent />
           <p className="mt-4 max-w-xs text-sm leading-6 text-[#4A5461]">
             Mỗi trang sách mở ra một thế giới.
             <br />
