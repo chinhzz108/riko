@@ -493,14 +493,14 @@ function Header() {
     <header
       className={`sticky top-0 z-30 border-b transition-[padding,background-color,border-color] duration-500 ${
         compact
-          ? "border-transparent px-3 py-2"
+          ? "border-transparent px-3 py-3"
           : "border-border/60 bg-background/95"
       }`}
     >
       <div
-        className={`mx-auto flex items-center justify-between transition-[height,border-radius,box-shadow] duration-500 ${
+        className={`mx-auto flex items-center justify-between transition-[height,max-width,border-radius,box-shadow] duration-500 ${
           compact
-            ? "h-17 max-w-[1160px] rounded-full border border-primary/10 bg-background/95 px-4 shadow-[0_8px_35px_#374BA010] backdrop-blur-md lg:px-7"
+            ? "h-17 max-w-[1000px] rounded-full border border-primary/10 bg-background/95 px-4 shadow-[0_10px_35px_#374BA018] backdrop-blur-md lg:px-7"
             : "h-23 max-w-[1240px] px-6 lg:px-10"
         }`}
       >
