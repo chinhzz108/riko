@@ -5,7 +5,7 @@ import rikoWelcome from "../assets/riko/welcome.png"
 
 const canvasWidth = 420
 const canvasHeight = 660
-const canvasFill = 0.8
+const canvasFill = 0.96
 
 export default function VideoMascot() {
   const { enabled } = useMotionPreferences()
