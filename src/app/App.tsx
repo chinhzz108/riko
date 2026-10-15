@@ -447,24 +447,17 @@ function Cover({
     </Tilt>
   )
 }
-function Logo({
-  compact = false,
-  transparent = false,
-}: { compact?: boolean; transparent?: boolean }) {
+function Logo({ transparent = false }: { transparent?: boolean }) {
   return (
     <Link
       to="/"
       aria-label="RIKOKID — Trang chủ"
-      className={`relative flex shrink-0 items-center justify-center overflow-hidden ${
-        compact ? "h-[68px] w-[136px]" : "h-[88px] w-[180px]"
-      }`}
+      className="relative flex h-[88px] w-[180px] shrink-0 items-center justify-center overflow-hidden"
     >
       <img
         src={transparent ? rikokidLogoTransparent : rikokidLogo}
         alt=""
-        className={`absolute left-1/2 max-w-none -translate-x-1/2 -translate-y-1/2 ${
-          compact ? "w-[170px]" : "w-[220px]"
-        }`}
+        className="absolute left-1/2 w-[220px] max-w-none -translate-x-1/2 -translate-y-1/2"
         style={{ top: "calc(50% - 2px)" }}
       />
     </Link>
@@ -472,14 +465,7 @@ function Logo({
 }
 function Header() {
   const [open, setOpen] = useState(false)
-  const [compact, setCompact] = useState(false)
   const { enabled } = useMotionPreferences()
-  useEffect(() => {
-    const updateCompact = () => setCompact(window.scrollY > 48)
-    updateCompact()
-    window.addEventListener("scroll", updateCompact, { passive: true })
-    return () => window.removeEventListener("scroll", updateCompact)
-  }, [])
   const { quantity } = useStore()
   const location = useLocation()
   useEffect(() => setOpen(false), [location])
@@ -493,20 +479,12 @@ function Header() {
   ]
   return (
     <header
-      className={`sticky top-0 z-30 border-b transition-[padding,background-color,border-color] duration-500 ${
-        compact
-          ? "border-transparent px-3 py-3"
-          : "border-border/60 bg-background/95"
-      }`}
+      className="sticky top-0 z-30 border-b border-border/60 bg-background/95"
     >
       <div
-        className={`mx-auto flex items-center justify-between transition-[height,max-width,border-radius,box-shadow] duration-500 ${
-          compact
-            ? "h-17 max-w-[1000px] rounded-full border border-primary/10 bg-background/95 px-4 shadow-[0_10px_35px_#374BA018] backdrop-blur-md lg:px-7"
-            : "h-23 max-w-[1240px] px-6 lg:px-10"
-        }`}
+        className="mx-auto flex h-23 max-w-[1240px] items-center justify-between px-6 lg:px-10"
       >
-        <Logo compact={compact} />
+        <Logo />
         <nav className="hidden items-center gap-6 lg:flex">
           {links.map(([label, path]) => (
             <Link
