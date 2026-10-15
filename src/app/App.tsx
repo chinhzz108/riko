@@ -60,8 +60,6 @@ import {
 import {
   motion,
   AnimatePresence,
-  useScroll,
-  useMotionValueEvent,
   useInView,
 } from "motion/react"
 import {
@@ -476,8 +474,12 @@ function Header() {
   const [open, setOpen] = useState(false)
   const [compact, setCompact] = useState(false)
   const { enabled } = useMotionPreferences()
-  const { scrollY } = useScroll()
-  useMotionValueEvent(scrollY, "change", (value) => setCompact(value > 72))
+  useEffect(() => {
+    const updateCompact = () => setCompact(window.scrollY > 48)
+    updateCompact()
+    window.addEventListener("scroll", updateCompact, { passive: true })
+    return () => window.removeEventListener("scroll", updateCompact)
+  }, [])
   const { quantity } = useStore()
   const location = useLocation()
   useEffect(() => setOpen(false), [location])
