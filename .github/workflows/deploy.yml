@@ -43,6 +43,43 @@ jobs:
       - name: Build site
         run: pnpm build
 
+      - name: Verify Cloudflare token and Pages access
+        if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
+        env:
+          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: fd0bbca78b8b2bf560e215f756e98e33
+          CF_PAGES_PROJECT: rikokid
+        run: |
+          node --input-type=module <<'NODE'
+          const token = process.env.CF_API_TOKEN?.trim();
+          if (!token) {
+            console.error("CLOUDFLARE_API_TOKEN is missing or empty in GitHub Actions.");
+            process.exit(1);
+          }
+
+          const headers = { Authorization: `Bearer ${token}` };
+          const tokenResponse = await fetch("https://api.cloudflare.com/client/v4/user/tokens/verify", { headers });
+          const tokenResult = await tokenResponse.json();
+          const tokenErrors = (tokenResult.errors ?? []).map((error) => error.code).join(",") || "none";
+          console.log(`Cloudflare token verification: HTTP ${tokenResponse.status}; status=${tokenResult.result?.status ?? "unknown"}; errors=${tokenErrors}`);
+          if (!tokenResponse.ok || tokenResult.result?.status !== "active") {
+            console.error("GitHub's CLOUDFLARE_API_TOKEN is not an active Cloudflare token.");
+            process.exit(1);
+          }
+
+          const projectUrl = `https://api.cloudflare.com/client/v4/accounts/${process.env.CF_ACCOUNT_ID}/pages/projects/${process.env.CF_PAGES_PROJECT}`;
+          const projectResponse = await fetch(projectUrl, { headers });
+          const projectResult = await projectResponse.json();
+          const projectErrors = (projectResult.errors ?? []).map((error) => error.code).join(",") || "none";
+          console.log(`Cloudflare Pages project access: HTTP ${projectResponse.status}; errors=${projectErrors}`);
+          if (!projectResponse.ok) {
+            console.error("The token is active but cannot access the rikokid Pages project in the configured account. Check Cloudflare Pages Edit permission, account resources, and the token owner's account access.");
+            process.exit(1);
+          }
+
+          console.log("Cloudflare token and Pages project access verified.");
+          NODE
+
       - name: Deploy Cloudflare Pages
         if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
         uses: cloudflare/wrangler-action@v4
