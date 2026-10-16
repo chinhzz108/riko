@@ -80,7 +80,6 @@ import {
   RikoLoading,
 } from "./Motion"
 import VideoMascot from "./VideoMascot"
-import QRCode from "qrcode"
 import {
   createOrder,
   createQuiz,
@@ -104,9 +103,9 @@ import {
   type QuizRecord,
   type VideoRecord,
 } from "../lib/appwrite"
-import rikoWelcome from "../assets/riko/welcome.png"
-import rikokidLogo from "../assets/rikokid-logo.png"
-import rikokidLogoTransparent from "../assets/rikokid-logo-transparent.png"
+import rikoWelcome from "../assets/riko/welcome.webp"
+import rikokidLogo from "../assets/rikokid-logo.webp"
+import rikokidLogoTransparent from "../assets/rikokid-logo-transparent.webp"
 import rikoHappy from "../assets/riko/happy.png"
 import rikoPointing from "../assets/riko/pointing.png"
 import rikoThinking from "../assets/riko/thinking.png"
@@ -457,6 +456,8 @@ function Logo({ transparent = false }: { transparent?: boolean }) {
       <img
         src={transparent ? rikokidLogoTransparent : rikokidLogo}
         alt=""
+        loading={transparent ? "lazy" : undefined}
+        decoding="async"
         className="absolute left-1/2 w-[220px] max-w-none -translate-x-1/2 -translate-y-1/2"
         style={{ top: "calc(50% - 2px)" }}
       />
@@ -693,13 +694,18 @@ function StoryQR() {
   const [image, setImage] = useState("")
   useEffect(() => {
     let active = true
-    QRCode.toDataURL(`${window.location.origin}/watch/1`, {
-      width: 300,
-      margin: 3,
-      color: { dark: "#374BA0", light: "#FFFFFF" },
-    }).then((value) => {
-      if (active) setImage(value)
-    })
+    import("qrcode")
+      .then(({ default: QRCode }) =>
+        QRCode.toDataURL(`${window.location.origin}/watch/1`, {
+          width: 300,
+          margin: 3,
+          color: { dark: "#374BA0", light: "#FFFFFF" },
+        }),
+      )
+      .then((value) => {
+        if (active) setImage(value)
+      })
+      .catch(() => undefined)
     return () => {
       active = false
     }
@@ -846,18 +852,18 @@ function Home() {
             render={(layer) => (
               <>
                 <motion.div
-                  className="brand-blob absolute inset-x-5 bottom-11 top-9 rounded-[46%_54%_42%_58%]"
+                  className="brand-blob absolute inset-x-5 bottom-11 top-9 z-0 rounded-[46%_54%_42%_58%]"
                   style={layer(0.4)}
                   aria-hidden="true"
                 />
                 <motion.div
-                  className="absolute inset-x-10 bottom-16 top-14 rotate-6 rounded-[50%] border-2 border-dashed border-[#3F97D2]/25"
+                  className="absolute inset-x-10 bottom-16 top-14 z-0 rotate-6 rounded-[50%] border-2 border-dashed border-[#3F97D2]/25"
                   style={layer(0.4)}
                   aria-hidden="true"
                 />
                 <motion.svg
                   viewBox="0 0 520 510"
-                  className="absolute inset-0 h-full w-full"
+                  className="absolute inset-0 z-0 h-full w-full"
                   style={layer(0.4)}
                   aria-hidden="true"
                 >
@@ -882,13 +888,13 @@ function Home() {
                   />
                 </motion.svg>
                 <motion.div
-                  className="absolute bottom-[2%] left-[19%] h-[96%] w-[62%] drop-shadow-[0_12px_10px_#374BA015]"
+                  className="absolute bottom-[2%] left-[19%] z-10 h-[96%] w-[62%] drop-shadow-[0_12px_10px_#374BA015]"
                   style={layer(-1)}
                 >
                   <VideoMascot />
                 </motion.div>
                 <motion.div
-                  className="pointer-events-none absolute inset-0"
+                  className="pointer-events-none absolute inset-0 z-20"
                   style={layer(1)}
                 >
                   <Floating
@@ -1886,6 +1892,8 @@ function VideoCard({ video }: { video: VideoItem }) {
                 <img
                   src={video.thumbnail}
                   alt={video.title}
+                  loading="lazy"
+                  decoding="async"
                   className="h-47 w-full object-cover"
                 />
               ) : (
@@ -3230,6 +3238,8 @@ function VideoAdmin() {
                         <img
                           src={video.thumbnail}
                           alt=""
+                          loading="lazy"
+                          decoding="async"
                           className="h-14 w-20 rounded-lg object-cover"
                         />
                       ) : (
@@ -3596,6 +3606,7 @@ function QRAdmin() {
   }, [selected, videos])
   async function generate() {
     if (!item) return
+    const { default: QRCode } = await import("qrcode")
     setPng(
       await QRCode.toDataURL(url, {
         width: 800,

@@ -20,7 +20,7 @@ import {
   AnimatePresence,
 } from "motion/react"
 import { Sparkles, Pause, Play, ArrowRight, Star } from "lucide-react"
-import rikoWelcome from "../assets/riko/welcome.png"
+import rikoWelcome from "../assets/riko/welcome.webp"
 
 const MotionContext = createContext({
   enabled: true,

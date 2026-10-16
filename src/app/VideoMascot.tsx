@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react"
 import { motion, useInView } from "motion/react"
 import { useMotionPreferences } from "./Motion"
-import rikoWelcome from "../assets/riko/welcome.png"
+import rikoWelcome from "../assets/riko/welcome.webp"
 
 const canvasWidth = 420
 const canvasHeight = 660
@@ -32,19 +32,19 @@ export default function VideoMascot() {
     let width = 0
     let height = 0
     let total = 0
-    let distances = new Uint8Array()
     let visited = new Uint8Array()
     let componentIds = new Uint32Array()
     let queue = new Int32Array()
     let frameRequest = 0
+    let playTimer = 0
     let lastTime = -1
     let disposed = false
     let referenceScale = 0
     let hasDrawnFrame = false
 
     const mobile = window.matchMedia("(max-width: 600px)").matches
-    const maxSourceWidth = mobile ? 240 : 320
-    const minFrameInterval = mobile ? 1 / 10 : 1 / 12
+    const maxSourceWidth = mobile ? 200 : 260
+    const minFrameInterval = mobile ? 1 / 8 : 1 / 10
 
     const sizeSource = () => {
       if (!video.videoWidth || !video.videoHeight) return false
@@ -56,7 +56,6 @@ export default function VideoMascot() {
       source.height = height
       if (output.width !== canvasWidth) output.width = canvasWidth
       if (output.height !== canvasHeight) output.height = canvasHeight
-      distances = new Uint8Array(total)
       visited = new Uint8Array(total)
       componentIds = new Uint32Array(total)
       queue = new Int32Array(total)
@@ -91,20 +90,18 @@ export default function VideoMascot() {
         return Math.round((values[1] + values[2]) / 2)
       })
 
-      for (let index = 0; index < total; index++) {
-        const offset = index * 4
-        distances[index] = Math.max(
-          Math.abs(pixels[offset] - background[0]),
-          Math.abs(pixels[offset + 1] - background[1]),
-          Math.abs(pixels[offset + 2] - background[2]),
-        )
-      }
-
       visited.fill(0)
       let head = 0
       let tail = 0
       const addBackdrop = (index: number) => {
-        if (visited[index] || distances[index] > 38) return
+        if (visited[index]) return
+        const offset = index * 4
+        const distance = Math.max(
+          Math.abs(pixels[offset] - background[0]),
+          Math.abs(pixels[offset + 1] - background[1]),
+          Math.abs(pixels[offset + 2] - background[2]),
+        )
+        if (distance > 38) return
         visited[index] = 1
         queue[tail++] = index
       }
@@ -238,16 +235,31 @@ export default function VideoMascot() {
     }
     const updatePlayback = () => {
       if (document.visibilityState !== "visible") {
+        if (playTimer) window.clearTimeout(playTimer)
+        playTimer = 0
         video.pause()
         stop()
         return
       }
       if (enabled && visible) {
-        void video.play().then(start).catch(() => draw())
+        if (video.paused && !playTimer) {
+          playTimer = window.setTimeout(() => {
+            playTimer = 0
+            if (
+              disposed ||
+              document.visibilityState !== "visible" ||
+              !enabled ||
+              !visible
+            ) return
+            void video.play().then(start).catch(() => draw())
+          }, 250)
+        }
       } else {
+        if (playTimer) window.clearTimeout(playTimer)
+        playTimer = 0
         video.pause()
         stop()
-        draw()
+        if (visible) draw()
       }
     }
     const onLoadedData = () => {
@@ -273,6 +285,7 @@ export default function VideoMascot() {
 
     return () => {
       disposed = true
+      if (playTimer) window.clearTimeout(playTimer)
       stop()
       video.pause()
       video.removeEventListener("loadedmetadata", sizeSource)
@@ -315,7 +328,7 @@ export default function VideoMascot() {
         muted
         loop
         playsInline
-        preload="auto"
+        preload="none"
         aria-hidden="true"
         className="pointer-events-none absolute -left-[9999px] h-px w-px opacity-0"
       />
