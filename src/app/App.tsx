@@ -888,7 +888,7 @@ function Home() {
                   />
                 </motion.svg>
                 <motion.div
-                  className="absolute bottom-[2%] left-[19%] z-10 h-[96%] w-[62%] drop-shadow-[0_12px_10px_#374BA015]"
+                  className="absolute bottom-[2%] left-[19%] z-30 h-[96%] w-[62%] drop-shadow-[0_12px_10px_#374BA015]"
                   style={layer(-1)}
                 >
                   <VideoMascot />
