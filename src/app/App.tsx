@@ -86,6 +86,7 @@ import {
   createVideo,
   deleteQuiz,
   deleteVideo,
+  getVideoByChapter,
   getVideoById,
   getAdminUser,
   isAppwriteConfigured,
@@ -138,6 +139,24 @@ const initialVideos: VideoItem[] = [
     duration: "02:58",
   },
 ]
+const qrVideoSlots = [
+  {
+    id: "chapter-1",
+    title: "Cánh cửa vào khu rừng kỳ diệu",
+    chapter: "Chương 1",
+  },
+  {
+    id: "chapter-2",
+    title: "Bí mật của những người bạn nhỏ",
+    chapter: "Chương 2",
+  },
+  {
+    id: "chapter-3",
+    title: "Đi tìm ngôi sao dũng cảm",
+    chapter: "Chương 3",
+  },
+] as const
+const publicSiteOrigin = "https://rikokid.pages.dev"
 const questions = [
   {
     text: "Riko đã tìm thấy gì trong khu rừng?",
@@ -474,7 +493,6 @@ function Header() {
     ["Trang chủ", "/"],
     ["Sách", "/book"],
     ["Khám phá", "/preview"],
-    ["Video", "/videos"],
     ["Quiz", "/quizzes"],
     ["Về Riko", "/about"],
   ]
@@ -576,7 +594,6 @@ function Footer() {
           [
             "Khám phá",
             ["Sách Riko", "/book"],
-            ["Video", "/videos"],
             ["Quiz & trò chơi", "/quizzes"],
           ],
           [
@@ -630,7 +647,7 @@ function Layout() {
             <MotionToggle />
             <Link
               to={
-                location.pathname.startsWith("/watch/") ? "/videos" : "/quizzes"
+                location.pathname.startsWith("/watch/") ? "/" : "/quizzes"
               }
               className="flex items-center gap-2 rounded-full border border-border bg-white p-3 text-base font-semibold text-primary"
               aria-label="Thoát"
@@ -638,7 +655,7 @@ function Layout() {
               <X size={18} />
               <span className="hidden sm:block">
                 {location.pathname.startsWith("/watch/")
-                  ? "Thư viện video"
+                  ? "Trang chủ"
                   : "Thoát"}
               </span>
             </Link>
@@ -696,7 +713,7 @@ function StoryQR() {
     let active = true
     import("qrcode")
       .then(({ default: QRCode }) =>
-        QRCode.toDataURL(`${window.location.origin}/watch/1`, {
+        QRCode.toDataURL(`${publicSiteOrigin}/watch/chapter-1`, {
           width: 300,
           margin: 3,
           color: { dark: "#374BA0", light: "#FFFFFF" },
@@ -1381,31 +1398,6 @@ function Home() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, amount: 0.08 }}
         transition={{ duration: 0.6 }}
-        className="mx-auto max-w-[1160px] px-6 py-15"
-      >
-        <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <Eyebrow>KHI TRANG SÁCH CẤT TIẾNG</Eyebrow>
-            <h2 className="text-3xl md:text-[40px]">Xem cùng Riko</h2>
-            <p className="mt-3 text-sm text-[#4A5461]">
-              Những câu chuyện sống động, những khám phá thật vui.
-            </p>
-          </div>
-          <Button secondary to="/videos">
-            Xem tất cả <ArrowRight size={16} />
-          </Button>
-        </div>
-        <div className="grid gap-6 md:grid-cols-3">
-          {initialVideos.map((video) => (
-            <VideoCard key={video.id} video={video} />
-          ))}
-        </div>
-      </motion.section>
-      <motion.section
-        initial={enabled ? { opacity: 0, y: 14 } : false}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.08 }}
-        transition={{ duration: 0.6 }}
         className="mx-auto max-w-[1160px] px-6"
       >
         <div className="grid items-center gap-10 rounded-[28px] bg-primary px-7 py-10 md:grid-cols-[1fr_1.1fr] md:px-12">
@@ -1987,37 +1979,89 @@ function Watch() {
   const { videos } = useStore()
   const location = useLocation()
   const videoId = location.pathname.split("/").pop() || ""
+  const slot = qrVideoSlots.find((videoSlot) => videoSlot.id === videoId)
   const [linkedVideo, setLinkedVideo] = useState<VideoItem | null>(null)
-  const item = videos.find((video) => video.id === videoId) || linkedVideo
+  const [resolving, setResolving] = useState(isAppwriteConfigured)
+  const item =
+    videos.find((video) => video.id === videoId) ||
+    (slot &&
+      videos.find(
+        (video) => video.chapter === slot.chapter && Boolean(video.url),
+      )) ||
+    linkedVideo
   const [playing, setPlaying] = useState(false)
   const [loading, setLoading] = useState(false)
   const [mediaError, setMediaError] = useState(false)
   const [finished, setFinished] = useState(false)
   const { enabled } = useMotionPreferences()
   useEffect(() => {
-    if (videos.some((video) => video.id === videoId) || !isAppwriteConfigured) return
+    const slotVideoReady = slot
+      ? videos.some(
+          (video) => video.chapter === slot.chapter && Boolean(video.url),
+        )
+      : videos.some((video) => video.id === videoId)
+    if (slotVideoReady) {
+      setResolving(false)
+      return
+    }
+    if (!isAppwriteConfigured) {
+      setResolving(false)
+      return
+    }
+    let active = true
     setLinkedVideo(null)
-    getVideoById(videoId).then(setLinkedVideo)
-  }, [videoId, videos])
+    setResolving(true)
+    const lookup = slot
+      ? getVideoByChapter(slot.chapter)
+      : getVideoById(videoId)
+    lookup.then((video) => {
+      if (!active) return
+      setLinkedVideo(video?.url ? video : null)
+      setResolving(false)
+    })
+    return () => {
+      active = false
+    }
+  }, [videoId, videos, slot])
   useEffect(() => {
     setPlaying(false)
     setLoading(false)
     setMediaError(false)
     setFinished(false)
   }, [location.pathname])
+  if (!item && resolving)
+    return (
+      <div className="mx-auto flex min-h-80 max-w-xl flex-col items-center justify-center px-6 py-12 text-center">
+        <RikoLoading label="Riko đang tìm câu chuyện này..." />
+      </div>
+    )
+  if (!item && slot)
+    return (
+      <div className="mx-auto max-w-xl px-6 py-12 text-center">
+        <Mascot pose="thinking" className="mx-auto h-48" />
+        <Eyebrow>{slot.chapter} · KHU RỪNG KỲ DIỆU</Eyebrow>
+        <h1 className="my-5 text-3xl">{slot.title}</h1>
+        <p className="mb-6 text-base leading-7 text-[#4A5461]">
+          Video chương này đang được chuẩn bị. Mã QR đã sẵn sàng; quét lại sau
+          khi video được tải lên nhé!
+        </p>
+        <Button to="/">Về trang chủ</Button>
+      </div>
+    )
   if (!item)
     return (
       <div className="mx-auto max-w-xl px-6 py-12 text-center">
         <Mascot pose="thinking" className="mx-auto h-48" />
         <h1 className="my-5 text-3xl">Câu chuyện đang chờ được mở!</h1>
         <p className="mb-6 text-base text-[#4A5461]">
-          Video này chưa có sẵn trong phiên hiện tại. Hãy khám phá những câu
-          chuyện khác cùng Riko nhé!
+          Câu chuyện này chưa có sẵn. Hãy quay lại sau nhé!
         </p>
-        <Button to="/videos">Khám phá video</Button>
+        <Button to="/">Về trang chủ</Button>
       </div>
     )
-  const nextVideo = videos[(videos.indexOf(item) + 1) % videos.length]
+  const nextVideo = videos.find(
+    (video) => video.id !== item.id && Boolean(video.url),
+  )
   return (
     <div className="mx-auto max-w-[900px] px-6 py-12">
       <Eyebrow>{item.chapter} · KHU RỪNG KỲ DIỆU</Eyebrow>
@@ -2117,9 +2161,11 @@ function Watch() {
         <Button to={`/quiz?chapter=${item.chapter.match(/\d/)?.[0] || 1}`}>
           <Gamepad2 size={18} /> Chơi Quiz
         </Button>
-        <Button secondary to={`/watch/${nextVideo.id}`}>
-          Video tiếp theo <ArrowRight size={16} />
-        </Button>
+        {nextVideo && (
+          <Button secondary to={`/watch/${nextVideo.id}`}>
+            Video tiếp theo <ArrowRight size={16} />
+          </Button>
+        )}
       </motion.div>
     </div>
   )
@@ -3600,7 +3646,7 @@ function QRAdmin() {
   const [svg, setSvg] = useState("")
   const [search, setSearch] = useState("")
   const item = videos.find((v) => v.id === selected)
-  const url = `${window.location.origin}/watch/${selected}`
+  const url = `${publicSiteOrigin}/watch/${selected}`
   useEffect(() => {
     if (!selected && videos[0]) setSelected(videos[0].id)
   }, [selected, videos])
@@ -3632,6 +3678,46 @@ function QRAdmin() {
   return (
     <>
       <AdminHeading title="Quản lý QR Code" />
+      <section className="mb-8 rounded-3xl border border-border bg-white p-6 sm:p-8">
+        <h2 className="text-2xl">Ba mã QR cố định theo chương</h2>
+        <p className="mt-3 max-w-3xl text-sm leading-7 text-[#4A5461]">
+          Có thể tải và in QR ngay. Sau này khi tải video lên, chọn đúng chương
+          tương ứng; mã QR này sẽ tự mở video mới mà không cần in lại.
+        </p>
+        <div className="mt-6 grid gap-5 md:grid-cols-3">
+          {qrVideoSlots.map((slot) => (
+            <article
+              key={slot.id}
+              className="rounded-2xl border border-primary/10 bg-[#FFFEF0] p-5 text-center"
+            >
+              <img
+                src={`/qr/riko-${slot.id}.png`}
+                alt={`Mã QR ${slot.chapter}: ${slot.title}`}
+                className="mx-auto mb-4 size-44 rounded-xl bg-white p-2"
+              />
+              <p className="text-xs font-bold uppercase tracking-wide text-[#1D80C4]">
+                {slot.chapter}
+              </p>
+              <h3 className="mt-2 min-h-12 text-base">{slot.title}</h3>
+              <p className="mt-2 break-all text-xs text-[#4A5461]">
+                {publicSiteOrigin}/watch/{slot.id}
+              </p>
+              <Button
+                secondary
+                className="mt-4"
+                onClick={() => {
+                  const link = document.createElement("a")
+                  link.href = `/qr/riko-${slot.id}.png`
+                  link.download = `rikokid-${slot.id}.png`
+                  link.click()
+                }}
+              >
+                <Download size={14} /> Tải mã QR
+              </Button>
+            </article>
+          ))}
+        </div>
+      </section>
       <div className="grid gap-7 lg:grid-cols-2">
         <div className="rounded-3xl border border-border bg-white p-7">
           <h3 className="mb-6 text-xl">Thông tin video</h3>
@@ -3649,9 +3735,13 @@ function QRAdmin() {
             Chọn video
             <select
               value={selected}
+              disabled={!videos.length}
               onChange={(event) => setSelected(event.target.value)}
               className="my-3 w-full rounded-xl border border-border p-4"
             >
+              {!videos.length && (
+                <option value="">Chưa có video tải lên</option>
+              )}
               {videos.map((v) => (
                 <option key={v.id} value={v.id}>
                   {v.title}
@@ -3700,7 +3790,10 @@ function QRAdmin() {
           ) : item ? (
             <RikoLoading label="Riko đang chuẩn bị mã QR..." />
           ) : (
-            <p className="p-10">Hãy tải video đầu tiên.</p>
+            <p className="p-10 text-sm leading-7 text-[#4A5461]">
+              QR cố định theo chương ở phía trên dùng được ngay, kể cả khi chưa
+              tải video lên.
+            </p>
           )}
           <div className="flex flex-wrap justify-center gap-2">
             <Button

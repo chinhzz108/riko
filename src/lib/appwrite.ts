@@ -154,6 +154,42 @@ export async function getVideoById(id: string): Promise<VideoRecord | null> {
   }
 }
 
+export async function getVideoByChapter(
+  chapter: string,
+): Promise<VideoRecord | null> {
+  requireAppwrite()
+  try {
+    const result = await tables.listRows({
+      databaseId: appwriteConfig.databaseId,
+      tableId: appwriteConfig.videosTableId,
+      queries: [
+        Query.equal("chapter", chapter),
+        Query.orderDesc("$createdAt"),
+        Query.limit(20),
+      ],
+    })
+    const row = result.rows.find((candidate) => Boolean(candidate.videoFileId))
+    if (!row) return null
+    const videoFileId = String(row.videoFileId)
+    const thumbnailFileId = String(row.thumbnailFileId || "")
+    return {
+      id: row.$id,
+      title: String(row.title || ""),
+      chapter: String(row.chapter || chapter),
+      duration: String(row.duration || "Video mới"),
+      description: String(row.description || ""),
+      visibility: String(row.visibility || "Chỉ qua đường dẫn"),
+      createdAt: new Date(row.$createdAt).toLocaleDateString("vi-VN"),
+      videoFileId,
+      thumbnailFileId,
+      url: fileViewUrl(videoFileId),
+      thumbnail: thumbnailFileId ? fileViewUrl(thumbnailFileId) : undefined,
+    }
+  } catch {
+    return null
+  }
+}
+
 export async function createVideo(input: {
   title: string
   description: string
