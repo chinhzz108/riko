@@ -156,7 +156,7 @@ const qrVideoSlots = [
     chapter: "Chương 3",
   },
 ] as const
-const publicSiteOrigin = "https://rikokid.pages.dev"
+const publicSiteOrigin = "https://rikokid.io.vn"
 const questions = [
   {
     text: "Riko đã tìm thấy gì trong khu rừng?",
