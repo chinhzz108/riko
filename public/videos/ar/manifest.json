@@ -1,0 +1,480 @@
+[
+  {
+    "id": "GT01",
+    "url": "/videos/ar/GT01.webm",
+    "source": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/GT01_car.mp4",
+    "bytes": 629711,
+    "pages": [
+      "book-c1-p03"
+    ]
+  },
+  {
+    "id": "GT02",
+    "url": "/videos/ar/GT02.webm",
+    "source": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/GT02_bus.mp4",
+    "bytes": 811944,
+    "pages": [
+      "book-c1-p04"
+    ]
+  },
+  {
+    "id": "GT03",
+    "url": "/videos/ar/GT03.webm",
+    "source": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/GT03_truck.mp4",
+    "bytes": 441597,
+    "pages": [
+      "book-c1-p05"
+    ]
+  },
+  {
+    "id": "GT04",
+    "url": "/videos/ar/GT04.webm",
+    "source": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/GT04_motorcycle.mp4",
+    "bytes": 827261,
+    "pages": [
+      "book-c1-p06"
+    ]
+  },
+  {
+    "id": "GT05",
+    "url": "/videos/ar/GT05.webm",
+    "source": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/GT05_bicycle.mp4",
+    "bytes": 1023064,
+    "pages": [
+      "book-c1-p07"
+    ]
+  },
+  {
+    "id": "GT06",
+    "url": "/videos/ar/GT06.webm",
+    "source": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/GT06_fire_truck.mp4",
+    "bytes": 1150103,
+    "pages": [
+      "book-c1-p08"
+    ]
+  },
+  {
+    "id": "GT07",
+    "url": "/videos/ar/GT07.webm",
+    "source": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/GT07_train.mp4",
+    "bytes": 397606,
+    "pages": [
+      "book-c1-p09"
+    ]
+  },
+  {
+    "id": "GT08",
+    "url": "/videos/ar/GT08.webm",
+    "source": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/GT08_ambulance.mp4",
+    "bytes": 615783,
+    "pages": [
+      "book-c1-p10"
+    ]
+  },
+  {
+    "id": "GT09",
+    "url": "/videos/ar/GT09.webm",
+    "source": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/GT09_excavator.mp4",
+    "bytes": 951867,
+    "pages": [
+      "book-c1-p11"
+    ]
+  },
+  {
+    "id": "GT10",
+    "url": "/videos/ar/GT10.webm",
+    "source": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/GT10_tractor.mp4",
+    "bytes": 1171637,
+    "pages": [
+      "book-c1-p12"
+    ]
+  },
+  {
+    "id": "DV01",
+    "url": "/videos/ar/DV01.webm",
+    "source": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/DV01_elephant.mp4",
+    "bytes": 1242712,
+    "pages": [
+      "book-c2-p04"
+    ]
+  },
+  {
+    "id": "DV02",
+    "url": "/videos/ar/DV02.webm",
+    "source": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/DV02_blue_whale.mp4",
+    "bytes": 595905,
+    "pages": [
+      "book-c2-p05"
+    ]
+  },
+  {
+    "id": "DV03",
+    "url": "/videos/ar/DV03.webm",
+    "source": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/DV03_owl.mp4",
+    "bytes": 786659,
+    "pages": [
+      "book-c2-p07"
+    ]
+  },
+  {
+    "id": "DV04",
+    "url": "/videos/ar/DV04.webm",
+    "source": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/DV04_penguin.mp4",
+    "bytes": 520309,
+    "pages": [
+      "book-c2-p08"
+    ]
+  },
+  {
+    "id": "DV05",
+    "url": "/videos/ar/DV05.webm",
+    "source": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/DV05_chameleon.mp4",
+    "bytes": 1854373,
+    "pages": [
+      "book-c2-p10"
+    ]
+  },
+  {
+    "id": "DV06",
+    "url": "/videos/ar/DV06.webm",
+    "source": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/DV06_crocodile.mp4",
+    "bytes": 1025486,
+    "pages": [
+      "book-c2-p11"
+    ]
+  },
+  {
+    "id": "DV07",
+    "url": "/videos/ar/DV07.webm",
+    "source": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/DV07_tree_frog.mp4",
+    "bytes": 513065,
+    "pages": [
+      "book-c2-p13"
+    ]
+  },
+  {
+    "id": "DV08",
+    "url": "/videos/ar/DV08.webm",
+    "source": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/DV08_stream_salamander.mp4",
+    "bytes": 1219146,
+    "pages": [
+      "book-c2-p14"
+    ]
+  },
+  {
+    "id": "DV09",
+    "url": "/videos/ar/DV09.webm",
+    "source": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/DV09_butterfly.mp4",
+    "bytes": 1061360,
+    "pages": [
+      "book-c2-p16"
+    ]
+  },
+  {
+    "id": "DV10",
+    "url": "/videos/ar/DV10.webm",
+    "source": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/DV10_honeybee.mp4",
+    "bytes": 779662,
+    "pages": [
+      "book-c2-p17"
+    ]
+  },
+  {
+    "id": "HTTN01",
+    "url": "/videos/ar/HTTN01.webm",
+    "source": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/HTTN01_rainbow.mp4",
+    "bytes": 147324,
+    "pages": [
+      "book-c3-p03"
+    ]
+  },
+  {
+    "id": "HTTN02",
+    "url": "/videos/ar/HTTN02.webm",
+    "source": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/HTTN02_hail.mp4",
+    "bytes": 5118889,
+    "pages": [
+      "book-c3-p05"
+    ]
+  },
+  {
+    "id": "HTTN03",
+    "url": "/videos/ar/HTTN03.webm",
+    "source": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/HTTN03_tornado.mp4",
+    "bytes": 695570,
+    "pages": [
+      "book-c3-p07",
+      "book-c3-p08"
+    ]
+  },
+  {
+    "id": "HTTN04",
+    "url": "/videos/ar/HTTN04.webm",
+    "source": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/HTTN04_floodwater.mp4",
+    "bytes": 8771106,
+    "pages": [
+      "book-c3-p10"
+    ]
+  },
+  {
+    "id": "HTTN05",
+    "url": "/videos/ar/HTTN05.webm",
+    "source": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/HTTN05_volcano.mp4",
+    "bytes": 1134124,
+    "pages": [
+      "book-c3-p12"
+    ]
+  },
+  {
+    "id": "HTTN06",
+    "url": "/videos/ar/HTTN06.webm",
+    "source": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/HTTN06_lightning.mp4",
+    "bytes": 223676,
+    "pages": [
+      "book-c3-p04"
+    ]
+  },
+  {
+    "id": "HTTN07",
+    "url": "/videos/ar/HTTN07.webm",
+    "source": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/HTTN07_snow.mp4",
+    "bytes": 4947706,
+    "pages": [
+      "book-c3-p06"
+    ]
+  },
+  {
+    "id": "HTTN08",
+    "url": "/videos/ar/HTTN08.webm",
+    "source": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/HTTN08_tropical_cyclone.mp4",
+    "bytes": 4574010,
+    "pages": [
+      "book-c3-p09"
+    ]
+  },
+  {
+    "id": "HTTN09",
+    "url": "/videos/ar/HTTN09.webm",
+    "source": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/HTTN09_earthquake.mp4",
+    "bytes": 728270,
+    "pages": [
+      "book-c3-p11"
+    ]
+  },
+  {
+    "id": "HTTN10",
+    "url": "/videos/ar/HTTN10.webm",
+    "source": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/HTTN10_tsunami.mp4",
+    "bytes": 4644432,
+    "pages": [
+      "book-c3-p13"
+    ]
+  },
+  {
+    "id": "HTTN11",
+    "url": "/videos/ar/HTTN11.webm",
+    "source": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/HTTN11_geyser.mp4",
+    "bytes": 8073920,
+    "pages": [
+      "book-c3-p14"
+    ]
+  },
+  {
+    "id": "HTTN12",
+    "url": "/videos/ar/HTTN12.webm",
+    "source": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/HTTN12_tides.mp4",
+    "bytes": 9180376,
+    "pages": [
+      "book-c3-p15"
+    ]
+  },
+  {
+    "id": "HTTN13",
+    "url": "/videos/ar/HTTN13.webm",
+    "source": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/HTTN13_aurora.mp4",
+    "bytes": 1268829,
+    "pages": [
+      "book-c3-p16"
+    ]
+  },
+  {
+    "id": "HTTN14",
+    "url": "/videos/ar/HTTN14.webm",
+    "source": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/HTTN14_solar_eclipse.mp4",
+    "bytes": 722150,
+    "pages": [
+      "book-c3-p17"
+    ]
+  },
+  {
+    "id": "HTTN15",
+    "url": "/videos/ar/HTTN15.webm",
+    "source": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/HTTN15_meteor_shower.mp4",
+    "bytes": 223858,
+    "pages": [
+      "book-c3-p18"
+    ]
+  },
+  {
+    "id": "RIKO",
+    "url": "/videos/ar/RIKO.webm",
+    "kind": "mascot",
+    "targets": [],
+    "bytes": 960573,
+    "pages": [
+      "book-c1-p01",
+      "book-c1-p02",
+      "book-c1-p14",
+      "book-c2-p01",
+      "book-c2-p02",
+      "book-c2-p19",
+      "book-c3-p01",
+      "book-c3-p02",
+      "book-c3-p21"
+    ]
+  },
+  {
+    "id": "RECAP_GT",
+    "url": "/videos/ar/RECAP_GT.webm",
+    "kind": "recap",
+    "targets": [
+      "GT01",
+      "GT02",
+      "GT03",
+      "GT04",
+      "GT05",
+      "GT06",
+      "GT07",
+      "GT08",
+      "GT09",
+      "GT10"
+    ],
+    "bytes": 235244,
+    "pages": [
+      "book-c1-p13"
+    ]
+  },
+  {
+    "id": "RECAP_DV_MAMMALS",
+    "url": "/videos/ar/RECAP_DV_MAMMALS.webm",
+    "kind": "chapter-intro",
+    "targets": [
+      "DV01",
+      "DV02"
+    ],
+    "bytes": 44093,
+    "pages": [
+      "book-c2-p03"
+    ]
+  },
+  {
+    "id": "RECAP_DV_BIRDS",
+    "url": "/videos/ar/RECAP_DV_BIRDS.webm",
+    "kind": "chapter-intro",
+    "targets": [
+      "DV03",
+      "DV04"
+    ],
+    "bytes": 80220,
+    "pages": [
+      "book-c2-p06"
+    ]
+  },
+  {
+    "id": "RECAP_DV_REPTILES",
+    "url": "/videos/ar/RECAP_DV_REPTILES.webm",
+    "kind": "chapter-intro",
+    "targets": [
+      "DV05",
+      "DV06"
+    ],
+    "bytes": 57649,
+    "pages": [
+      "book-c2-p09"
+    ]
+  },
+  {
+    "id": "RECAP_DV_AMPHIBIANS",
+    "url": "/videos/ar/RECAP_DV_AMPHIBIANS.webm",
+    "kind": "chapter-intro",
+    "targets": [
+      "DV07",
+      "DV08"
+    ],
+    "bytes": 66713,
+    "pages": [
+      "book-c2-p12"
+    ]
+  },
+  {
+    "id": "RECAP_DV_INSECTS",
+    "url": "/videos/ar/RECAP_DV_INSECTS.webm",
+    "kind": "chapter-intro",
+    "targets": [
+      "DV09",
+      "DV10"
+    ],
+    "bytes": 71110,
+    "pages": [
+      "book-c2-p15"
+    ]
+  },
+  {
+    "id": "RECAP_DV",
+    "url": "/videos/ar/RECAP_DV.webm",
+    "kind": "recap",
+    "targets": [
+      "DV01",
+      "DV02",
+      "DV03",
+      "DV04",
+      "DV05",
+      "DV06",
+      "DV07",
+      "DV08",
+      "DV09",
+      "DV10"
+    ],
+    "bytes": 335219,
+    "pages": [
+      "book-c2-p18"
+    ]
+  },
+  {
+    "id": "RECAP_HTTN_A",
+    "url": "/videos/ar/RECAP_HTTN_A.webm",
+    "kind": "recap",
+    "targets": [
+      "HTTN01",
+      "HTTN02",
+      "HTTN03",
+      "HTTN08",
+      "HTTN04",
+      "HTTN09",
+      "HTTN05",
+      "HTTN10",
+      "HTTN06",
+      "HTTN07"
+    ],
+    "bytes": 258613,
+    "pages": [
+      "book-c3-p19"
+    ]
+  },
+  {
+    "id": "RECAP_HTTN_B",
+    "url": "/videos/ar/RECAP_HTTN_B.webm",
+    "kind": "recap",
+    "targets": [
+      "HTTN11",
+      "HTTN12",
+      "HTTN13",
+      "HTTN14",
+      "HTTN15"
+    ],
+    "bytes": 255367,
+    "pages": [
+      "book-c3-p20"
+    ]
+  }
+]

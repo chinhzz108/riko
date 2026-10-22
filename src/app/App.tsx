@@ -1,4 +1,6 @@
 import {
+  lazy,
+  Suspense,
   useState,
   useEffect,
   useRef,
@@ -112,6 +114,15 @@ import rikoEncouraging from "../assets/riko/encouraging.png"
 import rikoActivity from "../assets/riko/activity.png"
 import rikoExplaining from "../assets/riko/explaining.png"
 import bookVideoManifest from "../data/bookVideoSlots.json"
+const ARScan = lazy(() => import("./ARScan"))
+
+function ARScanRoute() {
+  return (
+    <Suspense fallback={<main className="mx-auto max-w-3xl px-5 py-16 text-center text-primary">Đang tải công cụ quét AR…</main>}>
+      <ARScan />
+    </Suspense>
+  )
+}
 
 const money = (value: number) => value.toLocaleString("vi-VN") + "đ"
 const bookTitle = "Riko & khu rừng kỳ diệu"
@@ -125,6 +136,9 @@ type QRVideoSlot = {
   document: string
   page: number | null
   cover: "front" | "back" | null
+  arTargetId?: string | null
+  arVideoUrl?: string | null
+  pageClass?: string
 }
 const initialVideos: VideoItem[] = [
   {
@@ -249,7 +263,7 @@ type Context = {
   setQuizzes: (v: QuizRecord[]) => void
   score: number
   setScore: (n: number) => void
-  adminUser: { $id: string name: string email: string } | null
+  adminUser: { $id: string; name: string; email: string } | null
   authReady: boolean
   login: (email: string, password: string) => Promise<void>
   logout: () => Promise<void>
@@ -667,6 +681,7 @@ function Layout() {
   const { enabled } = useMotionPreferences()
   const immersive =
     location.pathname.startsWith("/watch/") ||
+    location.pathname === "/scan" ||
     ["/quiz", "/result"].includes(location.pathname)
   useEffect(() => {
     window.scrollTo(0, 0)
@@ -679,13 +694,13 @@ function Layout() {
           <div className="flex items-center gap-3">
             <MotionToggle />
             <Link
-              to={location.pathname.startsWith("/watch/") ? "/" : "/quizzes"}
+              to={location.pathname.startsWith("/watch/") || location.pathname === "/scan" ? "/" : "/quizzes"}
               className="flex items-center gap-2 rounded-full border border-border bg-white p-3 text-base font-semibold text-primary"
               aria-label="Thoát"
             >
               <X size={18} />
               <span className="hidden sm:block">
-                {location.pathname.startsWith("/watch/")
+                {location.pathname.startsWith("/watch/") || location.pathname === "/scan"
                   ? "Trang chủ"
                   : "Thoát"}
               </span>
@@ -1737,6 +1752,12 @@ function Book() {
           >
             <BookOpen size={16} /> Đọc thử cuốn sách
           </Link>
+          <Link
+            to="/scan"
+            className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-primary underline underline-offset-4"
+          >
+            <Camera size={16} /> Quét sách để mở video AR
+          </Link>
           <p className="mt-6 flex gap-2 text-xs text-[#4A5461]">
             <ShieldCheck size={16} /> Thanh toán an toàn · Giao hàng toàn quốc
           </p>
@@ -1995,9 +2016,18 @@ function Watch() {
   const location = useLocation()
   const videoId = location.pathname.split("/").pop() || ""
   const slot = qrVideoSlots.find((videoSlot) => videoSlot.id === videoId)
+  const localARVideo: VideoItem | null = slot?.arVideoUrl
+    ? {
+        id: slot.id,
+        title: slot.label,
+        chapter: slot.group,
+        duration: "",
+        url: slot.arVideoUrl,
+      }
+    : null
   const [linkedVideo, setLinkedVideo] = useState<VideoItem | null>(null)
   const [resolving, setResolving] = useState(isAppwriteConfigured)
-  const item =
+  const item = localARVideo ||
     videos.find((video) => video.id === videoId) ||
     (slot &&
       videos.find(
@@ -2010,11 +2040,11 @@ function Watch() {
   const [finished, setFinished] = useState(false)
   const { enabled } = useMotionPreferences()
   useEffect(() => {
-    const slotVideoReady = slot
+    const slotVideoReady = Boolean(slot?.arVideoUrl) || (slot
       ? videos.some(
           (video) => video.chapter === slot.chapter && Boolean(video.url),
         )
-      : videos.some((video) => video.id === videoId)
+      : videos.some((video) => video.id === videoId))
     if (slotVideoReady) {
       setResolving(false)
       return
@@ -2092,6 +2122,9 @@ function Watch() {
             <video
               src={item.url}
               controls
+              autoPlay={Boolean(slot?.arVideoUrl)}
+              muted={Boolean(slot?.arVideoUrl)}
+              playsInline
               poster={item.thumbnail}
               onLoadStart={() => setLoading(true)}
               onLoadedData={() => setLoading(false)}
@@ -4499,6 +4532,7 @@ const router = createBrowserRouter([
     children: [
       { index: true, Component: Home },
       { path: "book", Component: Book },
+      { path: "scan", Component: ARScanRoute },
       { path: "preview", Component: Preview },
       { path: "videos", Component: Videos },
       { path: "watch/:id", Component: Watch },

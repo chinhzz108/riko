@@ -42,7 +42,10 @@
       "group": "Chương 1",
       "document": "Chương 1.pdf",
       "page": 1,
-      "cover": "front"
+      "cover": "front",
+      "arTargetId": null,
+      "arVideoUrl": "/videos/ar/RIKO.webm",
+      "pageClass": "page_book_c1_p01"
     },
     {
       "id": "book-c1-p02",
@@ -52,7 +55,10 @@
       "group": "Chương 1",
       "document": "Chương 1.pdf",
       "page": 2,
-      "cover": "back"
+      "cover": "back",
+      "arTargetId": null,
+      "arVideoUrl": "/videos/ar/RIKO.webm",
+      "pageClass": "page_book_c1_p02"
     },
     {
       "id": "book-c1-p03",
@@ -62,7 +68,10 @@
       "group": "Chương 1",
       "document": "Chương 1.pdf",
       "page": 3,
-      "cover": null
+      "cover": null,
+      "arTargetId": "GT01",
+      "arVideoUrl": "/videos/ar/GT01.webm",
+      "pageClass": "page_book_c1_p03"
     },
     {
       "id": "book-c1-p04",
@@ -72,7 +81,10 @@
       "group": "Chương 1",
       "document": "Chương 1.pdf",
       "page": 4,
-      "cover": null
+      "cover": null,
+      "arTargetId": "GT02",
+      "arVideoUrl": "/videos/ar/GT02.webm",
+      "pageClass": "page_book_c1_p04"
     },
     {
       "id": "book-c1-p05",
@@ -82,7 +94,10 @@
       "group": "Chương 1",
       "document": "Chương 1.pdf",
       "page": 5,
-      "cover": null
+      "cover": null,
+      "arTargetId": "GT03",
+      "arVideoUrl": "/videos/ar/GT03.webm",
+      "pageClass": "page_book_c1_p05"
     },
     {
       "id": "book-c1-p06",
@@ -92,7 +107,10 @@
       "group": "Chương 1",
       "document": "Chương 1.pdf",
       "page": 6,
-      "cover": null
+      "cover": null,
+      "arTargetId": "GT04",
+      "arVideoUrl": "/videos/ar/GT04.webm",
+      "pageClass": "page_book_c1_p06"
     },
     {
       "id": "book-c1-p07",
@@ -102,7 +120,10 @@
       "group": "Chương 1",
       "document": "Chương 1.pdf",
       "page": 7,
-      "cover": null
+      "cover": null,
+      "arTargetId": "GT05",
+      "arVideoUrl": "/videos/ar/GT05.webm",
+      "pageClass": "page_book_c1_p07"
     },
     {
       "id": "book-c1-p08",
@@ -112,7 +133,10 @@
       "group": "Chương 1",
       "document": "Chương 1.pdf",
       "page": 8,
-      "cover": null
+      "cover": null,
+      "arTargetId": "GT06",
+      "arVideoUrl": "/videos/ar/GT06.webm",
+      "pageClass": "page_book_c1_p08"
     },
     {
       "id": "book-c1-p09",
@@ -122,7 +146,10 @@
       "group": "Chương 1",
       "document": "Chương 1.pdf",
       "page": 9,
-      "cover": null
+      "cover": null,
+      "arTargetId": "GT07",
+      "arVideoUrl": "/videos/ar/GT07.webm",
+      "pageClass": "page_book_c1_p09"
     },
     {
       "id": "book-c1-p10",
@@ -132,7 +159,10 @@
       "group": "Chương 1",
       "document": "Chương 1.pdf",
       "page": 10,
-      "cover": null
+      "cover": null,
+      "arTargetId": "GT08",
+      "arVideoUrl": "/videos/ar/GT08.webm",
+      "pageClass": "page_book_c1_p10"
     },
     {
       "id": "book-c1-p11",
@@ -142,7 +172,10 @@
       "group": "Chương 1",
       "document": "Chương 1.pdf",
       "page": 11,
-      "cover": null
+      "cover": null,
+      "arTargetId": "GT09",
+      "arVideoUrl": "/videos/ar/GT09.webm",
+      "pageClass": "page_book_c1_p11"
     },
     {
       "id": "book-c1-p12",
@@ -152,7 +185,10 @@
       "group": "Chương 1",
       "document": "Chương 1.pdf",
       "page": 12,
-      "cover": null
+      "cover": null,
+      "arTargetId": "GT10",
+      "arVideoUrl": "/videos/ar/GT10.webm",
+      "pageClass": "page_book_c1_p12"
     },
     {
       "id": "book-c1-p13",
@@ -162,7 +198,10 @@
       "group": "Chương 1",
       "document": "Chương 1.pdf",
       "page": 13,
-      "cover": null
+      "cover": null,
+      "arTargetId": null,
+      "arVideoUrl": "/videos/ar/RECAP_GT.webm",
+      "pageClass": "page_book_c1_p13"
     },
     {
       "id": "book-c1-p14",
@@ -172,7 +211,10 @@
       "group": "Chương 1",
       "document": "Chương 1.pdf",
       "page": 14,
-      "cover": null
+      "cover": null,
+      "arTargetId": null,
+      "arVideoUrl": "/videos/ar/RIKO.webm",
+      "pageClass": "page_book_c1_p14"
     },
     {
       "id": "book-c2-p01",
@@ -182,7 +224,10 @@
       "group": "Chương 2",
       "document": "Chương 2.pdf",
       "page": 1,
-      "cover": "front"
+      "cover": "front",
+      "arTargetId": null,
+      "arVideoUrl": "/videos/ar/RIKO.webm",
+      "pageClass": "page_book_c2_p01"
     },
     {
       "id": "book-c2-p02",
@@ -192,7 +237,10 @@
       "group": "Chương 2",
       "document": "Chương 2.pdf",
       "page": 2,
-      "cover": "back"
+      "cover": "back",
+      "arTargetId": null,
+      "arVideoUrl": "/videos/ar/RIKO.webm",
+      "pageClass": "page_book_c2_p02"
     },
     {
       "id": "book-c2-p03",
@@ -202,7 +250,10 @@
       "group": "Chương 2",
       "document": "Chương 2.pdf",
       "page": 3,
-      "cover": null
+      "cover": null,
+      "arTargetId": null,
+      "arVideoUrl": "/videos/ar/RECAP_DV_MAMMALS.webm",
+      "pageClass": "page_book_c2_p03"
     },
     {
       "id": "book-c2-p04",
@@ -212,7 +263,10 @@
       "group": "Chương 2",
       "document": "Chương 2.pdf",
       "page": 4,
-      "cover": null
+      "cover": null,
+      "arTargetId": "DV01",
+      "arVideoUrl": "/videos/ar/DV01.webm",
+      "pageClass": "page_book_c2_p04"
     },
     {
       "id": "book-c2-p05",
@@ -222,7 +276,10 @@
       "group": "Chương 2",
       "document": "Chương 2.pdf",
       "page": 5,
-      "cover": null
+      "cover": null,
+      "arTargetId": "DV02",
+      "arVideoUrl": "/videos/ar/DV02.webm",
+      "pageClass": "page_book_c2_p05"
     },
     {
       "id": "book-c2-p06",
@@ -232,7 +289,10 @@
       "group": "Chương 2",
       "document": "Chương 2.pdf",
       "page": 6,
-      "cover": null
+      "cover": null,
+      "arTargetId": null,
+      "arVideoUrl": "/videos/ar/RECAP_DV_BIRDS.webm",
+      "pageClass": "page_book_c2_p06"
     },
     {
       "id": "book-c2-p07",
@@ -242,7 +302,10 @@
       "group": "Chương 2",
       "document": "Chương 2.pdf",
       "page": 7,
-      "cover": null
+      "cover": null,
+      "arTargetId": "DV03",
+      "arVideoUrl": "/videos/ar/DV03.webm",
+      "pageClass": "page_book_c2_p07"
     },
     {
       "id": "book-c2-p08",
@@ -252,7 +315,10 @@
       "group": "Chương 2",
       "document": "Chương 2.pdf",
       "page": 8,
-      "cover": null
+      "cover": null,
+      "arTargetId": "DV04",
+      "arVideoUrl": "/videos/ar/DV04.webm",
+      "pageClass": "page_book_c2_p08"
     },
     {
       "id": "book-c2-p09",
@@ -262,7 +328,10 @@
       "group": "Chương 2",
       "document": "Chương 2.pdf",
       "page": 9,
-      "cover": null
+      "cover": null,
+      "arTargetId": null,
+      "arVideoUrl": "/videos/ar/RECAP_DV_REPTILES.webm",
+      "pageClass": "page_book_c2_p09"
     },
     {
       "id": "book-c2-p10",
@@ -272,7 +341,10 @@
       "group": "Chương 2",
       "document": "Chương 2.pdf",
       "page": 10,
-      "cover": null
+      "cover": null,
+      "arTargetId": "DV05",
+      "arVideoUrl": "/videos/ar/DV05.webm",
+      "pageClass": "page_book_c2_p10"
     },
     {
       "id": "book-c2-p11",
@@ -282,7 +354,10 @@
       "group": "Chương 2",
       "document": "Chương 2.pdf",
       "page": 11,
-      "cover": null
+      "cover": null,
+      "arTargetId": "DV06",
+      "arVideoUrl": "/videos/ar/DV06.webm",
+      "pageClass": "page_book_c2_p11"
     },
     {
       "id": "book-c2-p12",
@@ -292,7 +367,10 @@
       "group": "Chương 2",
       "document": "Chương 2.pdf",
       "page": 12,
-      "cover": null
+      "cover": null,
+      "arTargetId": null,
+      "arVideoUrl": "/videos/ar/RECAP_DV_AMPHIBIANS.webm",
+      "pageClass": "page_book_c2_p12"
     },
     {
       "id": "book-c2-p13",
@@ -302,7 +380,10 @@
       "group": "Chương 2",
       "document": "Chương 2.pdf",
       "page": 13,
-      "cover": null
+      "cover": null,
+      "arTargetId": "DV07",
+      "arVideoUrl": "/videos/ar/DV07.webm",
+      "pageClass": "page_book_c2_p13"
     },
     {
       "id": "book-c2-p14",
@@ -312,7 +393,10 @@
       "group": "Chương 2",
       "document": "Chương 2.pdf",
       "page": 14,
-      "cover": null
+      "cover": null,
+      "arTargetId": "DV08",
+      "arVideoUrl": "/videos/ar/DV08.webm",
+      "pageClass": "page_book_c2_p14"
     },
     {
       "id": "book-c2-p15",
@@ -322,7 +406,10 @@
       "group": "Chương 2",
       "document": "Chương 2.pdf",
       "page": 15,
-      "cover": null
+      "cover": null,
+      "arTargetId": null,
+      "arVideoUrl": "/videos/ar/RECAP_DV_INSECTS.webm",
+      "pageClass": "page_book_c2_p15"
     },
     {
       "id": "book-c2-p16",
@@ -332,7 +419,10 @@
       "group": "Chương 2",
       "document": "Chương 2.pdf",
       "page": 16,
-      "cover": null
+      "cover": null,
+      "arTargetId": "DV09",
+      "arVideoUrl": "/videos/ar/DV09.webm",
+      "pageClass": "page_book_c2_p16"
     },
     {
       "id": "book-c2-p17",
@@ -342,7 +432,10 @@
       "group": "Chương 2",
       "document": "Chương 2.pdf",
       "page": 17,
-      "cover": null
+      "cover": null,
+      "arTargetId": "DV10",
+      "arVideoUrl": "/videos/ar/DV10.webm",
+      "pageClass": "page_book_c2_p17"
     },
     {
       "id": "book-c2-p18",
@@ -352,7 +445,10 @@
       "group": "Chương 2",
       "document": "Chương 2.pdf",
       "page": 18,
-      "cover": null
+      "cover": null,
+      "arTargetId": null,
+      "arVideoUrl": "/videos/ar/RECAP_DV.webm",
+      "pageClass": "page_book_c2_p18"
     },
     {
       "id": "book-c2-p19",
@@ -362,7 +458,10 @@
       "group": "Chương 2",
       "document": "Chương 2.pdf",
       "page": 19,
-      "cover": null
+      "cover": null,
+      "arTargetId": null,
+      "arVideoUrl": "/videos/ar/RIKO.webm",
+      "pageClass": "page_book_c2_p19"
     },
     {
       "id": "book-c3-p01",
@@ -372,7 +471,10 @@
       "group": "Chương 3",
       "document": "Chương 3.pdf",
       "page": 1,
-      "cover": "front"
+      "cover": "front",
+      "arTargetId": null,
+      "arVideoUrl": "/videos/ar/RIKO.webm",
+      "pageClass": "page_book_c3_p01"
     },
     {
       "id": "book-c3-p02",
@@ -382,7 +484,10 @@
       "group": "Chương 3",
       "document": "Chương 3.pdf",
       "page": 2,
-      "cover": "back"
+      "cover": "back",
+      "arTargetId": null,
+      "arVideoUrl": "/videos/ar/RIKO.webm",
+      "pageClass": "page_book_c3_p02"
     },
     {
       "id": "book-c3-p03",
@@ -392,7 +497,10 @@
       "group": "Chương 3",
       "document": "Chương 3.pdf",
       "page": 3,
-      "cover": null
+      "cover": null,
+      "arTargetId": "HTTN01",
+      "arVideoUrl": "/videos/ar/HTTN01.webm",
+      "pageClass": "page_book_c3_p03"
     },
     {
       "id": "book-c3-p04",
@@ -402,7 +510,10 @@
       "group": "Chương 3",
       "document": "Chương 3.pdf",
       "page": 4,
-      "cover": null
+      "cover": null,
+      "arTargetId": "HTTN06",
+      "arVideoUrl": "/videos/ar/HTTN06.webm",
+      "pageClass": "page_book_c3_p04"
     },
     {
       "id": "book-c3-p05",
@@ -412,7 +523,10 @@
       "group": "Chương 3",
       "document": "Chương 3.pdf",
       "page": 5,
-      "cover": null
+      "cover": null,
+      "arTargetId": "HTTN02",
+      "arVideoUrl": "/videos/ar/HTTN02.webm",
+      "pageClass": "page_book_c3_p05"
     },
     {
       "id": "book-c3-p06",
@@ -422,7 +536,10 @@
       "group": "Chương 3",
       "document": "Chương 3.pdf",
       "page": 6,
-      "cover": null
+      "cover": null,
+      "arTargetId": "HTTN07",
+      "arVideoUrl": "/videos/ar/HTTN07.webm",
+      "pageClass": "page_book_c3_p06"
     },
     {
       "id": "book-c3-p07",
@@ -432,7 +549,10 @@
       "group": "Chương 3",
       "document": "Chương 3.pdf",
       "page": 7,
-      "cover": null
+      "cover": null,
+      "arTargetId": "HTTN03",
+      "arVideoUrl": "/videos/ar/HTTN03.webm",
+      "pageClass": "page_book_c3_p07"
     },
     {
       "id": "book-c3-p08",
@@ -442,7 +562,10 @@
       "group": "Chương 3",
       "document": "Chương 3.pdf",
       "page": 8,
-      "cover": null
+      "cover": null,
+      "arTargetId": "HTTN03",
+      "arVideoUrl": "/videos/ar/HTTN03.webm",
+      "pageClass": "page_book_c3_p08"
     },
     {
       "id": "book-c3-p09",
@@ -452,7 +575,10 @@
       "group": "Chương 3",
       "document": "Chương 3.pdf",
       "page": 9,
-      "cover": null
+      "cover": null,
+      "arTargetId": "HTTN08",
+      "arVideoUrl": "/videos/ar/HTTN08.webm",
+      "pageClass": "page_book_c3_p09"
     },
     {
       "id": "book-c3-p10",
@@ -462,7 +588,10 @@
       "group": "Chương 3",
       "document": "Chương 3.pdf",
       "page": 10,
-      "cover": null
+      "cover": null,
+      "arTargetId": "HTTN04",
+      "arVideoUrl": "/videos/ar/HTTN04.webm",
+      "pageClass": "page_book_c3_p10"
     },
     {
       "id": "book-c3-p11",
@@ -472,7 +601,10 @@
       "group": "Chương 3",
       "document": "Chương 3.pdf",
       "page": 11,
-      "cover": null
+      "cover": null,
+      "arTargetId": "HTTN09",
+      "arVideoUrl": "/videos/ar/HTTN09.webm",
+      "pageClass": "page_book_c3_p11"
     },
     {
       "id": "book-c3-p12",
@@ -482,7 +614,10 @@
       "group": "Chương 3",
       "document": "Chương 3.pdf",
       "page": 12,
-      "cover": null
+      "cover": null,
+      "arTargetId": "HTTN05",
+      "arVideoUrl": "/videos/ar/HTTN05.webm",
+      "pageClass": "page_book_c3_p12"
     },
     {
       "id": "book-c3-p13",
@@ -492,7 +627,10 @@
       "group": "Chương 3",
       "document": "Chương 3.pdf",
       "page": 13,
-      "cover": null
+      "cover": null,
+      "arTargetId": "HTTN10",
+      "arVideoUrl": "/videos/ar/HTTN10.webm",
+      "pageClass": "page_book_c3_p13"
     },
     {
       "id": "book-c3-p14",
@@ -502,7 +640,10 @@
       "group": "Chương 3",
       "document": "Chương 3.pdf",
       "page": 14,
-      "cover": null
+      "cover": null,
+      "arTargetId": "HTTN11",
+      "arVideoUrl": "/videos/ar/HTTN11.webm",
+      "pageClass": "page_book_c3_p14"
     },
     {
       "id": "book-c3-p15",
@@ -512,7 +653,10 @@
       "group": "Chương 3",
       "document": "Chương 3.pdf",
       "page": 15,
-      "cover": null
+      "cover": null,
+      "arTargetId": "HTTN12",
+      "arVideoUrl": "/videos/ar/HTTN12.webm",
+      "pageClass": "page_book_c3_p15"
     },
     {
       "id": "book-c3-p16",
@@ -522,7 +666,10 @@
       "group": "Chương 3",
       "document": "Chương 3.pdf",
       "page": 16,
-      "cover": null
+      "cover": null,
+      "arTargetId": "HTTN13",
+      "arVideoUrl": "/videos/ar/HTTN13.webm",
+      "pageClass": "page_book_c3_p16"
     },
     {
       "id": "book-c3-p17",
@@ -532,7 +679,10 @@
       "group": "Chương 3",
       "document": "Chương 3.pdf",
       "page": 17,
-      "cover": null
+      "cover": null,
+      "arTargetId": "HTTN14",
+      "arVideoUrl": "/videos/ar/HTTN14.webm",
+      "pageClass": "page_book_c3_p17"
     },
     {
       "id": "book-c3-p18",
@@ -542,7 +692,10 @@
       "group": "Chương 3",
       "document": "Chương 3.pdf",
       "page": 18,
-      "cover": null
+      "cover": null,
+      "arTargetId": "HTTN15",
+      "arVideoUrl": "/videos/ar/HTTN15.webm",
+      "pageClass": "page_book_c3_p18"
     },
     {
       "id": "book-c3-p19",
@@ -552,7 +705,10 @@
       "group": "Chương 3",
       "document": "Chương 3.pdf",
       "page": 19,
-      "cover": null
+      "cover": null,
+      "arTargetId": null,
+      "arVideoUrl": "/videos/ar/RECAP_HTTN_A.webm",
+      "pageClass": "page_book_c3_p19"
     },
     {
       "id": "book-c3-p20",
@@ -562,7 +718,10 @@
       "group": "Chương 3",
       "document": "Chương 3.pdf",
       "page": 20,
-      "cover": null
+      "cover": null,
+      "arTargetId": null,
+      "arVideoUrl": "/videos/ar/RECAP_HTTN_B.webm",
+      "pageClass": "page_book_c3_p20"
     },
     {
       "id": "book-c3-p21",
@@ -572,7 +731,10 @@
       "group": "Chương 3",
       "document": "Chương 3.pdf",
       "page": 21,
-      "cover": null
+      "cover": null,
+      "arTargetId": null,
+      "arVideoUrl": "/videos/ar/RIKO.webm",
+      "pageClass": "page_book_c3_p21"
     }
   ]
 }

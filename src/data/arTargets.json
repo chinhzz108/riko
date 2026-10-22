@@ -1,0 +1,363 @@
+{
+  "modelInputSize": 320,
+  "minimumConfidence": 0.55,
+  "stableFramesRequired": 3,
+  "primaryOrder": [
+    "popup_detection",
+    "page_detection"
+  ],
+  "fallback": "qr",
+  "targets": [
+    {
+      "id": "GT01",
+      "label": "Ô tô / Car",
+      "pages": [
+        "book-c1-p03"
+      ],
+      "popupLabel": "popup_GT01",
+      "videoUrl": "/videos/ar/GT01.webm",
+      "sourceMp4": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/GT01_car.mp4"
+    },
+    {
+      "id": "GT02",
+      "label": "Xe buýt / Bus",
+      "pages": [
+        "book-c1-p04"
+      ],
+      "popupLabel": "popup_GT02",
+      "videoUrl": "/videos/ar/GT02.webm",
+      "sourceMp4": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/GT02_bus.mp4"
+    },
+    {
+      "id": "GT03",
+      "label": "Xe tải / Truck",
+      "pages": [
+        "book-c1-p05"
+      ],
+      "popupLabel": "popup_GT03",
+      "videoUrl": "/videos/ar/GT03.webm",
+      "sourceMp4": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/GT03_truck.mp4"
+    },
+    {
+      "id": "GT04",
+      "label": "Xe máy / Motorcycle",
+      "pages": [
+        "book-c1-p06"
+      ],
+      "popupLabel": "popup_GT04",
+      "videoUrl": "/videos/ar/GT04.webm",
+      "sourceMp4": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/GT04_motorcycle.mp4"
+    },
+    {
+      "id": "GT05",
+      "label": "Xe đạp / Bicycle",
+      "pages": [
+        "book-c1-p07"
+      ],
+      "popupLabel": "popup_GT05",
+      "videoUrl": "/videos/ar/GT05.webm",
+      "sourceMp4": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/GT05_bicycle.mp4"
+    },
+    {
+      "id": "GT06",
+      "label": "Xe cứu hỏa / Fire truck",
+      "pages": [
+        "book-c1-p08"
+      ],
+      "popupLabel": "popup_GT06",
+      "videoUrl": "/videos/ar/GT06.webm",
+      "sourceMp4": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/GT06_fire_truck.mp4"
+    },
+    {
+      "id": "GT07",
+      "label": "Tàu hỏa / Train",
+      "pages": [
+        "book-c1-p09"
+      ],
+      "popupLabel": "popup_GT07",
+      "videoUrl": "/videos/ar/GT07.webm",
+      "sourceMp4": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/GT07_train.mp4"
+    },
+    {
+      "id": "GT08",
+      "label": "Xe cứu thương / Ambulance",
+      "pages": [
+        "book-c1-p10"
+      ],
+      "popupLabel": "popup_GT08",
+      "videoUrl": "/videos/ar/GT08.webm",
+      "sourceMp4": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/GT08_ambulance.mp4"
+    },
+    {
+      "id": "GT09",
+      "label": "Máy xúc / Excavator",
+      "pages": [
+        "book-c1-p11"
+      ],
+      "popupLabel": "popup_GT09",
+      "videoUrl": "/videos/ar/GT09.webm",
+      "sourceMp4": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/GT09_excavator.mp4"
+    },
+    {
+      "id": "GT10",
+      "label": "Máy kéo / Tractor",
+      "pages": [
+        "book-c1-p12"
+      ],
+      "popupLabel": "popup_GT10",
+      "videoUrl": "/videos/ar/GT10.webm",
+      "sourceMp4": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/GT10_tractor.mp4"
+    },
+    {
+      "id": "DV01",
+      "label": "Voi rừng / Wild elephant",
+      "pages": [
+        "book-c2-p04"
+      ],
+      "popupLabel": "popup_DV01",
+      "videoUrl": "/videos/ar/DV01.webm",
+      "sourceMp4": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/DV01_elephant.mp4"
+    },
+    {
+      "id": "DV02",
+      "label": "Cá voi xanh / Blue whale",
+      "pages": [
+        "book-c2-p05"
+      ],
+      "popupLabel": "popup_DV02",
+      "videoUrl": "/videos/ar/DV02.webm",
+      "sourceMp4": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/DV02_blue_whale.mp4"
+    },
+    {
+      "id": "DV03",
+      "label": "Cú mèo / Owl",
+      "pages": [
+        "book-c2-p07"
+      ],
+      "popupLabel": "popup_DV03",
+      "videoUrl": "/videos/ar/DV03.webm",
+      "sourceMp4": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/DV03_owl.mp4"
+    },
+    {
+      "id": "DV04",
+      "label": "Chim cánh cụt / Penguin",
+      "pages": [
+        "book-c2-p08"
+      ],
+      "popupLabel": "popup_DV04",
+      "videoUrl": "/videos/ar/DV04.webm",
+      "sourceMp4": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/DV04_penguin.mp4"
+    },
+    {
+      "id": "DV05",
+      "label": "Tắc kè hoa / Chameleon",
+      "pages": [
+        "book-c2-p10"
+      ],
+      "popupLabel": "popup_DV05",
+      "videoUrl": "/videos/ar/DV05.webm",
+      "sourceMp4": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/DV05_chameleon.mp4"
+    },
+    {
+      "id": "DV06",
+      "label": "Cá sấu / Crocodile",
+      "pages": [
+        "book-c2-p11"
+      ],
+      "popupLabel": "popup_DV06",
+      "videoUrl": "/videos/ar/DV06.webm",
+      "sourceMp4": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/DV06_crocodile.mp4"
+    },
+    {
+      "id": "DV07",
+      "label": "Ếch cây / Tree frog",
+      "pages": [
+        "book-c2-p13"
+      ],
+      "popupLabel": "popup_DV07",
+      "videoUrl": "/videos/ar/DV07.webm",
+      "sourceMp4": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/DV07_tree_frog.mp4"
+    },
+    {
+      "id": "DV08",
+      "label": "Kỳ giông suối / Stream salamander",
+      "pages": [
+        "book-c2-p14"
+      ],
+      "popupLabel": "popup_DV08",
+      "videoUrl": "/videos/ar/DV08.webm",
+      "sourceMp4": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/DV08_stream_salamander.mp4"
+    },
+    {
+      "id": "DV09",
+      "label": "Bướm hoa / Butterfly",
+      "pages": [
+        "book-c2-p16"
+      ],
+      "popupLabel": "popup_DV09",
+      "videoUrl": "/videos/ar/DV09.webm",
+      "sourceMp4": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/DV09_butterfly.mp4"
+    },
+    {
+      "id": "DV10",
+      "label": "Ong mật / Honeybee",
+      "pages": [
+        "book-c2-p17"
+      ],
+      "popupLabel": "popup_DV10",
+      "videoUrl": "/videos/ar/DV10.webm",
+      "sourceMp4": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/DV10_honeybee.mp4"
+    },
+    {
+      "id": "HTTN01",
+      "label": "Cầu vồng / Rainbow",
+      "pages": [
+        "book-c3-p03"
+      ],
+      "popupLabel": "popup_HTTN01",
+      "videoUrl": "/videos/ar/HTTN01.webm",
+      "sourceMp4": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/HTTN01_rainbow.mp4"
+    },
+    {
+      "id": "HTTN02",
+      "label": "Mưa đá / Hail",
+      "pages": [
+        "book-c3-p05"
+      ],
+      "popupLabel": "popup_HTTN02",
+      "videoUrl": "/videos/ar/HTTN02.webm",
+      "sourceMp4": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/HTTN02_hail.mp4"
+    },
+    {
+      "id": "HTTN03",
+      "label": "Lốc xoáy / Tornado",
+      "pages": [
+        "book-c3-p07",
+        "book-c3-p08"
+      ],
+      "popupLabel": "popup_HTTN03",
+      "videoUrl": "/videos/ar/HTTN03.webm",
+      "sourceMp4": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/HTTN03_tornado.mp4"
+    },
+    {
+      "id": "HTTN04",
+      "label": "Lũ và lũ quét / Floods and flash floods",
+      "pages": [
+        "book-c3-p10"
+      ],
+      "popupLabel": "popup_HTTN04",
+      "videoUrl": "/videos/ar/HTTN04.webm",
+      "sourceMp4": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/HTTN04_floodwater.mp4"
+    },
+    {
+      "id": "HTTN05",
+      "label": "Núi lửa / Volcano",
+      "pages": [
+        "book-c3-p12"
+      ],
+      "popupLabel": "popup_HTTN05",
+      "videoUrl": "/videos/ar/HTTN05.webm",
+      "sourceMp4": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/HTTN05_volcano.mp4"
+    },
+    {
+      "id": "HTTN06",
+      "label": "Sấm và sét / Thunder and lightning",
+      "pages": [
+        "book-c3-p04"
+      ],
+      "popupLabel": "popup_HTTN06",
+      "videoUrl": "/videos/ar/HTTN06.webm",
+      "sourceMp4": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/HTTN06_lightning.mp4"
+    },
+    {
+      "id": "HTTN07",
+      "label": "Tuyết / Snow",
+      "pages": [
+        "book-c3-p06"
+      ],
+      "popupLabel": "popup_HTTN07",
+      "videoUrl": "/videos/ar/HTTN07.webm",
+      "sourceMp4": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/HTTN07_snow.mp4"
+    },
+    {
+      "id": "HTTN08",
+      "label": "Bão nhiệt đới / Tropical cyclone",
+      "pages": [
+        "book-c3-p09"
+      ],
+      "popupLabel": "popup_HTTN08",
+      "videoUrl": "/videos/ar/HTTN08.webm",
+      "sourceMp4": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/HTTN08_tropical_cyclone.mp4"
+    },
+    {
+      "id": "HTTN09",
+      "label": "Động đất / Earthquake",
+      "pages": [
+        "book-c3-p11"
+      ],
+      "popupLabel": "popup_HTTN09",
+      "videoUrl": "/videos/ar/HTTN09.webm",
+      "sourceMp4": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/HTTN09_earthquake.mp4"
+    },
+    {
+      "id": "HTTN10",
+      "label": "Sóng thần / Tsunami",
+      "pages": [
+        "book-c3-p13"
+      ],
+      "popupLabel": "popup_HTTN10",
+      "videoUrl": "/videos/ar/HTTN10.webm",
+      "sourceMp4": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/HTTN10_tsunami.mp4"
+    },
+    {
+      "id": "HTTN11",
+      "label": "Mạch nước phun / Geyser",
+      "pages": [
+        "book-c3-p14"
+      ],
+      "popupLabel": "popup_HTTN11",
+      "videoUrl": "/videos/ar/HTTN11.webm",
+      "sourceMp4": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/HTTN11_geyser.mp4"
+    },
+    {
+      "id": "HTTN12",
+      "label": "Thủy triều / Tides",
+      "pages": [
+        "book-c3-p15"
+      ],
+      "popupLabel": "popup_HTTN12",
+      "videoUrl": "/videos/ar/HTTN12.webm",
+      "sourceMp4": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/HTTN12_tides.mp4"
+    },
+    {
+      "id": "HTTN13",
+      "label": "Cực quang / Aurora",
+      "pages": [
+        "book-c3-p16"
+      ],
+      "popupLabel": "popup_HTTN13",
+      "videoUrl": "/videos/ar/HTTN13.webm",
+      "sourceMp4": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/HTTN13_aurora.mp4"
+    },
+    {
+      "id": "HTTN14",
+      "label": "Nhật thực / Solar eclipse",
+      "pages": [
+        "book-c3-p17"
+      ],
+      "popupLabel": "popup_HTTN14",
+      "videoUrl": "/videos/ar/HTTN14.webm",
+      "sourceMp4": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/HTTN14_solar_eclipse.mp4"
+    },
+    {
+      "id": "HTTN15",
+      "label": "Mưa sao băng / Meteor shower",
+      "pages": [
+        "book-c3-p18"
+      ],
+      "popupLabel": "popup_HTTN15",
+      "videoUrl": "/videos/ar/HTTN15.webm",
+      "sourceMp4": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/HTTN15_meteor_shower.mp4"
+    }
+  ]
+}
