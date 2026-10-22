@@ -3281,7 +3281,7 @@ function Dashboard() {
         {[
           ["Sách", 1, BookOpen],
           ["Video", videos.length, Video],
-          ["Mã QR", videos.length, QrCode],
+          ["Mã QR", bookVideoSlots.length, QrCode],
           ["Quiz", quizzes.length, Gamepad2],
           ["Đơn hàng", orderCount, Package],
           [
