@@ -4,6 +4,7 @@ import {
   useState,
   useEffect,
   useRef,
+  useCallback,
   createContext,
   useContext,
   type ReactNode,
@@ -78,29 +79,12 @@ import {
   RikoLoading,
 } from "./Motion"
 import VideoMascot from "./VideoMascot"
-import {
-  createOrder,
-  createQuiz,
-  createVideo,
-  deleteQuiz,
-  deleteVideo,
-  getVideoByChapter,
-  getVideoById,
-  getAdminUser,
-  isAppwriteConfigured,
-  listOrders,
-  listQuizzes,
-  listVideos,
-  loginAdmin,
-  requestPasswordRecovery,
-  completePasswordRecovery,
-  logoutAdmin,
-  updateOrderStatus,
-  updateVideo,
-  type OrderRecord,
-  type QuizQuestion,
-  type QuizRecord,
-  type VideoRecord,
+import { isAppwriteConfigured } from "../lib/appwriteConfig"
+import type {
+  OrderRecord,
+  QuizQuestion,
+  QuizRecord,
+  VideoRecord,
 } from "../lib/appwrite"
 import rikoWelcome from "../assets/riko/welcome.webp"
 import rikokidLogo from "../assets/rikokid-logo.webp"
@@ -115,6 +99,45 @@ import rikoActivity from "../assets/riko/activity.png"
 import rikoExplaining from "../assets/riko/explaining.png"
 import bookVideoManifest from "../data/bookVideoSlots.json"
 const ARScan = lazy(() => import("./ARScan"))
+
+const createOrder: typeof import("../lib/appwrite").createOrder = (...args) =>
+  import("../lib/appwrite").then((appwrite) => appwrite.createOrder(...args))
+const createQuiz: typeof import("../lib/appwrite").createQuiz = (...args) =>
+  import("../lib/appwrite").then((appwrite) => appwrite.createQuiz(...args))
+const createVideo: typeof import("../lib/appwrite").createVideo = (...args) =>
+  import("../lib/appwrite").then((appwrite) => appwrite.createVideo(...args))
+const deleteQuiz: typeof import("../lib/appwrite").deleteQuiz = (...args) =>
+  import("../lib/appwrite").then((appwrite) => appwrite.deleteQuiz(...args))
+const deleteVideo: typeof import("../lib/appwrite").deleteVideo = (...args) =>
+  import("../lib/appwrite").then((appwrite) => appwrite.deleteVideo(...args))
+const getVideoByChapter: typeof import("../lib/appwrite").getVideoByChapter = (
+  ...args
+) => import("../lib/appwrite").then((appwrite) => appwrite.getVideoByChapter(...args))
+const getVideoById: typeof import("../lib/appwrite").getVideoById = (...args) =>
+  import("../lib/appwrite").then((appwrite) => appwrite.getVideoById(...args))
+const getAdminUser: typeof import("../lib/appwrite").getAdminUser = (...args) =>
+  import("../lib/appwrite").then((appwrite) => appwrite.getAdminUser(...args))
+const listOrders: typeof import("../lib/appwrite").listOrders = (...args) =>
+  import("../lib/appwrite").then((appwrite) => appwrite.listOrders(...args))
+const listQuizzes: typeof import("../lib/appwrite").listQuizzes = (...args) =>
+  import("../lib/appwrite").then((appwrite) => appwrite.listQuizzes(...args))
+const listVideos: typeof import("../lib/appwrite").listVideos = (...args) =>
+  import("../lib/appwrite").then((appwrite) => appwrite.listVideos(...args))
+const loginAdmin: typeof import("../lib/appwrite").loginAdmin = (...args) =>
+  import("../lib/appwrite").then((appwrite) => appwrite.loginAdmin(...args))
+const requestPasswordRecovery: typeof import("../lib/appwrite").requestPasswordRecovery = (
+  ...args
+) => import("../lib/appwrite").then((appwrite) => appwrite.requestPasswordRecovery(...args))
+const completePasswordRecovery: typeof import("../lib/appwrite").completePasswordRecovery = (
+  ...args
+) => import("../lib/appwrite").then((appwrite) => appwrite.completePasswordRecovery(...args))
+const logoutAdmin: typeof import("../lib/appwrite").logoutAdmin = (...args) =>
+  import("../lib/appwrite").then((appwrite) => appwrite.logoutAdmin(...args))
+const updateOrderStatus: typeof import("../lib/appwrite").updateOrderStatus = (
+  ...args
+) => import("../lib/appwrite").then((appwrite) => appwrite.updateOrderStatus(...args))
+const updateVideo: typeof import("../lib/appwrite").updateVideo = (...args) =>
+  import("../lib/appwrite").then((appwrite) => appwrite.updateVideo(...args))
 
 function ARScanRoute() {
   return (
@@ -265,6 +288,9 @@ type Context = {
   setScore: (n: number) => void
   adminUser: { $id: string; name: string; email: string } | null
   authReady: boolean
+  ensureAdminSession: () => Promise<{ $id: string; name: string; email: string } | null>
+  loadVideos: () => Promise<void>
+  loadQuizzes: (publishedOnly?: boolean) => Promise<void>
   login: (email: string, password: string) => Promise<void>
   logout: () => Promise<void>
   backendError: string
@@ -679,6 +705,7 @@ function Footer() {
 function Layout() {
   const location = useLocation()
   const { enabled } = useMotionPreferences()
+  const { ensureAdminSession, loadVideos, loadQuizzes } = useStore()
   const immersive =
     location.pathname.startsWith("/watch/") ||
     location.pathname === "/scan" ||
@@ -686,6 +713,12 @@ function Layout() {
   useEffect(() => {
     window.scrollTo(0, 0)
   }, [location.pathname])
+  useEffect(() => {
+    if (location.pathname === "/login") void ensureAdminSession()
+    if (location.pathname === "/videos") void loadVideos()
+    if (["/quizzes", "/quiz"].includes(location.pathname))
+      void loadQuizzes(true)
+  }, [location.pathname, ensureAdminSession, loadVideos, loadQuizzes])
   return (
     <>
       {immersive ? (
@@ -3217,7 +3250,25 @@ const adminLinks = [
 function AdminLayout() {
   const location = useLocation()
   const navigate = useNavigate()
-  const { adminUser, authReady, logout, backendError } = useStore()
+  const {
+    adminUser,
+    authReady,
+    logout,
+    backendError,
+    ensureAdminSession,
+    loadVideos,
+    loadQuizzes,
+  } = useStore()
+  useEffect(() => {
+    let active = true
+    void ensureAdminSession().then((user) => {
+      if (!active || !user) return
+      void Promise.all([loadVideos(), loadQuizzes(false)])
+    })
+    return () => {
+      active = false
+    }
+  }, [ensureAdminSession, loadVideos, loadQuizzes])
   useEffect(() => {
     if (authReady && !adminUser) navigate("/login")
   }, [adminUser, authReady, navigate])
@@ -4047,13 +4098,6 @@ function QuizAdmin() {
   const [count, setCount] = useState(1)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState("")
-  useEffect(() => {
-    listQuizzes(false)
-      .then(setQuizzes)
-      .catch((cause) =>
-        notify(cause instanceof Error ? cause.message : "Không tải được quiz."),
-      )
-  }, [notify, setQuizzes])
   return (
     <>
       <AdminHeading title="Xưởng sáng tạo Quiz">
@@ -4443,38 +4487,80 @@ function Provider({ children }: { children: ReactNode }) {
   } | null>(null)
   const [authReady, setAuthReady] = useState(!isAppwriteConfigured)
   const [backendError, setBackendError] = useState("")
+  const adminUserRef = useRef(adminUser)
+  const adminCheckRef = useRef<Promise<{
+    $id: string
+    name: string
+    email: string
+  } | null> | null>(null)
+  const videoRequestRef = useRef<Promise<void> | null>(null)
+  const quizRequestsRef = useRef(new Map<boolean, Promise<void>>())
   useEffect(() => {
     localStorage.setItem("rikokid-cart", String(quantity))
   }, [quantity])
-  useEffect(() => {
-    if (!isAppwriteConfigured) return
-    let current = true
-    Promise.allSettled([listVideos(), listQuizzes(true), getAdminUser()]).then(
-      ([videoResult, quizResult, userResult]) => {
-        if (!current) return
-        const errors: string[] = []
-        if (videoResult.status === "fulfilled") setVideos(videoResult.value)
-        else
-          errors.push(
-            videoResult.reason instanceof Error
-              ? videoResult.reason.message
-              : "Không tải được video.",
-          )
-        if (quizResult.status === "fulfilled") setQuizzes(quizResult.value)
-        else
-          errors.push(
-            quizResult.reason instanceof Error
-              ? quizResult.reason.message
-              : "Không tải được quiz.",
-          )
-        if (userResult.status === "fulfilled") setAdminUser(userResult.value)
-        setBackendError(errors.join(" "))
-        setAuthReady(true)
-      },
-    )
-    return () => {
-      current = false
+  const ensureAdminSession = useCallback(() => {
+    if (!isAppwriteConfigured) {
+      setAuthReady(true)
+      return Promise.resolve(null)
     }
+    if (adminUserRef.current) return Promise.resolve(adminUserRef.current)
+    if (adminCheckRef.current) return adminCheckRef.current
+    setAuthReady(false)
+    const request = getAdminUser()
+      .then((user) => {
+        adminUserRef.current = user
+        setAdminUser(user)
+        return user
+      })
+      .catch((cause) => {
+        setBackendError(
+          cause instanceof Error ? cause.message : "Không xác thực được Appwrite.",
+        )
+        return null
+      })
+      .finally(() => {
+        setAuthReady(true)
+        adminCheckRef.current = null
+      })
+    adminCheckRef.current = request
+    return request
+  }, [])
+  const loadVideos = useCallback(() => {
+    if (!isAppwriteConfigured) return Promise.resolve()
+    if (videoRequestRef.current) return videoRequestRef.current
+    const request = listVideos()
+      .then(setVideos)
+      .catch((cause) => {
+        setBackendError(
+          (previous) =>
+            previous ||
+            (cause instanceof Error ? cause.message : "Không tải được video."),
+        )
+      })
+      .finally(() => {
+        videoRequestRef.current = null
+      })
+    videoRequestRef.current = request
+    return request
+  }, [])
+  const loadQuizzes = useCallback((publishedOnly = true) => {
+    if (!isAppwriteConfigured) return Promise.resolve()
+    const existingRequest = quizRequestsRef.current.get(publishedOnly)
+    if (existingRequest) return existingRequest
+    const request = listQuizzes(publishedOnly)
+      .then(setQuizzes)
+      .catch((cause) => {
+        setBackendError(
+          (previous) =>
+            previous ||
+            (cause instanceof Error ? cause.message : "Không tải được quiz."),
+        )
+      })
+      .finally(() => {
+        quizRequestsRef.current.delete(publishedOnly)
+      })
+    quizRequestsRef.current.set(publishedOnly, request)
+    return request
   }, [])
   useEffect(() => {
     if (!toast) return
@@ -4494,13 +4580,20 @@ function Provider({ children }: { children: ReactNode }) {
         setScore,
         adminUser,
         authReady,
+        ensureAdminSession,
+        loadVideos,
+        loadQuizzes,
         login: async (email, password) => {
           const user = await loginAdmin(email, password)
+          adminUserRef.current = user
           setAdminUser(user)
+          setAuthReady(true)
         },
         logout: async () => {
           await logoutAdmin()
+          adminUserRef.current = null
           setAdminUser(null)
+          setAuthReady(true)
         },
         backendError,
         notify: setToast,
