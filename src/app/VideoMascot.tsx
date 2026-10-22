@@ -13,6 +13,13 @@ type VideoFrameCallbackVideo = HTMLVideoElement & {
   ) => number
   cancelVideoFrameCallback?: (handle: number) => void
 }
+type IdleCallbackWindow = Window & {
+  requestIdleCallback?: (
+    callback: () => void,
+    options?: { timeout: number },
+  ) => number
+  cancelIdleCallback?: (handle: number) => void
+}
 
 export default function VideoMascot() {
   const { enabled } = useMotionPreferences()
@@ -46,6 +53,7 @@ export default function VideoMascot() {
     let frameRequest = 0
     let videoFrameRequest: number | null = null
     let playTimer = 0
+    let idleRequest = 0
     let lastTime = -1
     let disposed = false
     let referenceScale = 0
@@ -248,6 +256,37 @@ export default function VideoMascot() {
     const start = () => {
       scheduleFrame()
     }
+    const cancelScheduledPlayback = () => {
+      if (playTimer) window.clearTimeout(playTimer)
+      playTimer = 0
+      const idleWindow = window as IdleCallbackWindow
+      if (idleRequest) idleWindow.cancelIdleCallback?.(idleRequest)
+      idleRequest = 0
+    }
+    const playWhenReady = () => {
+      if (
+        disposed ||
+        document.visibilityState !== "visible" ||
+        !enabled ||
+        !visible
+      ) return
+      void video.play().then(start).catch(() => draw())
+    }
+    const schedulePlayback = () => {
+      if (playTimer || idleRequest) return
+      const idleWindow = window as IdleCallbackWindow
+      if (idleWindow.requestIdleCallback) {
+        idleRequest = idleWindow.requestIdleCallback(() => {
+          idleRequest = 0
+          playWhenReady()
+        }, { timeout: 1000 })
+      } else {
+        playTimer = window.setTimeout(() => {
+          playTimer = 0
+          playWhenReady()
+        }, 500)
+      }
+    }
     const stop = () => {
       if (frameRequest) cancelAnimationFrame(frameRequest)
       frameRequest = 0
@@ -258,28 +297,15 @@ export default function VideoMascot() {
     }
     const updatePlayback = () => {
       if (document.visibilityState !== "visible") {
-        if (playTimer) window.clearTimeout(playTimer)
-        playTimer = 0
+        cancelScheduledPlayback()
         video.pause()
         stop()
         return
       }
       if (enabled && visible) {
-        if (video.paused && !playTimer) {
-          playTimer = window.setTimeout(() => {
-            playTimer = 0
-            if (
-              disposed ||
-              document.visibilityState !== "visible" ||
-              !enabled ||
-              !visible
-            ) return
-            void video.play().then(start).catch(() => draw())
-          }, 250)
-        }
+        if (video.paused) schedulePlayback()
       } else {
-        if (playTimer) window.clearTimeout(playTimer)
-        playTimer = 0
+        cancelScheduledPlayback()
         video.pause()
         stop()
         if (visible) draw()
@@ -308,7 +334,7 @@ export default function VideoMascot() {
 
     return () => {
       disposed = true
-      if (playTimer) window.clearTimeout(playTimer)
+      cancelScheduledPlayback()
       stop()
       video.pause()
       video.removeEventListener("loadedmetadata", sizeSource)
