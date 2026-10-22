@@ -1,0 +1,578 @@
+{
+  "bookTitle": "Riko & khu rừng kỳ diệu",
+  "publicOrigin": "https://rikokid.me",
+  "sourceDocuments": [
+    {
+      "chapter": 1,
+      "document": "Chương 1.pdf",
+      "pages": 14,
+      "coverPages": [
+        1,
+        2
+      ]
+    },
+    {
+      "chapter": 2,
+      "document": "Chương 2.pdf",
+      "pages": 19,
+      "coverPages": [
+        1,
+        2
+      ]
+    },
+    {
+      "chapter": 3,
+      "document": "Chương 3.pdf",
+      "pages": 21,
+      "coverPages": [
+        1,
+        2
+      ]
+    }
+  ],
+  "sourcePdfPageCountTotal": 54,
+  "coverSlotCount": 6,
+  "contentPageCount": 48,
+  "slots": [
+    {
+      "id": "book-c1-p01",
+      "title": "Chương 1 · Bìa trước · PDF trang 01",
+      "chapter": "book-c1-p01",
+      "label": "Chương 1 · Bìa trước · PDF trang 01",
+      "group": "Chương 1",
+      "document": "Chương 1.pdf",
+      "page": 1,
+      "cover": "front"
+    },
+    {
+      "id": "book-c1-p02",
+      "title": "Chương 1 · Bìa sau · PDF trang 02",
+      "chapter": "book-c1-p02",
+      "label": "Chương 1 · Bìa sau · PDF trang 02",
+      "group": "Chương 1",
+      "document": "Chương 1.pdf",
+      "page": 2,
+      "cover": "back"
+    },
+    {
+      "id": "book-c1-p03",
+      "title": "Chương 1 · PDF trang 03",
+      "chapter": "book-c1-p03",
+      "label": "Chương 1 · PDF trang 03",
+      "group": "Chương 1",
+      "document": "Chương 1.pdf",
+      "page": 3,
+      "cover": null
+    },
+    {
+      "id": "book-c1-p04",
+      "title": "Chương 1 · PDF trang 04",
+      "chapter": "book-c1-p04",
+      "label": "Chương 1 · PDF trang 04",
+      "group": "Chương 1",
+      "document": "Chương 1.pdf",
+      "page": 4,
+      "cover": null
+    },
+    {
+      "id": "book-c1-p05",
+      "title": "Chương 1 · PDF trang 05",
+      "chapter": "book-c1-p05",
+      "label": "Chương 1 · PDF trang 05",
+      "group": "Chương 1",
+      "document": "Chương 1.pdf",
+      "page": 5,
+      "cover": null
+    },
+    {
+      "id": "book-c1-p06",
+      "title": "Chương 1 · PDF trang 06",
+      "chapter": "book-c1-p06",
+      "label": "Chương 1 · PDF trang 06",
+      "group": "Chương 1",
+      "document": "Chương 1.pdf",
+      "page": 6,
+      "cover": null
+    },
+    {
+      "id": "book-c1-p07",
+      "title": "Chương 1 · PDF trang 07",
+      "chapter": "book-c1-p07",
+      "label": "Chương 1 · PDF trang 07",
+      "group": "Chương 1",
+      "document": "Chương 1.pdf",
+      "page": 7,
+      "cover": null
+    },
+    {
+      "id": "book-c1-p08",
+      "title": "Chương 1 · PDF trang 08",
+      "chapter": "book-c1-p08",
+      "label": "Chương 1 · PDF trang 08",
+      "group": "Chương 1",
+      "document": "Chương 1.pdf",
+      "page": 8,
+      "cover": null
+    },
+    {
+      "id": "book-c1-p09",
+      "title": "Chương 1 · PDF trang 09",
+      "chapter": "book-c1-p09",
+      "label": "Chương 1 · PDF trang 09",
+      "group": "Chương 1",
+      "document": "Chương 1.pdf",
+      "page": 9,
+      "cover": null
+    },
+    {
+      "id": "book-c1-p10",
+      "title": "Chương 1 · PDF trang 10",
+      "chapter": "book-c1-p10",
+      "label": "Chương 1 · PDF trang 10",
+      "group": "Chương 1",
+      "document": "Chương 1.pdf",
+      "page": 10,
+      "cover": null
+    },
+    {
+      "id": "book-c1-p11",
+      "title": "Chương 1 · PDF trang 11",
+      "chapter": "book-c1-p11",
+      "label": "Chương 1 · PDF trang 11",
+      "group": "Chương 1",
+      "document": "Chương 1.pdf",
+      "page": 11,
+      "cover": null
+    },
+    {
+      "id": "book-c1-p12",
+      "title": "Chương 1 · PDF trang 12",
+      "chapter": "book-c1-p12",
+      "label": "Chương 1 · PDF trang 12",
+      "group": "Chương 1",
+      "document": "Chương 1.pdf",
+      "page": 12,
+      "cover": null
+    },
+    {
+      "id": "book-c1-p13",
+      "title": "Chương 1 · PDF trang 13",
+      "chapter": "book-c1-p13",
+      "label": "Chương 1 · PDF trang 13",
+      "group": "Chương 1",
+      "document": "Chương 1.pdf",
+      "page": 13,
+      "cover": null
+    },
+    {
+      "id": "book-c1-p14",
+      "title": "Chương 1 · PDF trang 14",
+      "chapter": "book-c1-p14",
+      "label": "Chương 1 · PDF trang 14",
+      "group": "Chương 1",
+      "document": "Chương 1.pdf",
+      "page": 14,
+      "cover": null
+    },
+    {
+      "id": "book-c2-p01",
+      "title": "Chương 2 · Bìa trước · PDF trang 01",
+      "chapter": "book-c2-p01",
+      "label": "Chương 2 · Bìa trước · PDF trang 01",
+      "group": "Chương 2",
+      "document": "Chương 2.pdf",
+      "page": 1,
+      "cover": "front"
+    },
+    {
+      "id": "book-c2-p02",
+      "title": "Chương 2 · Bìa sau · PDF trang 02",
+      "chapter": "book-c2-p02",
+      "label": "Chương 2 · Bìa sau · PDF trang 02",
+      "group": "Chương 2",
+      "document": "Chương 2.pdf",
+      "page": 2,
+      "cover": "back"
+    },
+    {
+      "id": "book-c2-p03",
+      "title": "Chương 2 · PDF trang 03",
+      "chapter": "book-c2-p03",
+      "label": "Chương 2 · PDF trang 03",
+      "group": "Chương 2",
+      "document": "Chương 2.pdf",
+      "page": 3,
+      "cover": null
+    },
+    {
+      "id": "book-c2-p04",
+      "title": "Chương 2 · PDF trang 04",
+      "chapter": "book-c2-p04",
+      "label": "Chương 2 · PDF trang 04",
+      "group": "Chương 2",
+      "document": "Chương 2.pdf",
+      "page": 4,
+      "cover": null
+    },
+    {
+      "id": "book-c2-p05",
+      "title": "Chương 2 · PDF trang 05",
+      "chapter": "book-c2-p05",
+      "label": "Chương 2 · PDF trang 05",
+      "group": "Chương 2",
+      "document": "Chương 2.pdf",
+      "page": 5,
+      "cover": null
+    },
+    {
+      "id": "book-c2-p06",
+      "title": "Chương 2 · PDF trang 06",
+      "chapter": "book-c2-p06",
+      "label": "Chương 2 · PDF trang 06",
+      "group": "Chương 2",
+      "document": "Chương 2.pdf",
+      "page": 6,
+      "cover": null
+    },
+    {
+      "id": "book-c2-p07",
+      "title": "Chương 2 · PDF trang 07",
+      "chapter": "book-c2-p07",
+      "label": "Chương 2 · PDF trang 07",
+      "group": "Chương 2",
+      "document": "Chương 2.pdf",
+      "page": 7,
+      "cover": null
+    },
+    {
+      "id": "book-c2-p08",
+      "title": "Chương 2 · PDF trang 08",
+      "chapter": "book-c2-p08",
+      "label": "Chương 2 · PDF trang 08",
+      "group": "Chương 2",
+      "document": "Chương 2.pdf",
+      "page": 8,
+      "cover": null
+    },
+    {
+      "id": "book-c2-p09",
+      "title": "Chương 2 · PDF trang 09",
+      "chapter": "book-c2-p09",
+      "label": "Chương 2 · PDF trang 09",
+      "group": "Chương 2",
+      "document": "Chương 2.pdf",
+      "page": 9,
+      "cover": null
+    },
+    {
+      "id": "book-c2-p10",
+      "title": "Chương 2 · PDF trang 10",
+      "chapter": "book-c2-p10",
+      "label": "Chương 2 · PDF trang 10",
+      "group": "Chương 2",
+      "document": "Chương 2.pdf",
+      "page": 10,
+      "cover": null
+    },
+    {
+      "id": "book-c2-p11",
+      "title": "Chương 2 · PDF trang 11",
+      "chapter": "book-c2-p11",
+      "label": "Chương 2 · PDF trang 11",
+      "group": "Chương 2",
+      "document": "Chương 2.pdf",
+      "page": 11,
+      "cover": null
+    },
+    {
+      "id": "book-c2-p12",
+      "title": "Chương 2 · PDF trang 12",
+      "chapter": "book-c2-p12",
+      "label": "Chương 2 · PDF trang 12",
+      "group": "Chương 2",
+      "document": "Chương 2.pdf",
+      "page": 12,
+      "cover": null
+    },
+    {
+      "id": "book-c2-p13",
+      "title": "Chương 2 · PDF trang 13",
+      "chapter": "book-c2-p13",
+      "label": "Chương 2 · PDF trang 13",
+      "group": "Chương 2",
+      "document": "Chương 2.pdf",
+      "page": 13,
+      "cover": null
+    },
+    {
+      "id": "book-c2-p14",
+      "title": "Chương 2 · PDF trang 14",
+      "chapter": "book-c2-p14",
+      "label": "Chương 2 · PDF trang 14",
+      "group": "Chương 2",
+      "document": "Chương 2.pdf",
+      "page": 14,
+      "cover": null
+    },
+    {
+      "id": "book-c2-p15",
+      "title": "Chương 2 · PDF trang 15",
+      "chapter": "book-c2-p15",
+      "label": "Chương 2 · PDF trang 15",
+      "group": "Chương 2",
+      "document": "Chương 2.pdf",
+      "page": 15,
+      "cover": null
+    },
+    {
+      "id": "book-c2-p16",
+      "title": "Chương 2 · PDF trang 16",
+      "chapter": "book-c2-p16",
+      "label": "Chương 2 · PDF trang 16",
+      "group": "Chương 2",
+      "document": "Chương 2.pdf",
+      "page": 16,
+      "cover": null
+    },
+    {
+      "id": "book-c2-p17",
+      "title": "Chương 2 · PDF trang 17",
+      "chapter": "book-c2-p17",
+      "label": "Chương 2 · PDF trang 17",
+      "group": "Chương 2",
+      "document": "Chương 2.pdf",
+      "page": 17,
+      "cover": null
+    },
+    {
+      "id": "book-c2-p18",
+      "title": "Chương 2 · PDF trang 18",
+      "chapter": "book-c2-p18",
+      "label": "Chương 2 · PDF trang 18",
+      "group": "Chương 2",
+      "document": "Chương 2.pdf",
+      "page": 18,
+      "cover": null
+    },
+    {
+      "id": "book-c2-p19",
+      "title": "Chương 2 · PDF trang 19",
+      "chapter": "book-c2-p19",
+      "label": "Chương 2 · PDF trang 19",
+      "group": "Chương 2",
+      "document": "Chương 2.pdf",
+      "page": 19,
+      "cover": null
+    },
+    {
+      "id": "book-c3-p01",
+      "title": "Chương 3 · Bìa trước · PDF trang 01",
+      "chapter": "book-c3-p01",
+      "label": "Chương 3 · Bìa trước · PDF trang 01",
+      "group": "Chương 3",
+      "document": "Chương 3.pdf",
+      "page": 1,
+      "cover": "front"
+    },
+    {
+      "id": "book-c3-p02",
+      "title": "Chương 3 · Bìa sau · PDF trang 02",
+      "chapter": "book-c3-p02",
+      "label": "Chương 3 · Bìa sau · PDF trang 02",
+      "group": "Chương 3",
+      "document": "Chương 3.pdf",
+      "page": 2,
+      "cover": "back"
+    },
+    {
+      "id": "book-c3-p03",
+      "title": "Chương 3 · PDF trang 03",
+      "chapter": "book-c3-p03",
+      "label": "Chương 3 · PDF trang 03",
+      "group": "Chương 3",
+      "document": "Chương 3.pdf",
+      "page": 3,
+      "cover": null
+    },
+    {
+      "id": "book-c3-p04",
+      "title": "Chương 3 · PDF trang 04",
+      "chapter": "book-c3-p04",
+      "label": "Chương 3 · PDF trang 04",
+      "group": "Chương 3",
+      "document": "Chương 3.pdf",
+      "page": 4,
+      "cover": null
+    },
+    {
+      "id": "book-c3-p05",
+      "title": "Chương 3 · PDF trang 05",
+      "chapter": "book-c3-p05",
+      "label": "Chương 3 · PDF trang 05",
+      "group": "Chương 3",
+      "document": "Chương 3.pdf",
+      "page": 5,
+      "cover": null
+    },
+    {
+      "id": "book-c3-p06",
+      "title": "Chương 3 · PDF trang 06",
+      "chapter": "book-c3-p06",
+      "label": "Chương 3 · PDF trang 06",
+      "group": "Chương 3",
+      "document": "Chương 3.pdf",
+      "page": 6,
+      "cover": null
+    },
+    {
+      "id": "book-c3-p07",
+      "title": "Chương 3 · PDF trang 07",
+      "chapter": "book-c3-p07",
+      "label": "Chương 3 · PDF trang 07",
+      "group": "Chương 3",
+      "document": "Chương 3.pdf",
+      "page": 7,
+      "cover": null
+    },
+    {
+      "id": "book-c3-p08",
+      "title": "Chương 3 · PDF trang 08",
+      "chapter": "book-c3-p08",
+      "label": "Chương 3 · PDF trang 08",
+      "group": "Chương 3",
+      "document": "Chương 3.pdf",
+      "page": 8,
+      "cover": null
+    },
+    {
+      "id": "book-c3-p09",
+      "title": "Chương 3 · PDF trang 09",
+      "chapter": "book-c3-p09",
+      "label": "Chương 3 · PDF trang 09",
+      "group": "Chương 3",
+      "document": "Chương 3.pdf",
+      "page": 9,
+      "cover": null
+    },
+    {
+      "id": "book-c3-p10",
+      "title": "Chương 3 · PDF trang 10",
+      "chapter": "book-c3-p10",
+      "label": "Chương 3 · PDF trang 10",
+      "group": "Chương 3",
+      "document": "Chương 3.pdf",
+      "page": 10,
+      "cover": null
+    },
+    {
+      "id": "book-c3-p11",
+      "title": "Chương 3 · PDF trang 11",
+      "chapter": "book-c3-p11",
+      "label": "Chương 3 · PDF trang 11",
+      "group": "Chương 3",
+      "document": "Chương 3.pdf",
+      "page": 11,
+      "cover": null
+    },
+    {
+      "id": "book-c3-p12",
+      "title": "Chương 3 · PDF trang 12",
+      "chapter": "book-c3-p12",
+      "label": "Chương 3 · PDF trang 12",
+      "group": "Chương 3",
+      "document": "Chương 3.pdf",
+      "page": 12,
+      "cover": null
+    },
+    {
+      "id": "book-c3-p13",
+      "title": "Chương 3 · PDF trang 13",
+      "chapter": "book-c3-p13",
+      "label": "Chương 3 · PDF trang 13",
+      "group": "Chương 3",
+      "document": "Chương 3.pdf",
+      "page": 13,
+      "cover": null
+    },
+    {
+      "id": "book-c3-p14",
+      "title": "Chương 3 · PDF trang 14",
+      "chapter": "book-c3-p14",
+      "label": "Chương 3 · PDF trang 14",
+      "group": "Chương 3",
+      "document": "Chương 3.pdf",
+      "page": 14,
+      "cover": null
+    },
+    {
+      "id": "book-c3-p15",
+      "title": "Chương 3 · PDF trang 15",
+      "chapter": "book-c3-p15",
+      "label": "Chương 3 · PDF trang 15",
+      "group": "Chương 3",
+      "document": "Chương 3.pdf",
+      "page": 15,
+      "cover": null
+    },
+    {
+      "id": "book-c3-p16",
+      "title": "Chương 3 · PDF trang 16",
+      "chapter": "book-c3-p16",
+      "label": "Chương 3 · PDF trang 16",
+      "group": "Chương 3",
+      "document": "Chương 3.pdf",
+      "page": 16,
+      "cover": null
+    },
+    {
+      "id": "book-c3-p17",
+      "title": "Chương 3 · PDF trang 17",
+      "chapter": "book-c3-p17",
+      "label": "Chương 3 · PDF trang 17",
+      "group": "Chương 3",
+      "document": "Chương 3.pdf",
+      "page": 17,
+      "cover": null
+    },
+    {
+      "id": "book-c3-p18",
+      "title": "Chương 3 · PDF trang 18",
+      "chapter": "book-c3-p18",
+      "label": "Chương 3 · PDF trang 18",
+      "group": "Chương 3",
+      "document": "Chương 3.pdf",
+      "page": 18,
+      "cover": null
+    },
+    {
+      "id": "book-c3-p19",
+      "title": "Chương 3 · PDF trang 19",
+      "chapter": "book-c3-p19",
+      "label": "Chương 3 · PDF trang 19",
+      "group": "Chương 3",
+      "document": "Chương 3.pdf",
+      "page": 19,
+      "cover": null
+    },
+    {
+      "id": "book-c3-p20",
+      "title": "Chương 3 · PDF trang 20",
+      "chapter": "book-c3-p20",
+      "label": "Chương 3 · PDF trang 20",
+      "group": "Chương 3",
+      "document": "Chương 3.pdf",
+      "page": 20,
+      "cover": null
+    },
+    {
+      "id": "book-c3-p21",
+      "title": "Chương 3 · PDF trang 21",
+      "chapter": "book-c3-p21",
+      "label": "Chương 3 · PDF trang 21",
+      "group": "Chương 3",
+      "document": "Chương 3.pdf",
+      "page": 21,
+      "cover": null
+    }
+  ]
+}

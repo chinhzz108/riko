@@ -57,11 +57,7 @@ import {
   Smartphone,
   LockKeyhole,
 } from "lucide-react"
-import {
-  motion,
-  AnimatePresence,
-  useInView,
-} from "motion/react"
+import { motion, AnimatePresence, useInView } from "motion/react"
 import {
   MotionProvider,
   MotionToggle,
@@ -115,10 +111,21 @@ import rikoSurprised from "../assets/riko/surprised.png"
 import rikoEncouraging from "../assets/riko/encouraging.png"
 import rikoActivity from "../assets/riko/activity.png"
 import rikoExplaining from "../assets/riko/explaining.png"
+import bookVideoManifest from "../data/bookVideoSlots.json"
 
 const money = (value: number) => value.toLocaleString("vi-VN") + "đ"
 const bookTitle = "Riko & khu rừng kỳ diệu"
 type VideoItem = VideoRecord
+type QRVideoSlot = {
+  id: string
+  title: string
+  chapter: string
+  label: string
+  group: string
+  document: string
+  page: number | null
+  cover: "front" | "back" | null
+}
 const initialVideos: VideoItem[] = [
   {
     id: "1",
@@ -139,24 +146,58 @@ const initialVideos: VideoItem[] = [
     duration: "02:58",
   },
 ]
-const qrVideoSlots = [
+const legacyQrVideoSlots: QRVideoSlot[] = [
   {
     id: "chapter-1",
     title: "Cánh cửa vào khu rừng kỳ diệu",
     chapter: "Chương 1",
+    label: "Chương 1",
+    group: "Chương 1",
+    document: "",
+    page: null,
+    cover: null,
   },
   {
     id: "chapter-2",
     title: "Bí mật của những người bạn nhỏ",
     chapter: "Chương 2",
+    label: "Chương 2",
+    group: "Chương 2",
+    document: "",
+    page: null,
+    cover: null,
   },
   {
     id: "chapter-3",
     title: "Đi tìm ngôi sao dũng cảm",
     chapter: "Chương 3",
+    label: "Chương 3",
+    group: "Chương 3",
+    document: "",
+    page: null,
+    cover: null,
   },
-] as const
-const publicSiteOrigin = "https://rikokid.io.vn"
+]
+const bookVideoSlots = bookVideoManifest.slots as QRVideoSlot[]
+const qrVideoSlots = [...legacyQrVideoSlots, ...bookVideoSlots]
+const publicSiteOrigin = bookVideoManifest.publicOrigin
+const bookVideoSlotGroups = bookVideoManifest.sourceDocuments.map(
+  ({ chapter }) => ({
+    label: `Chương ${chapter}`,
+    slots: bookVideoSlots.filter((slot) => slot.group === `Chương ${chapter}`),
+  }),
+)
+function findQrSlot(chapter: string) {
+  return qrVideoSlots.find(
+    (slot) => slot.chapter === chapter || slot.id === chapter,
+  )
+}
+function displayVideoChapter(chapter: string) {
+  return findQrSlot(chapter)?.label || chapter
+}
+function videoChapterGroup(chapter: string) {
+  return findQrSlot(chapter)?.group || chapter
+}
 const questions = [
   {
     text: "Riko đã tìm thấy gì trong khu rừng?",
@@ -208,7 +249,7 @@ type Context = {
   setQuizzes: (v: QuizRecord[]) => void
   score: number
   setScore: (n: number) => void
-  adminUser: { $id: string; name: string; email: string } | null
+  adminUser: { $id: string name: string email: string } | null
   authReady: boolean
   login: (email: string, password: string) => Promise<void>
   logout: () => Promise<void>
@@ -497,12 +538,8 @@ function Header() {
     ["Về Riko", "/about"],
   ]
   return (
-    <header
-      className="sticky top-0 z-30 border-b border-border/60 bg-background/95"
-    >
-      <div
-        className="mx-auto flex h-23 max-w-[1240px] items-center justify-between px-6 lg:px-10"
-      >
+    <header className="sticky top-0 z-30 border-b border-border/60 bg-background/95">
+      <div className="mx-auto flex h-23 max-w-[1240px] items-center justify-between px-6 lg:px-10">
         <Logo />
         <nav className="hidden items-center gap-6 lg:flex">
           {links.map(([label, path]) => (
@@ -591,11 +628,7 @@ function Footer() {
           </div>
         </div>
         {[
-          [
-            "Khám phá",
-            ["Sách Riko", "/book"],
-            ["Quiz & trò chơi", "/quizzes"],
-          ],
+          ["Khám phá", ["Sách Riko", "/book"], ["Quiz & trò chơi", "/quizzes"]],
           [
             "Cùng Riko",
             ["Về Riko", "/about"],
@@ -646,9 +679,7 @@ function Layout() {
           <div className="flex items-center gap-3">
             <MotionToggle />
             <Link
-              to={
-                location.pathname.startsWith("/watch/") ? "/" : "/quizzes"
-              }
+              to={location.pathname.startsWith("/watch/") ? "/" : "/quizzes"}
               className="flex items-center gap-2 rounded-full border border-border bg-white p-3 text-base font-semibold text-primary"
               aria-label="Thoát"
             >
@@ -713,7 +744,7 @@ function StoryQR() {
     let active = true
     import("qrcode")
       .then(({ default: QRCode }) =>
-        QRCode.toDataURL(`${publicSiteOrigin}/watch/chapter-1`, {
+        QRCode.toDataURL(`${publicSiteOrigin}/watch/${bookVideoSlots[0].id}`, {
           width: 300,
           margin: 3,
           color: { dark: "#374BA0", light: "#FFFFFF" },
@@ -1235,30 +1266,7 @@ function Home() {
             ),
           },
           {
-            label: "04 · XEM VIDEO",
-            title: "Câu chuyện bắt đầu chuyển động",
-            text: "Gặp Riko trên màn hình và khám phá những điều sách chưa kể hết.",
-            visual: (
-              <div className="w-[85%] overflow-hidden rounded-2xl border border-primary/10 bg-white shadow-lg">
-                <div className="relative">
-                  <Scene className="h-52" />
-                  <Link
-                    to="/watch/1"
-                    viewTransition
-                    className="absolute inset-0 m-auto flex size-15 items-center justify-center rounded-full bg-primary text-white"
-                    aria-label="Xem video Riko"
-                  >
-                    <Play fill="currentColor" size={23} />
-                  </Link>
-                </div>
-                <p className="p-4 text-sm font-bold text-primary">
-                  Cánh cửa vào khu rừng kỳ diệu
-                </p>
-              </div>
-            ),
-          },
-          {
-            label: "05 · CHƠI QUIZ",
+            label: "04 · CHƠI QUIZ",
             title: "Đến lượt bạn tỏa sáng!",
             text: "Cùng trả lời câu hỏi, thử lại nếu cần và khám phá những điều bạn vừa học được.",
             visual: (
@@ -1288,7 +1296,7 @@ function Home() {
             ),
           },
           {
-            label: "06 · NHẬN PHẦN THƯỞNG",
+            label: "05 · NHẬN PHẦN THƯỞNG",
             title: "Mỗi khám phá là một kho báu",
             text: "Nhận ngôi sao, sưu tầm huy hiệu và cùng Riko ăn mừng. Học điều mới thật vui!",
             visual: (
@@ -1907,7 +1915,7 @@ function VideoCard({ video }: { video: VideoItem }) {
           </div>
           <div className="p-5">
             <p className="mb-2 text-[9px] font-medium uppercase tracking-widest text-[#4A5461]">
-              {video.chapter} · Khu rừng kỳ diệu
+              {displayVideoChapter(video.chapter)}
             </p>
             <h3 className="text-[17px]">{video.title}</h3>
             <p className="mt-3 flex items-center gap-1 text-xs text-[#4A5461]">
@@ -1922,6 +1930,15 @@ function VideoCard({ video }: { video: VideoItem }) {
 function Videos() {
   const { videos } = useStore()
   const [filter, setFilter] = useState("Tất cả")
+  const filters = [
+    "Tất cả",
+    "Bìa",
+    "Chương 1",
+    "Chương 2",
+    "Chương 3",
+    "Hoạt động",
+    "Bonus",
+  ]
   return (
     <div className="mx-auto max-w-[1160px] px-6 py-12">
       <SectionTitle
@@ -1930,14 +1947,7 @@ function Videos() {
         subtitle="Mỗi video là một cánh cửa nhỏ mở ra thế giới thật lớn."
       />
       <div className="mb-8 flex flex-wrap justify-center gap-3">
-        {[
-          "Tất cả",
-          "Chương 1",
-          "Chương 2",
-          "Chương 3",
-          "Hoạt động",
-          "Bonus",
-        ].map((t) => (
+        {filters.map((t) => (
           <button
             key={t}
             onClick={() => setFilter(t)}
@@ -1951,12 +1961,17 @@ function Videos() {
       </div>
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {videos
-          .filter((v) => filter === "Tất cả" || v.chapter === filter)
+          .filter(
+            (v) =>
+              filter === "Tất cả" || videoChapterGroup(v.chapter) === filter,
+          )
           .map((v) => (
             <VideoCard key={v.id} video={v} />
           ))}
       </div>
-      {!videos.some((v) => filter === "Tất cả" || v.chapter === filter) && (
+      {!videos.some(
+        (v) => filter === "Tất cả" || videoChapterGroup(v.chapter) === filter,
+      ) && (
         <div className="rounded-3xl bg-[#FFFEF0] p-16 text-center">
           <Mascot pose="thinking" className="mx-auto h-40" />
           <h3 className="text-2xl">Điều kỳ diệu đang được chuẩn bị!</h3>
@@ -2039,11 +2054,11 @@ function Watch() {
     return (
       <div className="mx-auto max-w-xl px-6 py-12 text-center">
         <Mascot pose="thinking" className="mx-auto h-48" />
-        <Eyebrow>{slot.chapter} · KHU RỪNG KỲ DIỆU</Eyebrow>
+        <Eyebrow>{slot.label}</Eyebrow>
         <h1 className="my-5 text-3xl">{slot.title}</h1>
         <p className="mb-6 text-base leading-7 text-[#4A5461]">
-          Video chương này đang được chuẩn bị. Mã QR đã sẵn sàng; quét lại sau
-          khi video được tải lên nhé!
+          Video cho vị trí này đang được chuẩn bị. Mã QR đã sẵn sàng; sau khi
+          tải video lên đúng vị trí, quét lại mã này để xem nhé!
         </p>
         <Button to="/">Về trang chủ</Button>
       </div>
@@ -2064,7 +2079,7 @@ function Watch() {
   )
   return (
     <div className="mx-auto max-w-[900px] px-6 py-12">
-      <Eyebrow>{item.chapter} · KHU RỪNG KỲ DIỆU</Eyebrow>
+      <Eyebrow>{displayVideoChapter(item.chapter)}</Eyebrow>
       <motion.div
         initial={enabled ? { opacity: 0, scale: 0.98 } : false}
         animate={{ opacity: 1, scale: 1 }}
@@ -2176,8 +2191,18 @@ function Quizzes() {
   const adventures = publishedQuizzes.length
     ? publishedQuizzes
     : [
-        { id: "", title: "Riko bắt đầu hành trình", chapter: "Chương 1", questions },
-        { id: "", title: "Những người bạn nhỏ", chapter: "Chương 2", questions },
+        {
+          id: "",
+          title: "Riko bắt đầu hành trình",
+          chapter: "Chương 1",
+          questions,
+        },
+        {
+          id: "",
+          title: "Những người bạn nhỏ",
+          chapter: "Chương 2",
+          questions,
+        },
         { id: "", title: "Nhà thám hiểm xanh", chapter: "Chương 3", questions },
       ]
   return (
@@ -2234,7 +2259,13 @@ function Quizzes() {
               />
             </div>
             <div className="flex items-center justify-between">
-              <Button to={quiz.id ? `/quiz?quiz=${quiz.id}` : `/quiz?chapter=${index + 1}`}>
+              <Button
+                to={
+                  quiz.id
+                    ? `/quiz?quiz=${quiz.id}`
+                    : `/quiz?chapter=${index + 1}`
+                }
+              >
                 Bắt đầu <ArrowRight size={16} />
               </Button>
               <span className="text-sm font-semibold text-[#4A5461]">
@@ -2295,7 +2326,8 @@ function Quiz() {
   const activeQuestions = activeQuiz?.questions.length
     ? activeQuiz.questions
     : questions
-  const question = activeQuestions[Math.min(current, activeQuestions.length - 1)]
+  const question =
+    activeQuestions[Math.min(current, activeQuestions.length - 1)]
   const correct = selected === question.correct
   useEffect(() => {
     setCurrent(0)
@@ -2323,7 +2355,8 @@ function Quiz() {
     <div className="mx-auto max-w-[850px] overflow-x-clip px-6 py-9">
       <div className="mb-5 flex justify-between rounded-2xl border border-primary/10 bg-white/80 p-4 text-base font-semibold backdrop-blur-sm">
         <span>
-          {activeQuiz ? `${activeQuiz.title} · ` : ""}Câu {current + 1} / {activeQuestions.length}
+          {activeQuiz ? `${activeQuiz.title} · ` : ""}Câu {current + 1} /{" "}
+          {activeQuestions.length}
         </span>
         <span className="text-primary">
           <Star
@@ -2723,9 +2756,12 @@ function Checkout() {
               })
               localStorage.setItem("rikokid-last-order", order.orderCode)
               setQuantity(0)
-              navigate("/order-success", { state: { orderCode: order.orderCode } })
+              navigate("/order-success", {
+                state: { orderCode: order.orderCode },
+              })
             } catch (cause) {
-              const message = cause instanceof Error ? cause.message : "Vui lòng thử lại."
+              const message =
+                cause instanceof Error ? cause.message : "Vui lòng thử lại."
               setError(message)
               notify("Chưa gửi được đơn hàng. Kiểm tra kết nối Appwrite.")
             } finally {
@@ -2751,7 +2787,10 @@ function Checkout() {
             nhận hàng (COD)
           </label>
           {error && (
-            <p role="alert" className="rounded-xl bg-[#F15A3E]/10 p-4 text-sm text-[#B83E2C]">
+            <p
+              role="alert"
+              className="rounded-xl bg-[#F15A3E]/10 p-4 text-sm text-[#B83E2C]"
+            >
               {error}
             </p>
           )}
@@ -2764,7 +2803,8 @@ function Checkout() {
             type="submit"
             className="w-full rounded-full bg-primary py-4 text-base font-semibold text-white disabled:opacity-60"
           >
-            {submitting ? "Đang gửi đơn hàng..." : "Đặt hàng"} <span className="ml-2">→</span>
+            {submitting ? "Đang gửi đơn hàng..." : "Đặt hàng"}{" "}
+            <span className="ml-2">→</span>
           </button>
         </form>
         <Summary quantity={Math.max(1, quantity)} checkout />
@@ -2951,10 +2991,15 @@ function Login() {
           setSubmitting(true)
           const data = new FormData(event.currentTarget)
           try {
-            await login(String(data.get("email") || ""), String(data.get("password") || ""))
+            await login(
+              String(data.get("email") || ""),
+              String(data.get("password") || ""),
+            )
             navigate("/admin")
           } catch (cause) {
-            setError(cause instanceof Error ? cause.message : "Đăng nhập thất bại.")
+            setError(
+              cause instanceof Error ? cause.message : "Đăng nhập thất bại.",
+            )
           } finally {
             setSubmitting(false)
           }
@@ -2964,22 +3009,34 @@ function Login() {
         <Field label="Email" name="email" type="email" />
         <Field label="Mật khẩu" name="password" type="password" />
         <div className="-mt-2 text-right">
-          <Link to="/recovery" className="text-sm font-semibold text-primary hover:underline">
+          <Link
+            to="/recovery"
+            className="text-sm font-semibold text-primary hover:underline"
+          >
             Quên mật khẩu?
           </Link>
         </div>
         {error && (
-          <p role="alert" className="rounded-xl bg-[#F15A3E]/10 p-4 text-sm text-[#B83E2C]">
+          <p
+            role="alert"
+            className="rounded-xl bg-[#F15A3E]/10 p-4 text-sm text-[#B83E2C]"
+          >
             {error}
           </p>
         )}
         {!isAppwriteConfigured && (
-          <p role="status" className="rounded-xl bg-[#FBAF37]/15 p-4 text-sm text-[#6E493E]">
-            Chưa kết nối Appwrite. Trang đăng nhập chỉ hoạt động sau khi cấu hình
-            môi trường triển khai.
+          <p
+            role="status"
+            className="rounded-xl bg-[#FBAF37]/15 p-4 text-sm text-[#6E493E]"
+          >
+            Chưa kết nối Appwrite. Trang đăng nhập chỉ hoạt động sau khi cấu
+            hình môi trường triển khai.
           </p>
         )}
-        <button disabled={!authReady || submitting} className="w-full rounded-full bg-primary py-4 text-base text-white disabled:opacity-60">
+        <button
+          disabled={!authReady || submitting}
+          className="w-full rounded-full bg-primary py-4 text-base text-white disabled:opacity-60"
+        >
           {submitting ? "Đang đăng nhập..." : "Vào không gian tác giả →"}
         </button>
         <p className="text-center text-xs leading-5 text-[#4A5461]">
@@ -3004,7 +3061,10 @@ function PasswordRecovery() {
 
   return (
     <div className="mx-auto my-12 max-w-md rounded-3xl border border-border bg-[#FFFEF0] p-8">
-      <Link to="/login" className="mb-5 inline-flex items-center gap-2 text-sm font-semibold text-primary hover:underline">
+      <Link
+        to="/login"
+        className="mb-5 inline-flex items-center gap-2 text-sm font-semibold text-primary hover:underline"
+      >
         <ArrowLeft size={16} /> Quay lại đăng nhập
       </Link>
       <Mascot className="mx-auto h-36" />
@@ -3038,10 +3098,16 @@ function PasswordRecovery() {
                 email,
                 `${window.location.origin}/recovery`,
               )
-              setSuccess("Nếu email thuộc tài khoản quản trị, liên kết đặt lại mật khẩu sẽ được gửi đến hộp thư đó.")
+              setSuccess(
+                "Nếu email thuộc tài khoản quản trị, liên kết đặt lại mật khẩu sẽ được gửi đến hộp thư đó.",
+              )
             }
           } catch (cause) {
-            setError(cause instanceof Error ? cause.message : "Không thể khôi phục mật khẩu.")
+            setError(
+              cause instanceof Error
+                ? cause.message
+                : "Không thể khôi phục mật khẩu.",
+            )
           } finally {
             setSubmitting(false)
           }
@@ -3050,23 +3116,42 @@ function PasswordRecovery() {
       >
         {isReset ? (
           <>
-            <Field label="Mật khẩu mới" name="password" type="password" minLength={8} />
-            <Field label="Nhập lại mật khẩu mới" name="confirmPassword" type="password" minLength={8} />
+            <Field
+              label="Mật khẩu mới"
+              name="password"
+              type="password"
+              minLength={8}
+            />
+            <Field
+              label="Nhập lại mật khẩu mới"
+              name="confirmPassword"
+              type="password"
+              minLength={8}
+            />
           </>
         ) : (
           <Field label="Email" name="email" type="email" />
         )}
         {error && (
-          <p role="alert" className="rounded-xl bg-[#F15A3E]/10 p-4 text-sm text-[#B83E2C]">
+          <p
+            role="alert"
+            className="rounded-xl bg-[#F15A3E]/10 p-4 text-sm text-[#B83E2C]"
+          >
             {error}
           </p>
         )}
         {success && (
-          <p role="status" className="rounded-xl bg-primary/10 p-4 text-sm text-[#315B45]">
+          <p
+            role="status"
+            className="rounded-xl bg-primary/10 p-4 text-sm text-[#315B45]"
+          >
             {success}
           </p>
         )}
-        <button disabled={submitting} className="w-full rounded-full bg-primary py-4 text-base text-white disabled:opacity-60">
+        <button
+          disabled={submitting}
+          className="w-full rounded-full bg-primary py-4 text-base text-white disabled:opacity-60"
+        >
           {submitting
             ? "Đang xử lý..."
             : isReset
@@ -3114,7 +3199,9 @@ function AdminLayout() {
       <div className="flex items-center justify-between border-b border-border bg-background px-6 py-5">
         <Logo />
         <div className="flex items-center gap-4 text-sm">
-          <span className="hidden sm:block">Không gian tác giả · {adminUser.name || adminUser.email}</span>
+          <span className="hidden sm:block">
+            Không gian tác giả · {adminUser.name || adminUser.email}
+          </span>
           <MotionToggle />
           <button
             onClick={async () => {
@@ -3146,7 +3233,10 @@ function AdminLayout() {
         </aside>
         <div className="min-w-0 flex-1 p-6 md:p-10">
           {backendError && (
-            <p role="alert" className="mb-6 rounded-xl bg-[#FBAF37]/15 p-4 text-sm text-[#6E493E]">
+            <p
+              role="alert"
+              className="mb-6 rounded-xl bg-[#FBAF37]/15 p-4 text-sm text-[#6E493E]"
+            >
               Appwrite chưa tải đủ dữ liệu: {backendError}
             </p>
           )}
@@ -3177,7 +3267,9 @@ function Dashboard() {
   const { videos, quizzes } = useStore()
   const [orderCount, setOrderCount] = useState(0)
   useEffect(() => {
-    listOrders().then((orders) => setOrderCount(orders.length)).catch(() => undefined)
+    listOrders()
+      .then((orders) => setOrderCount(orders.length))
+      .catch(() => undefined)
   }, [])
   return (
     <>
@@ -3192,7 +3284,11 @@ function Dashboard() {
           ["Mã QR", videos.length, QrCode],
           ["Quiz", quizzes.length, Gamepad2],
           ["Đơn hàng", orderCount, Package],
-          ["Cơ sở dữ liệu", isAppwriteConfigured ? "Appwrite" : "Chưa nối", ShoppingBag],
+          [
+            "Cơ sở dữ liệu",
+            isAppwriteConfigured ? "Appwrite" : "Chưa nối",
+            ShoppingBag,
+          ],
         ].map(([label, value, Icon]) => {
           const ItemIcon = Icon as typeof BookOpen
           return (
@@ -3230,10 +3326,15 @@ function Dashboard() {
         <h3 className="mb-4 text-xl">Hoạt động gần đây</h3>
         {videos.slice(0, 5).map((v) => (
           <p className="border-b border-border py-4 text-sm" key={v.id}>
-            <span className="mr-3 text-[#4A5461]">✓</span> Video sẵn sàng: {v.title}
+            <span className="mr-3 text-[#4A5461]">✓</span> Video sẵn sàng:{" "}
+            {v.title}
           </p>
         ))}
-        {!videos.length && <p className="py-4 text-sm text-[#4A5461]">Chưa có video nào được tải lên.</p>}
+        {!videos.length && (
+          <p className="py-4 text-sm text-[#4A5461]">
+            Chưa có video nào được tải lên.
+          </p>
+        )}
       </div>
     </>
   )
@@ -3297,11 +3398,13 @@ function VideoAdmin() {
                     </div>
                   </td>
                   <td className="p-4 text-xs">Khu rừng kỳ diệu</td>
-                  <td className="whitespace-nowrap p-4">{video.chapter}</td>
+                  <td className="whitespace-nowrap p-4">
+                    {displayVideoChapter(video.chapter)}
+                  </td>
                   <td className="p-4">{video.duration}</td>
                   <td className="p-4">
                     <Link
-                      to={`/admin/qr?video=${video.id}`}
+                      to={`/admin/qr?slot=${encodeURIComponent(findQrSlot(video.chapter)?.id || video.id)}`}
                       className="inline-flex items-center gap-1 text-primary"
                     >
                       <QrCode size={15} /> Tạo QR
@@ -3356,24 +3459,30 @@ function VideoAdmin() {
         <Modal title="Chỉnh sửa Video" onClose={() => setEditing(null)}>
           <form
             className="space-y-5"
-          onSubmit={async (event) => {
+            onSubmit={async (event) => {
               event.preventDefault()
               const data = new FormData(event.currentTarget)
-            const changes = {
-              title: String(data.get("title")),
-              description: String(data.get("description")),
-              chapter: String(data.get("chapter")),
-            }
-            try {
-              await updateVideo(editing.id, changes)
-              setVideos(videos.map((video) =>
-                video.id === editing.id ? { ...video, ...changes } : video,
-              ))
-              setEditing(null)
-              notify("Đã lưu thay đổi video vào Appwrite.")
-            } catch (cause) {
-              notify(cause instanceof Error ? cause.message : "Không lưu được video.")
-            }
+              const changes = {
+                title: String(data.get("title")),
+                description: String(data.get("description")),
+                chapter: String(data.get("chapter")),
+              }
+              try {
+                await updateVideo(editing.id, changes)
+                setVideos(
+                  videos.map((video) =>
+                    video.id === editing.id ? { ...video, ...changes } : video,
+                  ),
+                )
+                setEditing(null)
+                notify("Đã lưu thay đổi video vào Appwrite.")
+              } catch (cause) {
+                notify(
+                  cause instanceof Error
+                    ? cause.message
+                    : "Không lưu được video.",
+                )
+              }
             }}
           >
             <label className="block text-sm font-semibold">
@@ -3403,9 +3512,20 @@ function VideoAdmin() {
               >
                 {["Chương 1", "Chương 2", "Chương 3", "Hoạt động", "Bonus"].map(
                   (chapter) => (
-                    <option key={chapter}>{chapter}</option>
+                    <option key={chapter} value={chapter}>
+                      {chapter} · QR chương cũ
+                    </option>
                   ),
                 )}
+                {bookVideoSlotGroups.map((group) => (
+                  <optgroup key={group.label} label={group.label}>
+                    {group.slots.map((slot) => (
+                      <option key={slot.id} value={slot.chapter}>
+                        {slot.label}
+                      </option>
+                    ))}
+                  </optgroup>
+                ))}
               </select>
             </label>
             <button className="w-full rounded-full bg-primary px-6 py-3 text-base font-bold text-white">
@@ -3417,8 +3537,8 @@ function VideoAdmin() {
       {deleting && (
         <Modal title="Xóa video này?" onClose={() => setDeleting(null)}>
           <p className="mb-6 text-sm leading-7 text-[#4A5461]">
-            Video “{deleting.title}” sẽ bị xóa khỏi thư viện Appwrite và mã QR liên
-            quan sẽ không còn xuất hiện trong thư viện.
+            Video “{deleting.title}” sẽ bị xóa khỏi thư viện Appwrite và mã QR
+            liên quan sẽ không còn xuất hiện trong thư viện.
           </p>
           <div className="flex gap-3">
             <Button
@@ -3427,11 +3547,17 @@ function VideoAdmin() {
                 void (async () => {
                   try {
                     await deleteVideo(deleting)
-                    setVideos(videos.filter((video) => video.id !== deleting.id))
+                    setVideos(
+                      videos.filter((video) => video.id !== deleting.id),
+                    )
                     setDeleting(null)
                     notify("Đã xóa video khỏi Appwrite.")
                   } catch (cause) {
-                    notify(cause instanceof Error ? cause.message : "Không xóa được video.")
+                    notify(
+                      cause instanceof Error
+                        ? cause.message
+                        : "Không xóa được video.",
+                    )
                   }
                 })()
               }}
@@ -3500,7 +3626,7 @@ function UploadVideo() {
             const video = await createVideo({
               title: String(data.get("title") || "").trim(),
               description: String(data.get("description") || "").trim(),
-              chapter: String(data.get("chapter") || "Chương 1"),
+              chapter: String(data.get("chapter") || bookVideoSlots[0].chapter),
               visibility: String(data.get("visibility") || "Công khai"),
               file,
               thumbnail:
@@ -3509,9 +3635,9 @@ function UploadVideo() {
                   : undefined,
               onProgress: setProgress,
             })
-            setVideos([...videos, video])
+            setVideos([video, ...videos])
             notify("Video và dữ liệu đã được lưu vào Appwrite.")
-            navigate(`/admin/qr?video=${video.id}`)
+            navigate(`/admin/qr?slot=${encodeURIComponent(video.chapter)}`)
           } catch (cause) {
             setError(
               cause instanceof Error
@@ -3582,11 +3708,24 @@ function UploadVideo() {
               name="chapter"
               className="mt-2 w-full rounded-xl border border-border bg-white p-4"
             >
-              {["Chương 1", "Chương 2", "Chương 3", "Hoạt động", "Bonus"].map(
-                (c) => (
-                  <option key={c}>{c}</option>
-                ),
-              )}
+              {bookVideoSlotGroups.map((group) => (
+                <optgroup key={group.label} label={group.label}>
+                  {group.slots.map((slot) => (
+                    <option key={slot.id} value={slot.chapter}>
+                      {slot.label}
+                    </option>
+                  ))}
+                </optgroup>
+              ))}
+              <optgroup label="QR chương cũ">
+                {["Chương 1", "Chương 2", "Chương 3", "Hoạt động", "Bonus"].map(
+                  (chapter) => (
+                    <option key={chapter} value={chapter}>
+                      {chapter}
+                    </option>
+                  ),
+                )}
+              </optgroup>
             </select>
           </label>
         </div>
@@ -3639,19 +3778,23 @@ function UploadVideo() {
 function QRAdmin() {
   const { videos, notify } = useStore()
   const location = useLocation()
-  const [selected, setSelected] = useState(
-    new URLSearchParams(location.search).get("video") || videos[0]?.id || "",
-  )
+  const query = new URLSearchParams(location.search)
+  const queryVideo = videos.find((video) => video.id === query.get("video"))
+  const initialSlot =
+    query.get("slot") ||
+    (queryVideo
+      ? findQrSlot(queryVideo.chapter)?.id || bookVideoSlots[0].id
+      : bookVideoSlots[0].id)
+  const [selected, setSelected] = useState(initialSlot)
   const [png, setPng] = useState("")
   const [svg, setSvg] = useState("")
   const [search, setSearch] = useState("")
-  const item = videos.find((v) => v.id === selected)
-  const url = `${publicSiteOrigin}/watch/${selected}`
-  useEffect(() => {
-    if (!selected && videos[0]) setSelected(videos[0].id)
-  }, [selected, videos])
+  const slot = qrVideoSlots.find((videoSlot) => videoSlot.id === selected)
+  const item = slot
+    ? videos.find((video) => video.chapter === slot.chapter)
+    : videos.find((video) => video.id === selected)
+  const url = `${publicSiteOrigin}/watch/${slot?.id || selected}`
   async function generate() {
-    if (!item) return
     const { default: QRCode } = await import("qrcode")
     setPng(
       await QRCode.toDataURL(url, {
@@ -3664,7 +3807,7 @@ function QRAdmin() {
   }
   useEffect(() => {
     generate()
-  }, [selected, videos])
+  }, [selected])
   function download(type: string) {
     const link = document.createElement("a")
     link.href =
@@ -3679,48 +3822,57 @@ function QRAdmin() {
     <>
       <AdminHeading title="Quản lý QR Code" />
       <section className="mb-8 rounded-3xl border border-border bg-white p-6 sm:p-8">
-        <h2 className="text-2xl">Ba mã QR cố định theo chương</h2>
+        <h2 className="text-2xl">54 mã QR cố định theo từng trang</h2>
         <p className="mt-3 max-w-3xl text-sm leading-7 text-[#4A5461]">
-          Có thể tải và in QR ngay. Sau này khi tải video lên, chọn đúng chương
-          tương ứng; mã QR này sẽ tự mở video mới mà không cần in lại.
+          Mỗi mã ứng với đúng một trang trong PDF. Hai trang bìa của mỗi chương
+          cũng có mã riêng. Tải video sau và gán đúng vị trí để QR đã in mở được
+          video mà không cần in lại.
         </p>
-        <div className="mt-6 grid gap-5 md:grid-cols-3">
-          {qrVideoSlots.map((slot) => (
-            <article
-              key={slot.id}
-              className="rounded-2xl border border-primary/10 bg-[#FFFEF0] p-5 text-center"
-            >
-              <img
-                src={`/qr/riko-${slot.id}.png`}
-                alt={`Mã QR ${slot.chapter}: ${slot.title}`}
-                className="mx-auto mb-4 size-44 rounded-xl bg-white p-2"
-              />
-              <p className="text-xs font-bold uppercase tracking-wide text-[#1D80C4]">
-                {slot.chapter}
-              </p>
-              <h3 className="mt-2 min-h-12 text-base">{slot.title}</h3>
-              <p className="mt-2 break-all text-xs text-[#4A5461]">
-                {publicSiteOrigin}/watch/{slot.id}
-              </p>
-              <Button
-                secondary
-                className="mt-4"
-                onClick={() => {
-                  const link = document.createElement("a")
-                  link.href = `/qr/riko-${slot.id}.png`
-                  link.download = `rikokid-${slot.id}.png`
-                  link.click()
-                }}
+        <SearchField value={search} onChange={setSearch} />
+        <div className="mt-6 grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+          {bookVideoSlots
+            .filter((videoSlot) =>
+              `${videoSlot.label} ${videoSlot.document} ${videoSlot.id}`
+                .toLowerCase()
+                .includes(search.toLowerCase()),
+            )
+            .map((slot) => (
+              <article
+                key={slot.id}
+                className="rounded-2xl border border-primary/10 bg-[#FFFEF0] p-5 text-center"
               >
-                <Download size={14} /> Tải mã QR
-              </Button>
-            </article>
-          ))}
+                <img
+                  src={`/qr/riko-${slot.id}.png`}
+                  alt={`Mã QR ${slot.label}`}
+                  loading="lazy"
+                  className="mx-auto mb-4 size-44 rounded-xl bg-white p-2"
+                />
+                <p className="text-xs font-bold uppercase tracking-wide text-[#1D80C4]">
+                  {slot.group}
+                </p>
+                <h3 className="mt-2 min-h-12 text-base">{slot.label}</h3>
+                <p className="mt-2 break-all text-xs text-[#4A5461]">
+                  {publicSiteOrigin}/watch/{slot.id}
+                </p>
+                <Button
+                  secondary
+                  className="mt-4"
+                  onClick={() => {
+                    const link = document.createElement("a")
+                    link.href = `/qr/riko-${slot.id}.png`
+                    link.download = `rikokid-${slot.id}.png`
+                    link.click()
+                  }}
+                >
+                  <Download size={14} /> Tải mã QR
+                </Button>
+              </article>
+            ))}
         </div>
       </section>
       <div className="grid gap-7 lg:grid-cols-2">
         <div className="rounded-3xl border border-border bg-white p-7">
-          <h3 className="mb-6 text-xl">Thông tin video</h3>
+          <h3 className="mb-6 text-xl">Vị trí trong sách</h3>
           {item &&
             (item.thumbnail ? (
               <img
@@ -3732,25 +3884,37 @@ function QRAdmin() {
               <Scene className="mb-5 h-40 rounded-xl" />
             ))}
           <label className="text-sm">
-            Chọn video
+            Chọn trang sách / mã QR
             <select
               value={selected}
-              disabled={!videos.length}
               onChange={(event) => setSelected(event.target.value)}
               className="my-3 w-full rounded-xl border border-border p-4"
             >
-              {!videos.length && (
-                <option value="">Chưa có video tải lên</option>
-              )}
-              {videos.map((v) => (
-                <option key={v.id} value={v.id}>
-                  {v.title}
-                </option>
+              {bookVideoSlotGroups.map((group) => (
+                <optgroup key={group.label} label={group.label}>
+                  {group.slots.map((videoSlot) => (
+                    <option key={videoSlot.id} value={videoSlot.id}>
+                      {videoSlot.label}
+                    </option>
+                  ))}
+                </optgroup>
               ))}
+              <optgroup label="QR chương cũ">
+                {legacyQrVideoSlots.map((videoSlot) => (
+                  <option key={videoSlot.id} value={videoSlot.id}>
+                    {videoSlot.label}
+                  </option>
+                ))}
+              </optgroup>
             </select>
           </label>
           <p className="my-4 text-base">
-            {bookTitle} · {item?.chapter}
+            {bookTitle} · {slot?.label}
+          </p>
+          <p className="mb-4 text-sm text-[#4A5461]">
+            {item?.url
+              ? `Video đã gán: ${item.title}`
+              : "Chưa có video ở vị trí này. QR vẫn mở được trang chờ video."}
           </p>
           <label className="text-sm">
             Đường dẫn video
@@ -3779,7 +3943,7 @@ function QRAdmin() {
           <p className="mb-3 text-xs text-[#4A5461]">
             Ngày tạo: {new Date().toLocaleDateString("vi-VN")}
           </p>
-          {png && item ? (
+          {png ? (
             <QRScanner className="mx-auto mb-5 size-55">
               <img
                 src={png}
@@ -3787,31 +3951,18 @@ function QRAdmin() {
                 alt="Mã QR dẫn tới video Riko"
               />
             </QRScanner>
-          ) : item ? (
-            <RikoLoading label="Riko đang chuẩn bị mã QR..." />
           ) : (
-            <p className="p-10 text-sm leading-7 text-[#4A5461]">
-              QR cố định theo chương ở phía trên dùng được ngay, kể cả khi chưa
-              tải video lên.
-            </p>
+            <RikoLoading label="Riko đang chuẩn bị mã QR..." />
           )}
           <div className="flex flex-wrap justify-center gap-2">
-            <Button
-              disabled={!png || !item}
-              secondary
-              onClick={() => download("png")}
-            >
+            <Button disabled={!png} secondary onClick={() => download("png")}>
               <Download size={14} /> PNG
             </Button>
-            <Button
-              disabled={!png || !item}
-              secondary
-              onClick={() => download("svg")}
-            >
+            <Button disabled={!png} secondary onClick={() => download("svg")}>
               <Download size={14} /> SVG
             </Button>
             <Button
-              disabled={!item}
+              disabled={!selected}
               secondary
               onClick={async () => {
                 try {
@@ -3837,16 +3988,16 @@ function QRAdmin() {
           .map((v) => (
             <button
               key={v.id}
-              onClick={() => setSelected(v.id)}
+              onClick={() => setSelected(findQrSlot(v.chapter)?.id || v.id)}
               className={`flex w-full items-center gap-4 rounded-xl border p-4 text-left text-sm ${
-                selected === v.id
+                selected === (findQrSlot(v.chapter)?.id || v.id)
                   ? "border-primary bg-primary/5"
                   : "border-border bg-white"
               }`}
             >
               <QrCode size={22} />
               <span className="flex-1">{v.title}</span>
-              <span>{v.chapter}</span>
+              <span>{displayVideoChapter(v.chapter)}</span>
               <span className="hidden text-[#4A5461] sm:block">
                 Sẵn sàng · 0 lượt quét
               </span>
@@ -3900,7 +4051,11 @@ function QuizAdmin() {
                       setQuizzes(quizzes.filter((quiz) => quiz.id !== item.id))
                       notify("Đã xóa quiz khỏi Appwrite.")
                     } catch (cause) {
-                      notify(cause instanceof Error ? cause.message : "Không xóa được quiz.")
+                      notify(
+                        cause instanceof Error
+                          ? cause.message
+                          : "Không xóa được quiz.",
+                      )
                     }
                   })()
                 }}
@@ -3940,9 +4095,15 @@ function QuizAdmin() {
               setQuizzes([quiz, ...quizzes])
               setBuilder(false)
               setCount(1)
-              notify(quiz.published ? "Quiz đã được xuất bản." : "Đã lưu bản nháp quiz.")
+              notify(
+                quiz.published
+                  ? "Quiz đã được xuất bản."
+                  : "Đã lưu bản nháp quiz.",
+              )
             } catch (cause) {
-              setError(cause instanceof Error ? cause.message : "Không lưu được quiz.")
+              setError(
+                cause instanceof Error ? cause.message : "Không lưu được quiz.",
+              )
             } finally {
               setSaving(false)
             }
@@ -3960,7 +4121,10 @@ function QuizAdmin() {
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="text-sm">
               Sách
-              <select name="chapter" className="mt-2 w-full rounded-xl border border-border p-4">
+              <select
+                name="chapter"
+                className="mt-2 w-full rounded-xl border border-border p-4"
+              >
                 <option>{bookTitle}</option>
               </select>
             </label>
@@ -3975,10 +4139,15 @@ function QuizAdmin() {
           </div>
           <label className="block text-sm">
             Video liên quan
-            <select name="videoId" className="mt-2 w-full rounded-xl border border-border p-4">
+            <select
+              name="videoId"
+              className="mt-2 w-full rounded-xl border border-border p-4"
+            >
               <option value="">Không liên kết video</option>
               {videos.map((video) => (
-                <option key={video.id} value={video.id}>{video.title}</option>
+                <option key={video.id} value={video.id}>
+                  {video.title}
+                </option>
               ))}
             </select>
           </label>
@@ -3999,26 +4168,24 @@ function QuizAdmin() {
               <p className="text-sm text-[#4A5461]">Chọn một đáp án đúng:</p>
               <div className="grid gap-3 sm:grid-cols-2">
                 {Array.from({ length: 4 }, (_, answer) => (
-                    <label
-                      key={answer}
-                      className="flex items-center gap-3 rounded-xl bg-white p-3"
-                    >
-                      <input
-                        required
-                        type="radio"
-                        name={`correct-${index}`}
-                        value={answer}
-                        defaultChecked={answer === 0}
-                      />
-                      <input
-                        required
-                        name={`answer-${index}-${answer}`}
-                        placeholder={
-                          `Đáp án ${String.fromCharCode(65 + answer)}`
-                        }
-                        className="w-full text-sm outline-none"
-                      />
-                    </label>
+                  <label
+                    key={answer}
+                    className="flex items-center gap-3 rounded-xl bg-white p-3"
+                  >
+                    <input
+                      required
+                      type="radio"
+                      name={`correct-${index}`}
+                      value={answer}
+                      defaultChecked={answer === 0}
+                    />
+                    <input
+                      required
+                      name={`answer-${index}-${answer}`}
+                      placeholder={`Đáp án ${String.fromCharCode(65 + answer)}`}
+                      className="w-full text-sm outline-none"
+                    />
+                  </label>
                 ))}
               </div>
               <input
@@ -4032,7 +4199,14 @@ function QuizAdmin() {
             <input type="checkbox" name="published" defaultChecked />
             Xuất bản để các bạn nhỏ có thể chơi ngay
           </label>
-          {error && <p role="alert" className="rounded-xl bg-[#F15A3E]/10 p-4 text-sm text-[#B83E2C]">{error}</p>}
+          {error && (
+            <p
+              role="alert"
+              className="rounded-xl bg-[#F15A3E]/10 p-4 text-sm text-[#B83E2C]"
+            >
+              {error}
+            </p>
+          )}
           <p className="text-xs text-[#4A5461]">
             Chọn nút tròn cạnh đáp án đúng. Quiz được lưu trong Appwrite và có
             thể xuất bản cho trang chơi công khai.
@@ -4041,7 +4215,10 @@ function QuizAdmin() {
             <Button secondary onClick={() => setCount(count + 1)}>
               <Plus size={16} /> Thêm câu hỏi
             </Button>
-            <button disabled={saving} className="rounded-full bg-primary px-6 py-4 text-base text-white disabled:opacity-60">
+            <button
+              disabled={saving}
+              className="rounded-full bg-primary px-6 py-4 text-base text-white disabled:opacity-60"
+            >
               {saving ? "Đang lưu..." : "Lưu Quiz"}
             </button>
             <Button secondary onClick={() => setBuilder(false)}>
@@ -4061,11 +4238,19 @@ function OrdersAdmin() {
     listOrders()
       .then(setOrders)
       .catch((cause) =>
-        notify(cause instanceof Error ? cause.message : "Không tải được đơn hàng."),
+        notify(
+          cause instanceof Error ? cause.message : "Không tải được đơn hàng.",
+        ),
       )
       .finally(() => setLoading(false))
   }, [notify])
-  const statuses = ["Mới nhận", "Đang chuẩn bị", "Đang giao", "Hoàn tất", "Đã hủy"]
+  const statuses = [
+    "Mới nhận",
+    "Đang chuẩn bị",
+    "Đang giao",
+    "Hoàn tất",
+    "Đã hủy",
+  ]
   return (
     <>
       <AdminHeading title="Đơn hàng" />
@@ -4080,21 +4265,46 @@ function OrdersAdmin() {
           <table className="w-full min-w-[1100px] text-left text-sm">
             <thead className="bg-primary/5 text-[#4A5461]">
               <tr>
-                {["Mã đơn", "Khách hàng", "Liên hệ", "Địa chỉ", "Số lượng", "Tổng tiền", "Ngày đặt", "Trạng thái"].map((title) => (
-                  <th key={title} className="p-4 text-xs font-bold">{title}</th>
+                {[
+                  "Mã đơn",
+                  "Khách hàng",
+                  "Liên hệ",
+                  "Địa chỉ",
+                  "Số lượng",
+                  "Tổng tiền",
+                  "Ngày đặt",
+                  "Trạng thái",
+                ].map((title) => (
+                  <th key={title} className="p-4 text-xs font-bold">
+                    {title}
+                  </th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {orders.map((order) => (
                 <tr key={order.id} className="border-t border-border align-top">
-                  <td className="whitespace-nowrap p-4 font-bold text-primary">{order.orderCode}</td>
+                  <td className="whitespace-nowrap p-4 font-bold text-primary">
+                    {order.orderCode}
+                  </td>
                   <td className="p-4">{order.customerName}</td>
-                  <td className="p-4 text-xs leading-6">{order.phone}<br />{order.email}</td>
-                  <td className="max-w-64 p-4 text-xs leading-6">{order.address}<br />{order.province}</td>
+                  <td className="p-4 text-xs leading-6">
+                    {order.phone}
+                    <br />
+                    {order.email}
+                  </td>
+                  <td className="max-w-64 p-4 text-xs leading-6">
+                    {order.address}
+                    <br />
+                    {order.province}
+                  </td>
                   <td className="p-4">{order.quantity}</td>
-                  <td className="whitespace-nowrap p-4">{money(order.total)}</td>
-                  <td className="whitespace-nowrap p-4 text-xs">{new Date(order.createdAt).toLocaleString("vi-VN")}</td>
+                  <td className="whitespace-nowrap p-4">
+                    {money(order.total)}
+                  </td>
+                  <td className="whitespace-nowrap p-4 text-xs">
+                    {new Date(order.createdAt).toLocaleString("vi-VN")}
+                  </td>
                   <td className="p-4">
                     <select
                       aria-label={`Trạng thái đơn ${order.orderCode}`}
@@ -4103,14 +4313,28 @@ function OrdersAdmin() {
                         const status = event.target.value
                         void updateOrderStatus(order.id, status)
                           .then(() => {
-                            setOrders(orders.map((item) => item.id === order.id ? { ...item, status } : item))
+                            setOrders(
+                              orders.map((item) =>
+                                item.id === order.id
+                                  ? { ...item, status }
+                                  : item,
+                              ),
+                            )
                             notify("Đã cập nhật trạng thái đơn hàng.")
                           })
-                          .catch((cause) => notify(cause instanceof Error ? cause.message : "Không cập nhật được đơn hàng."))
+                          .catch((cause) =>
+                            notify(
+                              cause instanceof Error
+                                ? cause.message
+                                : "Không cập nhật được đơn hàng.",
+                            ),
+                          )
                       }}
                       className="rounded-xl border border-border bg-white p-2 text-xs"
                     >
-                      {statuses.map((status) => <option key={status}>{status}</option>)}
+                      {statuses.map((status) => (
+                        <option key={status}>{status}</option>
+                      ))}
                     </select>
                   </td>
                 </tr>
@@ -4197,9 +4421,19 @@ function Provider({ children }: { children: ReactNode }) {
         if (!current) return
         const errors: string[] = []
         if (videoResult.status === "fulfilled") setVideos(videoResult.value)
-        else errors.push(videoResult.reason instanceof Error ? videoResult.reason.message : "Không tải được video.")
+        else
+          errors.push(
+            videoResult.reason instanceof Error
+              ? videoResult.reason.message
+              : "Không tải được video.",
+          )
         if (quizResult.status === "fulfilled") setQuizzes(quizResult.value)
-        else errors.push(quizResult.reason instanceof Error ? quizResult.reason.message : "Không tải được quiz.")
+        else
+          errors.push(
+            quizResult.reason instanceof Error
+              ? quizResult.reason.message
+              : "Không tải được quiz.",
+          )
         if (userResult.status === "fulfilled") setAdminUser(userResult.value)
         setBackendError(errors.join(" "))
         setAuthReady(true)

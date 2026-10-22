@@ -396,10 +396,9 @@ export function ScrollStory({ stages }: { stages: StoryStage[] }) {
   return (
     <section
       ref={ref}
-      className={`relative bg-[#3F97D2]/[.07] ${
-        cinematic ? "h-[350vh]" : "py-12"
-      }`}
-      aria-label="Đọc, quét, xem và chơi cùng Riko"
+      className={`relative bg-[#3F97D2]/[.07] ${cinematic ? "" : "py-12"}`}
+      style={cinematic ? { height: `${stages.length * 58.333}vh` } : undefined}
+      aria-label="Đọc, quét mã và chơi cùng Riko"
     >
       <div
         className={
@@ -414,7 +413,7 @@ export function ScrollStory({ stages }: { stages: StoryStage[] }) {
               TỪ TRANG SÁCH ĐẾN THẾ GIỚI SỐ
             </p>
             <h2 className="mb-9 text-center text-3xl md:text-[42px]">
-              Đọc. Quét. Xem. Chơi.
+              Đọc. Quét. Chơi.
               <br className="sm:hidden" /> Cả một thế giới!
             </h2>
           </Reveal>
@@ -487,16 +486,20 @@ export function ScrollStory({ stages }: { stages: StoryStage[] }) {
                         : { pathLength: (stage + 1) / stages.length }
                     }
                   />
-                  {[12, 98, 183, 267, 352, 435].map((x, index) => (
-                    <circle
-                      key={x}
-                      cx={x}
-                      cy={index % 2 ? 43 : 48}
-                      r="5"
-                      fill={index <= stage ? "#1D80C4" : "#3F97D2"}
-                      opacity={index <= stage ? 1 : 0.25}
-                    />
-                  ))}
+                  {stages.map((_, index) => {
+                    const x =
+                      12 + (423 * index) / Math.max(1, stages.length - 1)
+                    return (
+                      <circle
+                        key={index}
+                        cx={x}
+                        cy={index % 2 ? 43 : 48}
+                        r="5"
+                        fill={index <= stage ? "#1D80C4" : "#3F97D2"}
+                        opacity={index <= stage ? 1 : 0.25}
+                      />
+                    )
+                  })}
                 </svg>
                 <p className="mt-1 text-xs font-semibold text-primary/60">
                   {cinematic
