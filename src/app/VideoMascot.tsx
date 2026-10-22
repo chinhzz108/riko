@@ -6,6 +6,13 @@ import rikoWelcome from "../assets/riko/welcome.webp"
 const canvasWidth = 420
 const canvasHeight = 660
 const canvasFill = 0.96
+type VideoFrameMetadataLike = { mediaTime: number }
+type VideoFrameCallbackVideo = HTMLVideoElement & {
+  requestVideoFrameCallback?: (
+    callback: (now: number, metadata: VideoFrameMetadataLike) => void,
+  ) => number
+  cancelVideoFrameCallback?: (handle: number) => void
+}
 
 export default function VideoMascot() {
   const { enabled } = useMotionPreferences()
@@ -35,7 +42,9 @@ export default function VideoMascot() {
     let visited = new Uint8Array()
     let componentIds = new Uint32Array()
     let queue = new Int32Array()
+    const frameVideo = video as VideoFrameCallbackVideo
     let frameRequest = 0
+    let videoFrameRequest: number | null = null
     let playTimer = 0
     let lastTime = -1
     let disposed = false
@@ -43,7 +52,7 @@ export default function VideoMascot() {
     let hasDrawnFrame = false
 
     const mobile = window.matchMedia("(max-width: 600px)").matches
-    const maxSourceWidth = mobile ? 200 : 260
+    const maxSourceWidth = mobile ? 180 : 220
     const minFrameInterval = mobile ? 1 / 8 : 1 / 10
 
     const sizeSource = () => {
@@ -211,8 +220,19 @@ export default function VideoMascot() {
       }
     }
 
+    const scheduleFrame = () => {
+      if (disposed || video.paused) return
+      if (frameVideo.requestVideoFrameCallback) {
+        if (videoFrameRequest === null) {
+          videoFrameRequest = frameVideo.requestVideoFrameCallback(() => tick())
+        }
+      } else if (!frameRequest) {
+        frameRequest = requestAnimationFrame(tick)
+      }
+    }
     const tick = () => {
       frameRequest = 0
+      videoFrameRequest = null
       if (disposed || video.paused) return
       if (
         video.currentTime !== lastTime &&
@@ -223,15 +243,18 @@ export default function VideoMascot() {
         draw()
         lastTime = video.currentTime
       }
-      frameRequest = requestAnimationFrame(tick)
+      scheduleFrame()
     }
     const start = () => {
-      if (!disposed && !frameRequest)
-        frameRequest = requestAnimationFrame(tick)
+      scheduleFrame()
     }
     const stop = () => {
       if (frameRequest) cancelAnimationFrame(frameRequest)
       frameRequest = 0
+      if (videoFrameRequest !== null) {
+        frameVideo.cancelVideoFrameCallback?.(videoFrameRequest)
+        videoFrameRequest = null
+      }
     }
     const updatePlayback = () => {
       if (document.visibilityState !== "visible") {
