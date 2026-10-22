@@ -1,0 +1,57 @@
+import assert from "node:assert/strict"
+import { readFile } from "node:fs/promises"
+import {
+  QR_FALLBACK_DELAY_MS,
+  resolveSlotFromLabel,
+  routeSlotFromQR,
+  shouldCommitQrFallback,
+} from "../../src/lib/arScanLogic.js"
+
+const slotsData = JSON.parse(await readFile("src/data/bookVideoSlots.json", "utf8"))
+const targetsData = JSON.parse(await readFile("src/data/arTargets.json", "utf8"))
+const slots = slotsData.slots
+const targets = targetsData.targets
+const slot = (id) => slots.find((item) => item.id === id) || null
+
+assert.equal(QR_FALLBACK_DELAY_MS, 800)
+for (const item of slots) {
+  assert.equal(routeSlotFromQR(`${slotsData.publicOrigin}/watch/${item.id}`, slots, slotsData.publicOrigin)?.id, item.id)
+  assert.equal(resolveSlotFromLabel(item.pageClass, undefined, targets, slots)?.id, item.id)
+}
+assert.equal(routeSlotFromQR("https://rikokid.me/watch/chapter-2", slots, slotsData.publicOrigin)?.group, "Chương 2")
+assert.equal(routeSlotFromQR("https://example.com/watch/book-c1-p03", slots, slotsData.publicOrigin), null)
+
+for (const target of targets) {
+  for (const pageId of target.pages) {
+    assert.equal(resolveSlotFromLabel(target.popupLabel, pageId, targets, slots)?.id, pageId)
+  }
+  if (target.pages.length > 1) {
+    assert.equal(resolveSlotFromLabel(target.popupLabel, undefined, targets, slots), null)
+  } else {
+    assert.equal(resolveSlotFromLabel(target.popupLabel, undefined, targets, slots)?.id, target.pages[0])
+  }
+}
+
+assert.equal(resolveSlotFromLabel("popup_HTTN03", undefined, targets, slots), null)
+assert.equal(resolveSlotFromLabel("popup_HTTN03", "book-c3-p07", targets, slots)?.id, "book-c3-p07")
+assert.equal(resolveSlotFromLabel("popup_HTTN03", "book-c3-p08", targets, slots)?.id, "book-c3-p08")
+assert.equal(resolveSlotFromLabel("popup_HTTN03", "book-c3-p06", targets, slots), null)
+
+const fallbackAt = (patch = {}) => shouldCommitQrFallback({
+  pendingQr: slot("book-c1-p03"),
+  qrFoundAt: 100,
+  now: 900,
+  qrFallbackCommitted: false,
+  stableCount: 0,
+  stableFramesRequired: 3,
+  ...patch,
+})
+
+assert.equal(fallbackAt({ now: 899 }), false, "do not commit before 800 ms")
+assert.equal(fallbackAt(), true, "commit QR fallback at 800 ms without stable visual recognition")
+assert.equal(fallbackAt({ stableCount: 2 }), true, "flickering detections stay below the stability threshold")
+assert.equal(fallbackAt({ stableCount: 3 }), false, "stable visual recognition suppresses QR fallback")
+assert.equal(fallbackAt({ qrFallbackCommitted: true }), false, "commit only once")
+assert.equal(fallbackAt({ pendingQr: null }), false, "a QR is required for fallback")
+
+console.log("Scanner logic QA passed: QR routing, shared-page pop-up mapping, and 800 ms fallback timing.")

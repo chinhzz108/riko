@@ -5,6 +5,11 @@ import jsQR from "jsqr"
 import bookVideoManifest from "../data/bookVideoSlots.json"
 import arTargetManifest from "../data/arTargets.json"
 import { detectBookTarget, type ARDetection, type ARMaskRegion } from "../lib/arDetector"
+import {
+  resolveSlotFromLabel,
+  routeSlotFromQR,
+  shouldCommitQrFallback,
+} from "../lib/arScanLogic.js"
 
 type BookSlot = (typeof bookVideoManifest.slots)[number] & {
   arTargetId?: string | null
@@ -19,16 +24,10 @@ type Target = (typeof arTargetManifest.targets)[number] & {
 
 const slots = bookVideoManifest.slots as BookSlot[]
 const targets = arTargetManifest.targets as Target[]
-const slotById = new Map(slots.map((slot) => [slot.id, slot]))
 const classNames = [
   ...slots.map((slot) => slot.pageClass || `page_${slot.id.replace(/-/g, "_")}`),
   ...targets.map((target) => target.popupLabel),
 ]
-const QR_FALLBACK_DELAY_MS = 800
-const targetPageByLabel = new Map(
-  targets.map((target) => [target.popupLabel, target.pages[0]] as const),
-)
-
 type Selection = {
   slot: BookSlot
   box: ARDetection["box"] | null
@@ -36,34 +35,8 @@ type Selection = {
   score?: number
 }
 
-function routeSlotFromQR(rawValue: string) {
-  try {
-    const url = new URL(rawValue)
-    if (url.hostname !== "rikokid.me") return null
-    const match = url.pathname.match(/^\/watch\/([a-z0-9-]+)\/?$/i)
-    if (!match) return null
-    const directSlot = slotById.get(match[1])
-    if (directSlot) return directSlot
-    const chapterMatch = match[1].match(/^chapter-([1-3])$/)
-    if (!chapterMatch) return null
-    return slots.find((slot) => slot.group === `Chương ${chapterMatch[1]}`) || null
-  } catch {
-    return null
-  }
-}
-
-function slotFromDetection(detection: ARDetection) {
-  const className = classNames[detection.classId]
-  if (!className) return null
-  if (className.startsWith("popup_")) {
-    const pageId = targetPageByLabel.get(className)
-    return pageId ? slotById.get(pageId) || null : null
-  }
-  if (className.startsWith("page_")) {
-    const pageId = className.slice("page_".length).replace(/_/g, "-")
-    return slotById.get(pageId) || null
-  }
-  return null
+function slotFromDetection(detection: ARDetection, pageContext?: BookSlot | null) {
+  return resolveSlotFromLabel(classNames[detection.classId], pageContext?.id, targets, slots)
 }
 
 function getCoverRect(
@@ -196,7 +169,7 @@ export default function ARScan() {
     let lastQrAt = 0
     let lastQrLocationAt = 0
     let qrMask: ARMaskRegion | null = null
-    let activeClass = ""
+    let activeVisualKey = ""
     let stableCount = 0
     let pendingQr: BookSlot | null = null
     let qrFoundAt = 0
@@ -250,8 +223,12 @@ export default function ARScan() {
           qrMask = null
         }
         if (decoded) {
-          const slot = routeSlotFromQR(decoded.data)
-          if (slot?.arVideoUrl && slot.id !== pendingQr?.id) {
+          const slot = routeSlotFromQR(decoded.data, slots, bookVideoManifest.publicOrigin)
+          if (
+            slot?.arVideoUrl &&
+            slot.id !== pendingQr?.id &&
+            slot.id !== selectionRef.current?.slot.id
+          ) {
             pendingQr = slot
             qrFoundAt = now
             qrFallbackCommitted = false
@@ -270,24 +247,26 @@ export default function ARScan() {
             arTargetManifest.minimumConfidence,
             qrMask,
           )
-          const popup = detections.find((item) => {
-            const label = classNames[item.classId]
-            return label?.startsWith("popup_") && slotFromDetection(item)?.arVideoUrl
-          })
-          const page = detections.find((item) => {
+          const pageMatch = detections.find((item) => {
             const label = classNames[item.classId]
             return label?.startsWith("page_") && slotFromDetection(item)?.arVideoUrl
           })
-          const match = popup || page
+          const pageSlot = pageMatch ? slotFromDetection(pageMatch) : null
+          const popupMatch = detections.find((item) => {
+            const label = classNames[item.classId]
+            return label?.startsWith("popup_") && slotFromDetection(item, pageSlot)?.arVideoUrl
+          })
+          const match = popupMatch || pageMatch
           if (match) {
             const label = classNames[match.classId]
-            if (label === activeClass) stableCount += 1
+            const slot = slotFromDetection(match, pageSlot)
+            const visualKey = `${label}:${slot?.id || "unresolved"}`
+            if (visualKey === activeVisualKey) stableCount += 1
             else {
-              activeClass = label
+              activeVisualKey = visualKey
               stableCount = 1
             }
             if (stableCount >= arTargetManifest.stableFramesRequired) {
-              const slot = slotFromDetection(match)
               if (slot?.arVideoUrl) {
                 pendingQr = null
                 qrFallbackCommitted = false
@@ -318,13 +297,13 @@ export default function ARScan() {
               }
             }
           } else {
-            activeClass = ""
+            activeVisualKey = ""
             stableCount = 0
           }
         } catch (modelError) {
           console.warn("Riko AR frame recognition failed.", modelError)
           modelReady = false
-          activeClass = ""
+          activeVisualKey = ""
           stableCount = 0
           setModelStatus("unavailable")
         } finally {
@@ -332,21 +311,27 @@ export default function ARScan() {
         }
       }
 
+      const qrFallbackSlot = pendingQr
       if (
-        pendingQr &&
-        !qrFallbackCommitted &&
-        now - qrFoundAt >= QR_FALLBACK_DELAY_MS &&
-        stableCount === 0
+        qrFallbackSlot &&
+        shouldCommitQrFallback({
+          pendingQr: qrFallbackSlot,
+          qrFoundAt,
+          now,
+          qrFallbackCommitted,
+          stableCount,
+          stableFramesRequired: arTargetManifest.stableFramesRequired,
+        })
       ) {
         const current = selectionRef.current
-        if (dismissedSlotRef.current && dismissedSlotRef.current !== pendingQr.id) {
+        if (dismissedSlotRef.current && dismissedSlotRef.current !== qrFallbackSlot.id) {
           dismissedSlotRef.current = null
         }
         if (
-          dismissedSlotRef.current !== pendingQr.id &&
-          (current?.slot.id !== pendingQr.id || current.source !== "qr")
+          dismissedSlotRef.current !== qrFallbackSlot.id &&
+          (current?.slot.id !== qrFallbackSlot.id || current.source !== "qr")
         ) {
-          chooseSelection({ slot: pendingQr, box: null, source: "qr" })
+          chooseSelection({ slot: qrFallbackSlot, box: null, source: "qr" })
         }
         qrFallbackCommitted = true
         pendingQr = null
