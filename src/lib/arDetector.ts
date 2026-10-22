@@ -21,8 +21,15 @@ type PreparedInput = {
   sourceWidth: number
   sourceHeight: number
 }
+type InputResources = {
+  canvas: HTMLCanvasElement
+  context: CanvasRenderingContext2D
+  values: Float32Array
+}
 
 let modelPromise: Promise<CompiledModel> | undefined
+let inferenceInProgress = false
+const inputResourcesByVideo = new WeakMap<HTMLVideoElement, InputResources>()
 
 function loadModel() {
   if (!modelPromise) {
@@ -56,11 +63,21 @@ function prepareInput(
   const drawnHeight = Math.round(sourceHeight * scale)
   const offsetX = Math.floor((width - drawnWidth) / 2)
   const offsetY = Math.floor((height - drawnHeight) / 2)
-  const canvas = document.createElement("canvas")
-  canvas.width = width
-  canvas.height = height
-  const context = canvas.getContext("2d", { willReadFrequently: true })
-  if (!context) throw new Error("Không tạo được khung ảnh cho camera.")
+  let resources = inputResourcesByVideo.get(video)
+  if (!resources || resources.canvas.width !== width || resources.canvas.height !== height) {
+    const canvas = document.createElement("canvas")
+    canvas.width = width
+    canvas.height = height
+    const context = canvas.getContext("2d", { willReadFrequently: true })
+    if (!context) throw new Error("Không tạo được khung ảnh cho camera.")
+    resources = {
+      canvas,
+      context,
+      values: new Float32Array(width * height * 3),
+    }
+    inputResourcesByVideo.set(video, resources)
+  }
+  const { context, values } = resources
   context.fillStyle = "rgb(245, 245, 245)"
   context.fillRect(0, 0, width, height)
   context.drawImage(video, offsetX, offsetY, drawnWidth, drawnHeight)
@@ -74,7 +91,6 @@ function prepareInput(
   }
   const { data } = context.getImageData(0, 0, width, height)
   const pixels = width * height
-  const values = new Float32Array(pixels * 3)
   for (let source = 0, target = 0; source < data.length; source += 4) {
     if (channelsFirst) {
       const pixel = source / 4
@@ -167,32 +183,38 @@ export async function detectBookTarget(
   minimumConfidence = 0.55,
   maskRegion?: ARMaskRegion | null,
 ) {
-  const model = await loadModel()
-  const inputDetails = model.getInputDetails()[0]
-  const outputDetails = model.getOutputDetails()[0]
-  const prepared = prepareInput(video, Array.from(inputDetails.shape), maskRegion)
-  const input = new Tensor(prepared.values, prepared.shape)
+  if (inferenceInProgress) return []
+  inferenceInProgress = true
   try {
-    const outputs = (await model.run(input)) as Tensor[]
+    const model = await loadModel()
+    const inputDetails = model.getInputDetails()[0]
+    const outputDetails = model.getOutputDetails()[0]
+    const prepared = prepareInput(video, Array.from(inputDetails.shape), maskRegion)
+    const input = new Tensor(prepared.values, prepared.shape)
     try {
-      const output = await outputs[0].moveTo("wasm")
+      const outputs = (await model.run(input)) as Tensor[]
       try {
-        const values = output.toTypedArray()
-        return decodeOutput(
-          values,
-          Array.from(outputDetails.shape),
-          prepared,
-          classCount,
-          minimumConfidence,
-        )
+        const output = await outputs[0].moveTo("wasm")
+        try {
+          const values = output.toTypedArray()
+          return decodeOutput(
+            values,
+            Array.from(outputDetails.shape),
+            prepared,
+            classCount,
+            minimumConfidence,
+          )
+        } finally {
+          output.delete()
+        }
       } finally {
-        output.delete()
+        outputs.forEach((tensor) => tensor.delete())
       }
     } finally {
-      outputs.forEach((tensor) => tensor.delete())
+      input.delete()
     }
   } finally {
-    input.delete()
+    inferenceInProgress = false
   }
 }
 
