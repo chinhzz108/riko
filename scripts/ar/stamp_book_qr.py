@@ -160,7 +160,9 @@ def stamp_pdf(chapter: int, slot_lookup: dict[tuple[int, int], dict]) -> dict:
     output.parent.mkdir(parents=True, exist_ok=True)
     reader = PdfReader(str(source), strict=False)
     writer = PdfWriter()
-    writer.clone_document_from_reader(reader)
+    # Do not carry Illustrator's page-private recovery cache into delivery PDFs.
+    # It is not part of page rendering and can add hundreds of megabytes.
+    writer.append(reader, import_outline=True, excluded_fields=["/PieceInfo"])
     audit = []
 
     for index, page in enumerate(writer.pages):
@@ -203,6 +205,7 @@ def stamp_pdf(chapter: int, slot_lookup: dict[tuple[int, int], dict]) -> dict:
             Transformation().scale(card_pt / 1000).translate(x, y),
             over=True,
         )
+        page.compress_content_streams()
         audit.append(
             {
                 "slot": slot["id"],
@@ -215,6 +218,7 @@ def stamp_pdf(chapter: int, slot_lookup: dict[tuple[int, int], dict]) -> dict:
             }
         )
 
+    writer.compress_identical_objects(remove_duplicates=True, remove_unreferenced=True)
     with output.open("wb") as stream:
         writer.write(stream)
     return {"chapter": chapter, "source": str(source), "output": str(output), "pages": audit}
