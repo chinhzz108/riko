@@ -1,5 +1,5 @@
 import assert from "node:assert/strict"
-import { readFile } from "node:fs/promises"
+import { access, readFile } from "node:fs/promises"
 import {
   QR_FALLBACK_DELAY_MS,
   resolveSlotFromLabel,
@@ -14,15 +14,39 @@ const targets = targetsData.targets
 const slot = (id) => slots.find((item) => item.id === id) || null
 
 assert.equal(QR_FALLBACK_DELAY_MS, 800)
+assert.equal(slots.length, slotsData.sourcePdfPageCountTotal)
+for (const document of slotsData.sourceDocuments) {
+  const documentSlots = slots.filter((item) => item.document === document.document)
+  assert.equal(documentSlots.length, document.pages, `${document.document} should have one QR slot per page`)
+  assert.deepEqual(
+    documentSlots.map((item) => item.page).sort((a, b) => a - b),
+    Array.from({ length: document.pages }, (_, index) => index + 1),
+    `${document.document} should map every PDF page exactly once`,
+  )
+  assert.deepEqual(
+    documentSlots.filter((item) => item.cover).map((item) => item.page).sort((a, b) => a - b),
+    [...document.coverPages].sort((a, b) => a - b),
+    `${document.document} should map both cover pages`,
+  )
+}
+
 for (const item of slots) {
-  assert.equal(routeSlotFromQR(`${slotsData.publicOrigin}/watch/${item.id}`, slots, slotsData.publicOrigin)?.id, item.id)
-  assert.equal(resolveSlotFromLabel(item.pageClass, undefined, targets, slots)?.id, item.id)
+  assert.ok(item.arVideoUrl?.startsWith("/videos/ar/"), `${item.id} must have a local AR video`)
+  await access(new URL(`../../public${item.arVideoUrl}`, import.meta.url))
+  const qrSlot = routeSlotFromQR(`${slotsData.publicOrigin}/watch/${item.id}`, slots, slotsData.publicOrigin)
+  assert.equal(qrSlot?.id, item.id)
+  assert.equal(qrSlot?.arVideoUrl, item.arVideoUrl)
+  const pageSlot = resolveSlotFromLabel(item.pageClass, undefined, targets, slots)
+  assert.equal(pageSlot?.id, item.id)
+  assert.equal(pageSlot?.arVideoUrl, item.arVideoUrl)
 }
 assert.equal(routeSlotFromQR("https://rikokid.me/watch/chapter-2", slots, slotsData.publicOrigin)?.group, "Chương 2")
 assert.equal(routeSlotFromQR("https://example.com/watch/book-c1-p03", slots, slotsData.publicOrigin), null)
 
 for (const target of targets) {
   for (const pageId of target.pages) {
+    assert.equal(slot(pageId)?.arTargetId, target.id, `${pageId} should map to ${target.id}`)
+    assert.equal(slot(pageId)?.arVideoUrl, target.videoUrl, `${pageId} should use ${target.id}'s video`)
     assert.equal(resolveSlotFromLabel(target.popupLabel, pageId, targets, slots)?.id, pageId)
   }
   if (target.pages.length > 1) {
@@ -76,4 +100,4 @@ assert.equal(
 assert.equal(fallbackAt({ qrFallbackCommitted: true }), false, "commit only once")
 assert.equal(fallbackAt({ pendingQr: null }), false, "a QR is required for fallback")
 
-console.log("Scanner logic QA passed: QR routing, shared-page pop-up mapping, and 800 ms fallback timing.")
+console.log("Scanner logic QA passed: all PDF pages/covers, 54 QR-to-video routes, popup mapping, and 800 ms fallback timing.")
