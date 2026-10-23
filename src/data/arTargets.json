@@ -1,6 +1,6 @@
 {
   "modelInputSize": 320,
-  "minimumConfidence": 0.55,
+  "minimumConfidence": 0.35,
   "stableFramesRequired": 3,
   "primaryOrder": [
     "popup_detection",

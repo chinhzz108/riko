@@ -18,6 +18,8 @@ type PreparedInput = {
   scale: number
   offsetX: number
   offsetY: number
+  inputWidth: number
+  inputHeight: number
   sourceWidth: number
   sourceHeight: number
 }
@@ -106,7 +108,17 @@ function prepareInput(
   const shape = channelsFirst
     ? [batch || 1, 3, height, width]
     : [batch || 1, height, width, 3]
-  return { values, shape, scale, offsetX, offsetY, sourceWidth, sourceHeight }
+  return {
+    values,
+    shape,
+    scale,
+    offsetX,
+    offsetY,
+    inputWidth: width,
+    inputHeight: height,
+    sourceWidth,
+    sourceHeight,
+  }
 }
 
 function sigmoid(value: number) {
@@ -151,10 +163,16 @@ function decodeOutput(
     }
     if (score < minimumConfidence || classId < 0) continue
 
-    const centerX = at(row, 0)
-    const centerY = at(row, 1)
-    const width = at(row, 2)
-    const height = at(row, 3)
+    const rawCenterX = at(row, 0)
+    const rawCenterY = at(row, 1)
+    const rawWidth = at(row, 2)
+    const rawHeight = at(row, 3)
+    const coordinatesAreNormalized =
+      Math.max(Math.abs(rawCenterX), Math.abs(rawCenterY), Math.abs(rawWidth), Math.abs(rawHeight)) <= 2
+    const centerX = coordinatesAreNormalized ? rawCenterX * prepared.inputWidth : rawCenterX
+    const centerY = coordinatesAreNormalized ? rawCenterY * prepared.inputHeight : rawCenterY
+    const width = coordinatesAreNormalized ? rawWidth * prepared.inputWidth : rawWidth
+    const height = coordinatesAreNormalized ? rawHeight * prepared.inputHeight : rawHeight
     const x = Math.max(0, (centerX - width / 2 - offsetX) / scale)
     const y = Math.max(0, (centerY - height / 2 - offsetY) / scale)
     const right = Math.min(sourceWidth, (centerX + width / 2 - offsetX) / scale)
