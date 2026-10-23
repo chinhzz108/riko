@@ -577,7 +577,11 @@ export default function ARScan() {
     setTrackedPageLabel("")
     setTrackerStatus("loading")
     setModelStatus("loading")
+    setCameraOn(true)
     try {
+      await new Promise<void>((resolve) =>
+        requestAnimationFrame(() => resolve()),
+      )
       const stream = await requestCameraStream()
       streamRef.current = stream
       const cameraTrack = stream.getVideoTracks()[0]
@@ -604,10 +608,6 @@ export default function ARScan() {
           })
           .catch(() => undefined)
       }
-      setCameraOn(true)
-      await new Promise<void>((resolve) =>
-        requestAnimationFrame(() => resolve()),
-      )
       const container = cameraLayerRef.current
       if (!container) throw new Error("Không tìm thấy vùng camera.")
       const [mindArModule, THREE] = await Promise.all([
@@ -923,6 +923,18 @@ export default function ARScan() {
             ref={cameraLayerRef}
             className={`absolute inset-0 ${cameraOn ? "block" : "hidden"}`}
           />
+          {cameraOn && trackerStatus !== "ready" && (
+            <div className="pointer-events-none absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-[#071320] px-6 text-center text-white">
+              <Camera size={42} className="text-[#A8D8E8]" />
+              <p className="text-base font-semibold">
+                {starting ? "Đang kết nối camera…" : "Đang nạp nhận diện AR…"}
+              </p>
+              <p className="max-w-sm text-sm leading-6 text-white/75">
+                Màn hình quét đã mở toàn màn hình. Cho phép camera để hiện hình
+                trực tiếp và bắt đầu nhận diện.
+              </p>
+            </div>
+          )}
           {cameraOn && (
             <>
               <div
