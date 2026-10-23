@@ -20,11 +20,18 @@ export function resolveSlotFromLabel(label, pageContextId, targets, slots) {
   if (!label) return null
   if (label.startsWith("popup_")) {
     const target = targets.find((item) => item.popupLabel === label)
-    const pageId = target?.pages.includes(pageContextId)
+    const targetPages = target?.pages || []
+    const pageSlots = targetPages.map((pageId) => slots.find((item) => item.id === pageId))
+    const pagesShareVideo =
+      pageSlots.length > 1 &&
+      pageSlots.every((slot) => slot?.arVideoUrl && slot.arVideoUrl === pageSlots[0]?.arVideoUrl)
+    const pageId = targetPages.includes(pageContextId)
       ? pageContextId
-      : target?.pages.length === 1
-        ? target.pages[0]
-        : null
+      : targetPages.length === 1
+        ? targetPages[0]
+        : pagesShareVideo
+          ? pageSlots[0]?.id
+          : null
     return pageId ? slots.find((slot) => slot.id === pageId) || null : null
   }
   if (label.startsWith("page_")) {
