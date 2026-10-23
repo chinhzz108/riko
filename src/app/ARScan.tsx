@@ -256,6 +256,25 @@ function waitForVideoFrame(video: HTMLVideoElement, timeoutMs = 8000) {
   })
 }
 
+function videoPreservesAlpha(video: HTMLVideoElement) {
+  if (video.videoWidth <= 0 || video.videoHeight <= 0) return false
+  try {
+    const canvas = document.createElement("canvas")
+    canvas.width = 64
+    canvas.height = 64
+    const context = canvas.getContext("2d", { willReadFrequently: true })
+    if (!context) return false
+    context.drawImage(video, 0, 0, canvas.width, canvas.height)
+    const pixels = context.getImageData(0, 0, canvas.width, canvas.height).data
+    for (let index = 3; index < pixels.length; index += 4) {
+      if (pixels[index] < 245) return true
+    }
+    return false
+  } catch {
+    return false
+  }
+}
+
 async function startMindARWithStream(
   tracker: MindARInstance,
   stream: MediaStream,
@@ -595,6 +614,13 @@ export default function ARScan() {
       media.material.transparent = Boolean(asset.alpha)
       media.currentVideo = media.video
       await playTexture(media.video, media.texture, source)
+      if (asset.alpha && hasSplitAlpha && !videoPreservesAlpha(media.video)) {
+        console.warn(
+          "Browser decoded the AR WebM without transparency; switching to the color/matte fallback.",
+        )
+        media.video.pause()
+        await playSplitAlpha()
+      }
     }
 
     try {
