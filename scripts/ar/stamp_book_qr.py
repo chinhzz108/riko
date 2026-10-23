@@ -32,19 +32,19 @@ REPLACED_QR_PT = 90
 
 
 def fallback_position(chapter: int, page_number: int) -> tuple[float, float]:
-    """Return normalized x and top-origin y for pages that have no printed QR."""
-    if page_number == 1:  # Brand cover: open space between the character and volcano.
-        return 0.50, 0.34
+    """Return a page corner for pages that have no printed QR."""
+    if page_number == 1:  # Top-right is clear on each branded front cover.
+        return 0.90, 0.09
     if chapter == 2 and page_number in {3, 6, 9, 12, 15}:
-        return 0.84, 0.50  # Blank white gutter beside the green chapter divider.
+        return 0.90, 0.09  # Top-right white gutter beside the chapter divider.
     if (chapter, page_number) in {(1, 13), (2, 18), (3, 19)}:
-        return 0.50, 0.47  # Central white gutter between the two card columns.
+        return 0.90, 0.93  # Bottom-right page corner below the two card columns.
     if (chapter, page_number) == (3, 20):
-        return 0.86, 0.50  # Empty right margin beside the single card column.
+        return 0.90, 0.93  # Bottom-right white margin beside the single card column.
     if (chapter, page_number) in {(1, 14), (2, 19)}:
-        return 0.82, 0.53  # Open area between the end-page illustration and text.
+        return 0.09, 0.93  # Bottom-left corner over decorative artwork, clear of text.
     if (chapter, page_number) == (3, 21):
-        return 0.83, 0.60  # Open middle-right area on the final page.
+        return 0.09, 0.93  # Bottom-left corner over the volcano illustration.
     raise ValueError(f"No QR position defined for chapter {chapter}, page {page_number}")
 
 

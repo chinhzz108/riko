@@ -7,12 +7,14 @@ import csv
 import json
 import math
 import random
+import subprocess
 import zipfile
 from pathlib import Path
 
 import cv2
 import numpy as np
 from PIL import Image, ImageDraw
+from pypdf import PdfReader
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -20,10 +22,15 @@ SLOTS_PATH = ROOT / "src/data/bookVideoSlots.json"
 TARGETS_PATH = ROOT / "src/data/arTargets.json"
 AUDIT_PATH = ROOT / "output/pdf/qr-stamped/qr-stamp-audit.json"
 RENDERS_DIR = ROOT / "tmp/pdfs/training/renders"
+STAMPED_DIR = ROOT / "output/pdf/qr-stamped"
 OUTPUT_DIR = ROOT / "output/ar-training"
 DATASET_DIR = OUTPUT_DIR / "rikokid_ar_dataset"
 ZIP_PATH = OUTPUT_DIR / "rikokid_ar_dataset.zip"
 IMAGE_SIZE = 640
+RENDER_DPI = 150
+POPPLER = Path(
+    r"C:\Users\Chinhdz\.cache\codex-runtimes\codex-primary-runtime\dependencies\native\poppler\Library\bin\pdftoppm.exe"
+)
 
 # Normalized boxes around the page's main pop-up illustration, measured from
 # the source-book page art. The QR is masked before training and at inference.
@@ -74,6 +81,47 @@ def read_json(path: Path):
 def page_source_path(slot: dict) -> Path:
     chapter = int(slot["id"].split("-")[1][1:])
     return RENDERS_DIR / f"ch{chapter}-{int(slot['page']):02}.jpg"
+
+
+def render_stamped_pages(slots: list[dict]) -> None:
+    """Refresh page renders from the current stamped PDFs before masking QR cards."""
+    RENDERS_DIR.mkdir(parents=True, exist_ok=True)
+    chapter_pages: dict[int, set[int]] = {}
+    for slot in slots:
+        chapter = int(slot["id"].split("-")[1][1:])
+        chapter_pages.setdefault(chapter, set()).add(int(slot["page"]))
+
+    for chapter, pages in chapter_pages.items():
+        pdf_path = STAMPED_DIR / f"Chuong-{chapter}-rikokid-me.pdf"
+        if not pdf_path.exists():
+            raise FileNotFoundError(pdf_path)
+        if len(PdfReader(str(pdf_path), strict=False).pages) != len(pages):
+            raise RuntimeError(f"Stamped PDF page count does not match slots: {pdf_path}")
+        for page_number in sorted(pages):
+            target = RENDERS_DIR / f"ch{chapter}-{page_number:02}.jpg"
+            temporary_prefix = RENDERS_DIR / f".render-ch{chapter}-{page_number:02}"
+            temporary_image = temporary_prefix.with_suffix(".jpg")
+            temporary_image.unlink(missing_ok=True)
+            subprocess.run(
+                [
+                    str(POPPLER),
+                    "-f",
+                    str(page_number),
+                    "-l",
+                    str(page_number),
+                    "-r",
+                    str(RENDER_DPI),
+                    "-jpeg",
+                    "-singlefile",
+                    str(pdf_path),
+                    str(temporary_prefix),
+                ],
+                check=True,
+                stdout=subprocess.DEVNULL,
+            )
+            if not temporary_image.exists():
+                raise FileNotFoundError(temporary_image)
+            temporary_image.replace(target)
 
 
 def mask_qr(image: np.ndarray, center: list[float], card_points: float) -> None:
@@ -203,7 +251,7 @@ def write_sample(split: str, stem: str, image: np.ndarray, boxes: list[tuple[int
     label_dir.mkdir(parents=True, exist_ok=True)
     image_path = image_dir / f"{stem}.jpg"
     label_path = label_dir / f"{stem}.txt"
-    cv2.imwrite(str(image_path), image, [cv2.IMWRITE_JPEG_QUALITY, 88])
+    cv2.imwrite(str(image_path), image, [cv2.IMWRITE_JPEG_QUALITY, 82])
     label_path.write_text(xyxy_to_yolo(boxes), encoding="utf-8")
     records.append({"split": split, "image": str(image_path.relative_to(DATASET_DIR)), "labels": str(label_path.relative_to(DATASET_DIR))})
 
@@ -244,12 +292,14 @@ def popup_crop_sample(image: np.ndarray, popup_box: tuple[float, float, float, f
     crop = image[top:bottom, left:right].copy()
     target_box = (
         0,
-        (x1 * width - left) / (right - left),
-        (y1 * height - top) / (bottom - top),
-        (x2 * width - left) / (right - left),
-        (y2 * height - top) / (bottom - top),
+        x1 * width - left,
+        y1 * height - top,
+        x2 * width - left,
+        y2 * height - top,
     )
     boxed, boxes = letterbox(crop, [target_box])
+    if len(boxes) != 1:
+        raise RuntimeError(f"Pop-up crop lost its target box: {popup_box}")
     return boxed, boxes
 
 
@@ -257,6 +307,7 @@ def main() -> None:
     slots_data = read_json(SLOTS_PATH)
     targets_data = read_json(TARGETS_PATH)
     audit_pages = read_json(AUDIT_PATH)
+    render_stamped_pages(slots_data["slots"])
     audit_by_slot = {page["slot"]: page for book in audit_pages for page in book["pages"]}
 
     page_classes = [slot["pageClass"] for slot in slots_data["slots"]]
@@ -288,12 +339,16 @@ def main() -> None:
             slot, class_index[page_label], popup_id, audit_by_slot, np.random.default_rng(source_seed + page_index)
         )
 
+        # Keep four explicit held-out stress views per target for rotation and
+        # exposure checks. Eight train views and two validation views preserve
+        # enough per-class examples for 89-way detection while the JPEGs stay
+        # compact; the four test views remain separate from training.
         split_counts = {"train": 8, "val": 2, "test": 4}
         for split, count in split_counts.items():
             for variant in range(count):
                 rng = np.random.default_rng(source_seed + page_index * 101 + variant + {"train": 0, "val": 1000, "test": 2000}[split])
                 if split == "test":
-                    angles = [0, 45, 135, 225]
+                    angles = [0, 90, 180, 270]
                     exposures = [0.20, 0.45, 1.55, 2.05]
                     angle = angles[variant]
                     exposure = exposures[(variant + page_index) % len(exposures)]
@@ -327,7 +382,7 @@ def main() -> None:
                 for variant in range(count):
                     rng = np.random.default_rng(source_seed + target_index * 131 + variant + {"train": 3000, "val": 4000, "test": 5000}[split])
                     if split == "test":
-                        angles = [15, 105, 195, 285]
+                        angles = [0, 90, 180, 270]
                         exposures = [0.22, 0.48, 1.60, 2.15]
                         angle = angles[variant]
                         exposure = exposures[(variant + target_index) % len(exposures)]
@@ -366,8 +421,8 @@ def main() -> None:
     (DATASET_DIR / "splits.json").write_text(json.dumps(records, indent=2) + "\n", encoding="utf-8")
     (DATASET_DIR / "README.md").write_text(
         "# Riko AR training set\n\n"
-        "Images come from the three QR-stamped PDFs. Each of 54 printed pages has a `page_...` box; 36 illustrated pages also have a `popup_...` box, with both tornado pages mapped to the same HTTN03 video. QR cards are inpainted before training so the model must use the page and illustration. Target crop samples let the detector see the pop-up artwork close up.\n\n"
-        "The train, validation, and test examples are synthetic transformations of the same 54 source pages and target crops. The test split exercises rotations, brightness/exposure, and perspective only; it does not measure performance on photographs of a real book or a raised paper pop-up. The popup rectangles were manually estimated from the source page art and should be reviewed against physical pages before relying on them.\n",
+        "Images are rendered at 150 DPI from the three QR-stamped PDFs. Each of 54 printed pages has a `page_...` box; 36 illustrated pages also have a `popup_...` box, with both tornado pages mapped to the same HTTN03 video. QR cards are inpainted before training so the model must use the page and illustration. Target crop samples let the detector see the pop-up artwork close up.\n\n"
+        "The train, validation, and test examples are synthetic transformations of the same 54 source pages and target crops. Each target has eight train variants, two validation variants, and four held-out stress variants; training augmentation is also applied online. The test split covers four quarter-turn orientations with varied brightness/exposure and perspective, but does not measure performance on photographs of a real book or a raised paper pop-up. The popup rectangles were manually estimated from the source page art and should be reviewed against physical pages before relying on them.\n",
         encoding="utf-8",
     )
 

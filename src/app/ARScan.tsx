@@ -170,8 +170,10 @@ export default function ARScan() {
     let lastQrLocationAt = 0
     let qrMask: ARMaskRegion | null = null
     let activeVisualKey = ""
+    let activeVisualSlot: BookSlot | null = null
     let stableCount = 0
     let pendingQr: BookSlot | null = null
+    let committedQrFallback: BookSlot | null = null
     let qrFoundAt = 0
     let qrFallbackCommitted = false
     const canvas = captureCanvasRef.current || document.createElement("canvas")
@@ -232,6 +234,7 @@ export default function ARScan() {
             pendingQr = slot
             qrFoundAt = now
             qrFallbackCommitted = false
+            committedQrFallback = null
             setScannedQR(slot.id)
           }
         }
@@ -266,44 +269,51 @@ export default function ARScan() {
               activeVisualKey = visualKey
               stableCount = 1
             }
+            activeVisualSlot = slot
             if (stableCount >= arTargetManifest.stableFramesRequired) {
               if (slot?.arVideoUrl) {
-                pendingQr = null
-                qrFallbackCommitted = false
-                const nextSelection: Selection = {
-                  slot,
-                  box: match.box,
-                  source: label.startsWith("popup_") ? "popup" : "page",
-                  score: match.score,
-                }
-                const current = selectionRef.current
-                if (dismissedSlotRef.current && dismissedSlotRef.current !== slot.id) {
-                  dismissedSlotRef.current = null
-                }
-                if (
-                  dismissedSlotRef.current !== slot.id &&
-                  (!current ||
-                    current.slot.id !== slot.id ||
-                    current.source === "qr" ||
-                    current.source !== nextSelection.source ||
-                    !current.box ||
-                    Math.abs(current.box.x - nextSelection.box!.x) > 8 ||
-                    Math.abs(current.box.y - nextSelection.box!.y) > 8 ||
-                    Math.abs(current.box.width - nextSelection.box!.width) > 8 ||
-                    Math.abs(current.box.height - nextSelection.box!.height) > 8)
-                ) {
-                  chooseSelection(nextSelection)
+                const qrReference = pendingQr || committedQrFallback
+                if (!qrReference || slot.arVideoUrl === qrReference.arVideoUrl) {
+                  pendingQr = null
+                  qrFallbackCommitted = false
+                  committedQrFallback = null
+                  const nextSelection: Selection = {
+                    slot,
+                    box: match.box,
+                    source: label.startsWith("popup_") ? "popup" : "page",
+                    score: match.score,
+                  }
+                  const current = selectionRef.current
+                  if (dismissedSlotRef.current && dismissedSlotRef.current !== slot.id) {
+                    dismissedSlotRef.current = null
+                  }
+                  if (
+                    dismissedSlotRef.current !== slot.id &&
+                    (!current ||
+                      current.slot.id !== slot.id ||
+                      current.source === "qr" ||
+                      current.source !== nextSelection.source ||
+                      !current.box ||
+                      Math.abs(current.box.x - nextSelection.box!.x) > 8 ||
+                      Math.abs(current.box.y - nextSelection.box!.y) > 8 ||
+                      Math.abs(current.box.width - nextSelection.box!.width) > 8 ||
+                      Math.abs(current.box.height - nextSelection.box!.height) > 8)
+                  ) {
+                    chooseSelection(nextSelection)
+                  }
                 }
               }
             }
           } else {
             activeVisualKey = ""
+            activeVisualSlot = null
             stableCount = 0
           }
         } catch (modelError) {
           console.warn("Riko AR frame recognition failed.", modelError)
           modelReady = false
           activeVisualKey = ""
+          activeVisualSlot = null
           stableCount = 0
           setModelStatus("unavailable")
         } finally {
@@ -321,6 +331,7 @@ export default function ARScan() {
           qrFallbackCommitted,
           stableCount,
           stableFramesRequired: arTargetManifest.stableFramesRequired,
+          stableVisualSlot: activeVisualSlot,
         })
       ) {
         const current = selectionRef.current
@@ -334,6 +345,7 @@ export default function ARScan() {
           chooseSelection({ slot: qrFallbackSlot, box: null, source: "qr" })
         }
         qrFallbackCommitted = true
+        committedQrFallback = qrFallbackSlot
         pendingQr = null
       }
       if (active) requestAnimationFrame(frame)

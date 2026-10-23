@@ -48,11 +48,16 @@ export function shouldCommitQrFallback({
   qrFallbackCommitted,
   stableCount,
   stableFramesRequired,
+  stableVisualSlot,
 }) {
+  const stableVisualMatchesQr =
+    stableCount >= stableFramesRequired &&
+    stableVisualSlot?.arVideoUrl &&
+    stableVisualSlot.arVideoUrl === pendingQr?.arVideoUrl
   return Boolean(
     pendingQr &&
       !qrFallbackCommitted &&
       now - qrFoundAt >= QR_FALLBACK_DELAY_MS &&
-      stableCount < stableFramesRequired,
+      !stableVisualMatchesQr,
   )
 }

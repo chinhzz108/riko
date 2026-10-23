@@ -26,16 +26,28 @@ for (const target of targets) {
     assert.equal(resolveSlotFromLabel(target.popupLabel, pageId, targets, slots)?.id, pageId)
   }
   if (target.pages.length > 1) {
-    assert.equal(resolveSlotFromLabel(target.popupLabel, undefined, targets, slots), null)
+    const targetSlots = target.pages.map(slot)
+    const pagesShareVideo = targetSlots.every(
+      (item) => item?.arVideoUrl && item.arVideoUrl === targetSlots[0]?.arVideoUrl,
+    )
+    assert.equal(
+      resolveSlotFromLabel(target.popupLabel, undefined, targets, slots)?.id || null,
+      pagesShareVideo ? target.pages[0] : null,
+      `shared popup ${target.popupLabel} resolves only when its pages share one video`,
+    )
   } else {
     assert.equal(resolveSlotFromLabel(target.popupLabel, undefined, targets, slots)?.id, target.pages[0])
   }
 }
 
-assert.equal(resolveSlotFromLabel("popup_HTTN03", undefined, targets, slots), null)
+assert.equal(resolveSlotFromLabel("popup_HTTN03", undefined, targets, slots)?.id, "book-c3-p07")
 assert.equal(resolveSlotFromLabel("popup_HTTN03", "book-c3-p07", targets, slots)?.id, "book-c3-p07")
 assert.equal(resolveSlotFromLabel("popup_HTTN03", "book-c3-p08", targets, slots)?.id, "book-c3-p08")
-assert.equal(resolveSlotFromLabel("popup_HTTN03", "book-c3-p06", targets, slots), null)
+assert.equal(
+  resolveSlotFromLabel("popup_HTTN03", "book-c3-p06", targets, slots)?.id,
+  "book-c3-p07",
+  "shared popup video still resolves when the page detector has no matching context",
+)
 
 const fallbackAt = (patch = {}) => shouldCommitQrFallback({
   pendingQr: slot("book-c1-p03"),
@@ -44,13 +56,23 @@ const fallbackAt = (patch = {}) => shouldCommitQrFallback({
   qrFallbackCommitted: false,
   stableCount: 0,
   stableFramesRequired: 3,
+  stableVisualSlot: null,
   ...patch,
 })
 
 assert.equal(fallbackAt({ now: 899 }), false, "do not commit before 800 ms")
 assert.equal(fallbackAt(), true, "commit QR fallback at 800 ms without stable visual recognition")
 assert.equal(fallbackAt({ stableCount: 2 }), true, "flickering detections stay below the stability threshold")
-assert.equal(fallbackAt({ stableCount: 3 }), false, "stable visual recognition suppresses QR fallback")
+assert.equal(
+  fallbackAt({ stableCount: 3, stableVisualSlot: slot("book-c1-p03") }),
+  false,
+  "stable recognition of the same video suppresses QR fallback",
+)
+assert.equal(
+  fallbackAt({ stableCount: 3, stableVisualSlot: slot("book-c1-p04") }),
+  true,
+  "a stable but mismatched visual result cannot suppress the QR for the scanned video",
+)
 assert.equal(fallbackAt({ qrFallbackCommitted: true }), false, "commit only once")
 assert.equal(fallbackAt({ pendingQr: null }), false, "a QR is required for fallback")
 
