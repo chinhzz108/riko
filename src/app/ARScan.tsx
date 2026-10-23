@@ -104,6 +104,8 @@ const detectionConfidence = (classId: number) => {
     : arTargetManifest.minimumConfidenceByType.page
 }
 const CAMERA_START_TIMEOUT_MS = 15_000
+const TRACKED_VIDEO_SCALE = 1.35
+const TARGET_LOST_GRACE_MS = 650
 
 function cameraErrorMessage(error: unknown) {
   if (error instanceof DOMException) {
@@ -306,6 +308,7 @@ export default function ARScan() {
   const scanLoopRef = useRef<(() => void) | null>(null)
   const modelReadyRef = useRef(false)
   const activePageSlotRef = useRef<BookSlot | null>(null)
+  const targetLostTimeoutRef = useRef<number | null>(null)
   const pendingQRRef = useRef<PendingQR | null>(null)
   const qrFallbackRef = useRef<string | null>(null)
   const dismissedSlotRef = useRef<string | null>(null)
@@ -384,6 +387,8 @@ export default function ARScan() {
     let height = maxHeight
     if (width / height > aspect) width = height * aspect
     else height = width / aspect
+    width *= TRACKED_VIDEO_SCALE
+    height *= TRACKED_VIDEO_SCALE
     record.mesh.scale.set(width, height, 1)
     record.mesh.position.set(
       (left + right) / 2 - 0.5,
@@ -443,6 +448,8 @@ export default function ARScan() {
     let height = maxHeight
     if (width / height > aspect) width = height * aspect
     else height = width / aspect
+    width *= TRACKED_VIDEO_SCALE
+    height *= TRACKED_VIDEO_SCALE
     const centerX = (left + right) / 2 - 0.5
     const centerY = (0.5 - (top + bottom) / 2) * normalizedTargetHeight
     const corners = [
@@ -730,6 +737,10 @@ export default function ARScan() {
 
       anchor.onTargetFound = () => {
         const previous = activePageSlotRef.current
+        if (targetLostTimeoutRef.current !== null) {
+          window.clearTimeout(targetLostTimeoutRef.current)
+          targetLostTimeoutRef.current = null
+        }
         if (previous && previous.id !== slot.id) dismissedSlotRef.current = null
         activePageSlotRef.current = slot
         pendingQRRef.current = null
@@ -739,24 +750,32 @@ export default function ARScan() {
         setSoundOn(false)
         if (dismissedSlotRef.current !== slot.id) {
           chooseSelection({ slot, box: null, source: "page" })
-          void showSpatialVideo(slot)
+          // Keep playback continuous when MindAR reacquires the same page
+          // during the brief lost-target grace period.
+          if (previous?.id !== slot.id) void showSpatialVideo(slot)
         }
       }
       anchor.onTargetLost = () => {
         if (activePageSlotRef.current?.id !== slot.id) return
-        spatialPlayRequestRef.current += 1
-        activePageSlotRef.current = null
-        setTrackedPageLabel("")
-        setBoxStyle(undefined)
-        if (
-          selectionRef.current?.slot.id === slot.id &&
-          selectionRef.current.source !== "qr"
-        ) {
-          chooseSelection(null)
-        }
-        spatialRef.current?.currentVideo?.pause()
-        spatialRef.current?.maskVideo.pause()
-        hideNativeVideoOverlay()
+        if (targetLostTimeoutRef.current !== null)
+          window.clearTimeout(targetLostTimeoutRef.current)
+        targetLostTimeoutRef.current = window.setTimeout(() => {
+          targetLostTimeoutRef.current = null
+          if (activePageSlotRef.current?.id !== slot.id) return
+          spatialPlayRequestRef.current += 1
+          activePageSlotRef.current = null
+          setTrackedPageLabel("")
+          setBoxStyle(undefined)
+          if (
+            selectionRef.current?.slot.id === slot.id &&
+            selectionRef.current.source !== "qr"
+          ) {
+            chooseSelection(null)
+          }
+          spatialRef.current?.currentVideo?.pause()
+          spatialRef.current?.maskVideo.pause()
+          hideNativeVideoOverlay()
+        }, TARGET_LOST_GRACE_MS)
       }
     }
     planeRecordsRef.current = records
@@ -821,6 +840,10 @@ export default function ARScan() {
 
   function disposeTracker() {
     spatialPlayRequestRef.current += 1
+    if (targetLostTimeoutRef.current !== null) {
+      window.clearTimeout(targetLostTimeoutRef.current)
+      targetLostTimeoutRef.current = null
+    }
     scanLoopRef.current?.()
     scanLoopRef.current = null
     modelReadyRef.current = false
