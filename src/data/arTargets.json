@@ -2,7 +2,7 @@
   "modelInputSize": 320,
   "minimumConfidence": 0.35,
   "minimumConfidenceByType": {
-    "popup": 0.2,
+    "popup": 0.05,
     "page": 0.35
   },
   "stableFramesRequired": 3,
