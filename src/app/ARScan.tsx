@@ -82,6 +82,7 @@ type SpatialMedia = {
   material: MeshBasicMaterial
   currentVideo: HTMLVideoElement | null
   fallbackActive: boolean
+  lastTextureTime: number
 }
 
 const slots = bookVideoManifest.slots as BookSlot[]
@@ -180,12 +181,54 @@ function makeVideoElement() {
   const video = document.createElement("video")
   video.crossOrigin = "anonymous"
   video.preload = "auto"
+  video.autoplay = true
   video.loop = true
   video.muted = true
   video.playsInline = true
   video.setAttribute("playsinline", "")
   video.setAttribute("webkit-playsinline", "")
   return video
+}
+
+function waitForVideoFrame(video: HTMLVideoElement, timeoutMs = 8000) {
+  if (video.error) return Promise.reject(video.error)
+  if (
+    video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA &&
+    video.videoWidth > 0
+  )
+    return Promise.resolve()
+
+  return new Promise<void>((resolve, reject) => {
+    let timer = 0
+    const cleanup = () => {
+      window.clearTimeout(timer)
+      video.removeEventListener("loadeddata", check)
+      video.removeEventListener("canplay", check)
+      video.removeEventListener("playing", check)
+      video.removeEventListener("error", fail)
+    }
+    const check = () => {
+      if (
+        video.readyState < HTMLMediaElement.HAVE_CURRENT_DATA ||
+        video.videoWidth <= 0
+      )
+        return
+      cleanup()
+      resolve()
+    }
+    const fail = () => {
+      cleanup()
+      reject(video.error || new Error("Video không giải mã được."))
+    }
+    timer = window.setTimeout(() => {
+      cleanup()
+      reject(new Error("Video không tạo được khung hình đầu tiên."))
+    }, timeoutMs)
+    video.addEventListener("loadeddata", check)
+    video.addEventListener("canplay", check)
+    video.addEventListener("playing", check)
+    video.addEventListener("error", fail)
+  })
 }
 
 async function startMindARWithStream(
@@ -323,6 +366,7 @@ export default function ARScan() {
   async function showSpatialVideo(slot: BookSlot) {
     const media = spatialRef.current
     if (!media || !slot.arVideoUrl) return
+    setError("")
     const asset = await findVideoAsset(slot)
     if (
       spatialRef.current !== media ||
@@ -331,40 +375,83 @@ export default function ARScan() {
       return
     setSelectedAsset(asset)
     const safari = isSafariOrIOS()
-    media.fallbackActive = Boolean(
-      asset.alpha && safari && asset.alphaColorUrl && asset.alphaMaskUrl,
+    const hasSplitAlpha = Boolean(
+      asset.alpha && asset.alphaColorUrl && asset.alphaMaskUrl,
     )
+    media.fallbackActive = Boolean(hasSplitAlpha && safari)
     media.video.pause()
     media.colorVideo.pause()
     media.maskVideo.pause()
+    media.video.muted = true
+    media.colorVideo.muted = true
+    media.maskVideo.muted = true
+    media.lastTextureTime = -1
 
-    if (media.fallbackActive) {
+    const setSource = (video: HTMLVideoElement, url: string) => {
+      const absoluteUrl = new URL(url, window.location.origin).href
+      if (video.src === absoluteUrl) {
+        if (video.error) video.load()
+        return
+      }
+      video.pause()
+      video.src = url
+      video.load()
+    }
+    const playTexture = async (
+      video: HTMLVideoElement,
+      texture: Texture,
+      url: string,
+    ) => {
+      setSource(video, url)
+      const frameReady = waitForVideoFrame(video)
+      const playback = video.play()
+      await Promise.all([frameReady, playback])
+      texture.needsUpdate = true
+    }
+    const playSplitAlpha = async () => {
+      if (!hasSplitAlpha) throw new Error("Không có video alpha dự phòng.")
       const colorUrl = asset.alphaColorUrl!
       const maskUrl = asset.alphaMaskUrl!
-      if (
-        media.colorVideo.src !== new URL(colorUrl, window.location.origin).href
-      )
-        media.colorVideo.src = colorUrl
-      if (media.maskVideo.src !== new URL(maskUrl, window.location.origin).href)
-        media.maskVideo.src = maskUrl
+      media.fallbackActive = true
       media.material.map = media.colorTexture
       media.material.alphaMap = media.maskTexture
       media.material.transparent = true
       media.currentVideo = media.colorVideo
       await Promise.all([
-        media.colorVideo.play(),
-        media.maskVideo.play(),
-      ]).catch(() => undefined)
-    } else {
-      const source =
-        asset.alpha && asset.alphaVideoUrl ? asset.alphaVideoUrl : asset.url
-      if (media.video.src !== new URL(source, window.location.origin).href)
-        media.video.src = source
+        playTexture(media.colorVideo, media.colorTexture, colorUrl),
+        playTexture(media.maskVideo, media.maskTexture, maskUrl),
+      ])
+    }
+    const playNative = async () => {
+      const source = asset.alpha && asset.alphaVideoUrl
+        ? asset.alphaVideoUrl
+        : asset.url
+      if (!source) throw new Error("Thiếu đường dẫn video AR.")
+      media.fallbackActive = false
       media.material.map = media.texture
       media.material.alphaMap = null
       media.material.transparent = Boolean(asset.alpha)
       media.currentVideo = media.video
-      await media.video.play().catch(() => undefined)
+      await playTexture(media.video, media.texture, source)
+    }
+
+    try {
+      if (media.fallbackActive) await playSplitAlpha()
+      else await playNative()
+    } catch (playError) {
+      console.warn("AR video playback failed; trying the compatible source.", playError)
+      media.video.pause()
+      media.colorVideo.pause()
+      media.maskVideo.pause()
+      try {
+        if (hasSplitAlpha && !media.fallbackActive) await playSplitAlpha()
+        else if (hasSplitAlpha && safari) await playNative()
+        else throw playError
+      } catch (fallbackError) {
+        console.error("No AR video source could be played.", fallbackError)
+        setError("Video AR chưa phát được trên trình duyệt này. Hãy thử tải lại trang hoặc chạm bắt đầu quét lại.")
+        return
+      }
     }
     media.material.needsUpdate = true
     const activeVideo = media.currentVideo
@@ -418,6 +505,32 @@ export default function ARScan() {
       material,
       currentVideo: null,
       fallbackActive: false,
+      lastTextureTime: -1,
+    }
+    for (const [element, textureToRefresh] of [
+      [video, texture],
+      [colorVideo, colorTexture],
+      [maskVideo, maskTexture],
+    ] as const) {
+      const refreshTexture = () => {
+        if (element.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA)
+          textureToRefresh.needsUpdate = true
+      }
+      element.addEventListener("loadeddata", refreshTexture)
+      element.addEventListener("playing", refreshTexture)
+      element.addEventListener("timeupdate", refreshTexture)
+      element.setAttribute("aria-hidden", "true")
+      Object.assign(element.style, {
+        position: "absolute",
+        left: "0",
+        top: "0",
+        width: "1px",
+        height: "1px",
+        opacity: "0",
+        pointerEvents: "none",
+        zIndex: "-1",
+      })
+      cameraLayerRef.current?.append(element)
     }
     spatialRef.current = media
     const records: PlaneRecord[] = []
@@ -468,6 +581,7 @@ export default function ARScan() {
       }
     }
     planeRecordsRef.current = records
+    tracker.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5))
     tracker.renderer.setClearColor(0x000000, 0)
     tracker.renderer.setClearAlpha(0)
     tracker.renderer.setAnimationLoop(() => {
@@ -488,6 +602,21 @@ export default function ARScan() {
         ) {
           media.maskVideo.currentTime = media.currentVideo.currentTime
         }
+      }
+      const currentVideo = media.currentVideo
+      if (
+        currentVideo &&
+        currentVideo.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA &&
+        currentVideo.videoWidth > 0 &&
+        currentVideo.currentTime !== media.lastTextureTime
+      ) {
+        if (media.fallbackActive) {
+          media.colorTexture.needsUpdate = true
+          media.maskTexture.needsUpdate = true
+        } else {
+          media.texture.needsUpdate = true
+        }
+        media.lastTextureTime = currentVideo.currentTime
       }
       tracker.renderer.render(tracker.scene, tracker.camera)
     })
@@ -516,6 +645,7 @@ export default function ARScan() {
         video.pause()
         video.removeAttribute("src")
         video.load()
+        video.remove()
       }
       media.material.dispose()
       media.texture.dispose()
@@ -998,6 +1128,27 @@ export default function ARScan() {
                       ? `· ${Math.round(selection.score * 100)}%`
                       : "đã nhận"}
                   </span>
+                </div>
+              )}
+              {cameraOn && error && (
+                <div
+                  role="alert"
+                  className="absolute inset-x-4 bottom-20 z-40 mx-auto flex max-w-md items-center justify-between gap-3 rounded-2xl bg-red-950/90 px-4 py-3 text-sm font-semibold text-white shadow-xl"
+                  style={{
+                    bottom: "max(5rem, calc(env(safe-area-inset-bottom) + 4rem))",
+                  }}
+                >
+                  <span>{error}</span>
+                  <button
+                    type="button"
+                    className="shrink-0 rounded-full bg-white/15 px-3 py-2 text-xs"
+                    onClick={() => {
+                      const slot = selectionRef.current?.slot || activePageSlotRef.current
+                      if (slot) void showSpatialVideo(slot)
+                    }}
+                  >
+                    Thử lại
+                  </button>
                 </div>
               )}
               {selection && selection.source !== "qr" && (

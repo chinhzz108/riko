@@ -1,4 +1,10 @@
-import { loadAndCompile, loadLiteRt, Tensor, type CompiledModel } from "@litertjs/core"
+import {
+  isWebGPUSupported,
+  loadAndCompile,
+  loadLiteRt,
+  Tensor,
+  type CompiledModel,
+} from "@litertjs/core"
 
 const MODEL_URL = `${import.meta.env.BASE_URL}models/riko-ar-detector.tflite`
 const WASM_URL = `${import.meta.env.BASE_URL}litert/wasm/`
@@ -42,6 +48,13 @@ function loadModel() {
   if (!modelPromise) {
     modelPromise = (async () => {
       await loadLiteRt(WASM_URL)
+      if (isWebGPUSupported()) {
+        try {
+          return await loadAndCompile(MODEL_URL, { accelerator: "webgpu" })
+        } catch (error) {
+          console.info("LiteRT WebGPU is unavailable for this device; using WASM.", error)
+        }
+      }
       return loadAndCompile(MODEL_URL, {
         accelerator: "wasm",
         cpuOptions: { numThreads: 2 },
