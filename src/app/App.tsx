@@ -766,8 +766,8 @@ function Layout() {
       )}
       <motion.main
         key={location.pathname}
-        initial={enabled ? { opacity: 0, y: 8 } : false}
-        animate={{ opacity: 1, y: 0 }}
+        initial={enabled && location.pathname !== "/scan" ? { opacity: 0, y: 8 } : false}
+        animate={enabled && location.pathname !== "/scan" ? { opacity: 1, y: 0 } : false}
         transition={{ duration: 0.35, ease: "easeOut" }}
       >
         <Outlet />

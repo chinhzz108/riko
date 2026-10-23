@@ -411,24 +411,49 @@ export default function ARScan() {
   }
 
   const targetLabel = selectedTarget?.label || selection?.slot.label || "Riko đang nhận diện"
+  const cameraStatus =
+    modelStatus === "ready"
+      ? "Đang nhận diện pop-up và trang sách"
+      : modelStatus === "loading"
+        ? "Đang nạp mô hình nhận diện…"
+        : "Đang quét QR dự phòng"
 
   return (
-    <main className="mx-auto min-h-[70vh] max-w-[1120px] px-5 py-8 sm:px-8 sm:py-12">
-      <Link to="/book" className="inline-flex items-center gap-2 text-sm text-[#4A5461] hover:text-primary">
-        <ArrowLeft size={17} /> Về trang sách
-      </Link>
-      <div className="mx-auto mt-7 max-w-3xl text-center">
-        <span className="inline-flex items-center gap-2 rounded-full bg-[#E7F5F7] px-4 py-2 text-xs font-bold uppercase tracking-[0.12em] text-primary">
-          <Camera size={15} /> Riko AR
-        </span>
-        <h1 className="mt-4 text-3xl font-bold text-primary sm:text-4xl">Quét hình pop-up để mở video</h1>
-        <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-[#4A5461] sm:text-base">
-          Riko ưu tiên nhận diện hình pop-up và hình ảnh của trang sách. Nếu máy chưa nhận ra, mã QR trên trang sẽ mở đúng video dự phòng.
-        </p>
-      </div>
+    <main
+      className={
+        cameraOn
+          ? "fixed inset-0 z-[60] h-[100dvh] w-screen overflow-hidden bg-[#071320] p-0"
+          : "mx-auto min-h-[70vh] max-w-[1120px] px-5 py-8 sm:px-8 sm:py-12"
+      }
+    >
+      {!cameraOn && (
+        <>
+          <Link to="/book" className="inline-flex items-center gap-2 text-sm text-[#4A5461] hover:text-primary">
+            <ArrowLeft size={17} /> Về trang sách
+          </Link>
+          <div className="mx-auto mt-7 max-w-3xl text-center">
+            <span className="inline-flex items-center gap-2 rounded-full bg-[#E7F5F7] px-4 py-2 text-xs font-bold uppercase tracking-[0.12em] text-primary">
+              <Camera size={15} /> Riko AR
+            </span>
+            <h1 className="mt-4 text-3xl font-bold text-primary sm:text-4xl">Quét hình pop-up để mở video</h1>
+            <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-[#4A5461] sm:text-base">
+              Riko ưu tiên nhận diện hình pop-up và hình ảnh của trang sách. Nếu máy chưa nhận ra, mã QR trên trang sẽ mở đúng video dự phòng.
+            </p>
+          </div>
+        </>
+      )}
 
-      <div className="mx-auto mt-8 max-w-4xl overflow-hidden rounded-[28px] border border-[#DFE5E8] bg-[#142333] shadow-xl">
-        <div ref={frameRef} className="relative aspect-video overflow-hidden bg-[#142333]">
+      <div
+        className={
+          cameraOn
+            ? "relative h-full w-full overflow-hidden bg-[#142333]"
+            : "mx-auto mt-8 max-w-4xl overflow-hidden rounded-[28px] border border-[#DFE5E8] bg-[#142333] shadow-xl"
+        }
+      >
+        <div
+          ref={frameRef}
+          className={`relative overflow-hidden bg-[#142333] ${cameraOn ? "h-full w-full" : "aspect-video"}`}
+        >
           <video
             ref={cameraRef}
             muted
@@ -436,6 +461,23 @@ export default function ARScan() {
             className={`absolute inset-0 h-full w-full object-cover ${cameraOn ? "block" : "hidden"}`}
             aria-label="Hình ảnh camera đang quét sách"
           />
+          {cameraOn && (
+            <div
+              className="absolute inset-x-0 top-0 z-30 flex items-start justify-between gap-4 bg-gradient-to-b from-black/75 to-transparent px-4 pb-8 pt-4 text-white sm:px-6"
+              style={{ paddingTop: "max(1rem, env(safe-area-inset-top))" }}
+            >
+              <div className="min-w-0">
+                <p className="text-sm font-bold">Riko AR</p>
+                <p className="mt-1 text-xs text-white/80">{cameraStatus}</p>
+              </div>
+              <Link
+                to="/"
+                className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-black/45 px-3 py-2 text-sm font-semibold text-white transition hover:bg-black/70"
+              >
+                <X size={17} /> Thoát
+              </Link>
+            </div>
+          )}
           {!cameraOn && (
             <div className="absolute inset-0 flex flex-col items-center justify-center px-5 text-center text-white">
               <Camera size={48} className="text-[#A8D8E8]" />
@@ -454,7 +496,7 @@ export default function ARScan() {
           {cameraOn && !selection?.box && !selection && (
             <div className="pointer-events-none absolute inset-[12%] rounded-3xl border-2 border-white/70 shadow-[0_0_0_999px_rgba(4,20,36,.12)]">
               <span className="absolute left-3 top-3 rounded-full bg-black/50 px-3 py-1.5 text-xs font-semibold text-white">
-                {modelStatus === "ready" ? "Đang nhận diện pop-up và trang sách" : modelStatus === "loading" ? "Đang nạp mô hình nhận diện…" : "Đang quét QR dự phòng"}
+                {cameraStatus}
               </span>
             </div>
           )}
@@ -466,7 +508,9 @@ export default function ARScan() {
             </div>
           )}
           {selection && selection.slot.arVideoUrl && (
-            <div className="absolute inset-x-3 bottom-3 z-20 overflow-hidden rounded-2xl border border-white/70 bg-white shadow-2xl sm:inset-x-auto sm:right-4 sm:top-4 sm:bottom-auto sm:w-[min(42%,420px)]">
+            <div
+              className={`absolute inset-x-3 bottom-3 z-20 max-h-[60dvh] overflow-y-auto rounded-2xl border border-white/70 bg-white shadow-2xl sm:inset-x-auto sm:bottom-auto sm:w-[min(42%,420px)] ${cameraOn ? "sm:right-4 sm:top-20" : "sm:right-4 sm:top-4"}`}
+            >
               <div className="flex items-center justify-between gap-3 bg-[#173E72] px-3 py-2 text-white">
                 <div className="min-w-0">
                   <p className="truncate text-sm font-bold">{targetLabel}</p>
@@ -516,7 +560,7 @@ export default function ARScan() {
             <button
               type="button"
               onClick={stopCamera}
-              className="absolute bottom-3 left-3 z-30 inline-flex items-center gap-2 rounded-full bg-black/55 px-3 py-2 text-xs font-semibold text-white hover:bg-black/75"
+              className="absolute left-3 top-20 z-30 inline-flex items-center gap-2 rounded-full bg-black/55 px-3 py-2 text-xs font-semibold text-white hover:bg-black/75 sm:bottom-4 sm:left-4 sm:top-auto"
             >
               <X size={15} /> Dừng camera
             </button>
@@ -528,31 +572,35 @@ export default function ARScan() {
           )}
         </div>
         <canvas ref={captureCanvasRef} className="hidden" aria-hidden="true" />
-        <div className="flex flex-wrap items-center justify-between gap-3 bg-white px-4 py-4 sm:px-6">
-          <p className="text-xs leading-5 text-[#596575]">
-            {modelStatus === "ready" ? "Mô hình trang và pop-up là nguồn nhận diện chính." : modelStatus === "unavailable" ? "Chưa tải được mô hình; QR vẫn hoạt động làm dự phòng." : "Mở camera để bắt đầu nhận diện."}
-            {scannedQR && !selection
-              ? ` Đã thấy QR ${scannedQR}; đang ưu tiên nhận diện hình trong 0,8 giây trước khi dùng QR dự phòng.`
-              : ""}
-          </p>
-          <div className="flex gap-2">
-            {cameraOn ? (
-              <button type="button" onClick={stopCamera} className="inline-flex items-center gap-2 rounded-full border border-[#D9E0E5] px-4 py-2 text-sm font-semibold text-primary hover:bg-[#F5F8FA]">
-                <RotateCcw size={15} /> Quét lại
-              </button>
-            ) : (
-              <Link to="/book" className="inline-flex items-center gap-2 rounded-full border border-[#D9E0E5] px-4 py-2 text-sm font-semibold text-primary hover:bg-[#F5F8FA]">Xem sách</Link>
-            )}
+        {!cameraOn && (
+          <div className="flex flex-wrap items-center justify-between gap-3 bg-white px-4 py-4 sm:px-6">
+            <p className="text-xs leading-5 text-[#596575]">
+              {modelStatus === "ready" ? "Mô hình trang và pop-up là nguồn nhận diện chính." : modelStatus === "unavailable" ? "Chưa tải được mô hình; QR vẫn hoạt động làm dự phòng." : "Mở camera để bắt đầu nhận diện."}
+              {scannedQR && !selection
+                ? ` Đã thấy QR ${scannedQR}; đang ưu tiên nhận diện hình trong 0,8 giây trước khi dùng QR dự phòng.`
+                : ""}
+            </p>
+            <div className="flex gap-2">
+              {cameraOn ? (
+                <button type="button" onClick={stopCamera} className="inline-flex items-center gap-2 rounded-full border border-[#D9E0E5] px-4 py-2 text-sm font-semibold text-primary hover:bg-[#F5F8FA]">
+                  <RotateCcw size={15} /> Quét lại
+                </button>
+              ) : (
+                <Link to="/book" className="inline-flex items-center gap-2 rounded-full border border-[#D9E0E5] px-4 py-2 text-sm font-semibold text-primary hover:bg-[#F5F8FA]">Xem sách</Link>
+              )}
+            </div>
           </div>
-        </div>
+        )}
       </div>
       {error && <p role="alert" className="mx-auto mt-4 max-w-3xl rounded-2xl bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>}
       {selection && !selection.slot.arVideoUrl && (
         <p role="status" className="mx-auto mt-4 max-w-3xl rounded-2xl bg-amber-50 px-4 py-3 text-sm text-amber-800">Trang {selection.slot.label} chưa có video được gán.</p>
       )}
-      <p className="mx-auto mt-5 max-w-3xl text-center text-xs leading-5 text-[#6B7480]">
-        Nếu đang dùng iPhone, hãy mở trang bằng Safari và cho phép camera. Các trang chưa có video vẫn nhận QR nhưng sẽ chờ gán clip sau.
-      </p>
+      {!cameraOn && (
+        <p className="mx-auto mt-5 max-w-3xl text-center text-xs leading-5 text-[#6B7480]">
+          Nếu đang dùng iPhone, hãy mở trang bằng Safari và cho phép camera. Các trang chưa có video vẫn nhận QR nhưng sẽ chờ gán clip sau.
+        </p>
+      )}
     </main>
   )
 }
