@@ -5,6 +5,7 @@ import jsQR from "jsqr"
 import bookVideoManifest from "../data/bookVideoSlots.json"
 import arTargetManifest from "../data/arTargets.json"
 import { detectBookTarget, type ARDetection, type ARMaskRegion } from "../lib/arDetector"
+import { getCoverRect } from "../lib/arScanGeometry"
 import {
   resolveSlotFromLabel,
   routeSlotFromQR,
@@ -98,26 +99,6 @@ function slotFromDetection(detection: ARDetection, pageContext?: BookSlot | null
   return resolveSlotFromLabel(classNames[detection.classId], pageContext?.id, targets, slots)
 }
 
-function getCoverRect(
-  box: ARDetection["box"],
-  videoWidth: number,
-  videoHeight: number,
-  frameWidth: number,
-  frameHeight: number,
-) {
-  const scale = Math.max(frameWidth / videoWidth, frameHeight / videoHeight)
-  const renderedWidth = videoWidth * scale
-  const renderedHeight = videoHeight * scale
-  const offsetX = (frameWidth - renderedWidth) / 2
-  const offsetY = (frameHeight - renderedHeight) / 2
-  return {
-    left: offsetX + box.x * scale,
-    top: offsetY + box.y * scale,
-    width: box.width * scale,
-    height: box.height * scale,
-  }
-}
-
 export default function ARScan() {
   const cameraRef = useRef<HTMLVideoElement>(null)
   const frameRef = useRef<HTMLDivElement>(null)
@@ -152,19 +133,35 @@ export default function ARScan() {
     }
     const camera = cameraRef.current
     const frame = frameRef.current
-    const rect = getCoverRect(
-      selection.box,
-      camera.videoWidth,
-      camera.videoHeight,
-      frame.clientWidth,
-      frame.clientHeight,
-    )
-    setBoxStyle({
-      left: `${Math.max(0, (rect.left / frame.clientWidth) * 100)}%`,
-      top: `${Math.max(0, (rect.top / frame.clientHeight) * 100)}%`,
-      width: `${Math.min(100, (rect.width / frame.clientWidth) * 100)}%`,
-      height: `${Math.min(100, (rect.height / frame.clientHeight) * 100)}%`,
-    })
+    const updateBoxStyle = () => {
+      const rect = getCoverRect(
+        selection.box!,
+        camera.videoWidth,
+        camera.videoHeight,
+        frame.clientWidth,
+        frame.clientHeight,
+      )
+      if (!rect) {
+        setBoxStyle(undefined)
+        return
+      }
+      setBoxStyle({
+        left: `${(rect.left / frame.clientWidth) * 100}%`,
+        top: `${(rect.top / frame.clientHeight) * 100}%`,
+        width: `${(rect.width / frame.clientWidth) * 100}%`,
+        height: `${(rect.height / frame.clientHeight) * 100}%`,
+      })
+    }
+    updateBoxStyle()
+    const resizeObserver = new ResizeObserver(updateBoxStyle)
+    resizeObserver.observe(frame)
+    camera.addEventListener("resize", updateBoxStyle)
+    window.addEventListener("resize", updateBoxStyle)
+    return () => {
+      resizeObserver.disconnect()
+      camera.removeEventListener("resize", updateBoxStyle)
+      window.removeEventListener("resize", updateBoxStyle)
+    }
   }, [selection, cameraOn])
 
   useEffect(() => {

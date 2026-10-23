@@ -6,6 +6,7 @@ import {
   routeSlotFromQR,
   shouldCommitQrFallback,
 } from "../../src/lib/arScanLogic.js"
+import { getCoverRect } from "../../src/lib/arScanGeometry.js"
 
 const slotsData = JSON.parse(await readFile("src/data/bookVideoSlots.json", "utf8"))
 const targetsData = JSON.parse(await readFile("src/data/arTargets.json", "utf8"))
@@ -100,4 +101,28 @@ assert.equal(
 assert.equal(fallbackAt({ qrFallbackCommitted: true }), false, "commit only once")
 assert.equal(fallbackAt({ pendingQr: null }), false, "a QR is required for fallback")
 
-console.log("Scanner logic QA passed: all PDF pages/covers, 54 QR-to-video routes, popup mapping, and 800 ms fallback timing.")
+const closeTo = (actual, expected, message) => assert.ok(Math.abs(actual - expected) < 0.01, message)
+const portraitCrop = getCoverRect(
+  { x: 100, y: 400, width: 200, height: 400 },
+  720,
+  1280,
+  1280,
+  720,
+)
+assert.ok(portraitCrop, "a portrait-camera box intersecting the frame remains visible")
+closeTo(portraitCrop.left, 177.7778, "cover crop preserves horizontal box placement")
+closeTo(portraitCrop.top, 0, "cover crop clips the hidden top portion")
+closeTo(portraitCrop.width, 355.5556, "cover crop preserves visible box width")
+closeTo(portraitCrop.height, 644.4444, "cover crop trims height at the frame boundary")
+assert.equal(
+  getCoverRect({ x: 50, y: 0, width: 150, height: 200 }, 720, 1280, 1280, 720),
+  null,
+  "a detection entirely hidden by object-cover is not drawn",
+)
+assert.equal(
+  getCoverRect({ x: 0, y: 0, width: 50, height: 50 }, 0, 0, 1280, 720),
+  null,
+  "overlay geometry waits for camera dimensions",
+)
+
+console.log("Scanner QA passed: 54 QR-to-video routes, covers, popup mapping, 800 ms fallback, and object-cover overlay clipping.")
