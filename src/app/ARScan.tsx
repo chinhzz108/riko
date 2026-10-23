@@ -68,6 +68,7 @@ type MindARInstance = {
   cssRenderer?: { domElement: HTMLElement }
 }
 type PlaneRecord = {
+  anchor: MindARAnchor
   mesh: Mesh
   slot: BookSlot
   target: MindARPageTarget
@@ -82,6 +83,8 @@ type SpatialMedia = {
   material: MeshBasicMaterial
   currentVideo: HTMLVideoElement | null
   fallbackActive: boolean
+  nativeOverlayActive: boolean
+  nativeOverlayPositioned: boolean
   lastTextureTime: number
 }
 
@@ -193,6 +196,7 @@ function makeVideoElement() {
 function waitForVideoFrame(video: HTMLVideoElement, timeoutMs = 8000) {
   if (video.error) return Promise.reject(video.error)
   if (
+    typeof video.requestVideoFrameCallback !== "function" &&
     video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA &&
     video.videoWidth > 0
   )
@@ -200,12 +204,22 @@ function waitForVideoFrame(video: HTMLVideoElement, timeoutMs = 8000) {
 
   return new Promise<void>((resolve, reject) => {
     let timer = 0
+    let frameRequest = 0
+    let settled = false
     const cleanup = () => {
       window.clearTimeout(timer)
+      if (frameRequest && video.cancelVideoFrameCallback)
+        video.cancelVideoFrameCallback(frameRequest)
       video.removeEventListener("loadeddata", check)
       video.removeEventListener("canplay", check)
       video.removeEventListener("playing", check)
       video.removeEventListener("error", fail)
+    }
+    const complete = () => {
+      if (settled) return
+      settled = true
+      cleanup()
+      resolve()
     }
     const check = () => {
       if (
@@ -213,21 +227,30 @@ function waitForVideoFrame(video: HTMLVideoElement, timeoutMs = 8000) {
         video.videoWidth <= 0
       )
         return
-      cleanup()
-      resolve()
+      if (typeof video.requestVideoFrameCallback === "function") {
+        if (!frameRequest)
+          frameRequest = video.requestVideoFrameCallback(complete)
+        return
+      }
+      complete()
     }
-    const fail = () => {
+    const finishWithError = (error: unknown) => {
+      if (settled) return
+      settled = true
       cleanup()
-      reject(video.error || new Error("Video không giải mã được."))
+      reject(error)
     }
-    timer = window.setTimeout(() => {
-      cleanup()
-      reject(new Error("Video không tạo được khung hình đầu tiên."))
-    }, timeoutMs)
+    const fail = () =>
+      finishWithError(video.error || new Error("Video không giải mã được."))
+    timer = window.setTimeout(
+      () => finishWithError(new Error("Video không tạo được khung hình đầu tiên.")),
+      timeoutMs,
+    )
     video.addEventListener("loadeddata", check)
     video.addEventListener("canplay", check)
     video.addEventListener("playing", check)
     video.addEventListener("error", fail)
+    check()
   })
 }
 
@@ -273,6 +296,7 @@ async function startMindARWithStream(
 export default function ARScan() {
   const frameRef = useRef<HTMLDivElement>(null)
   const cameraLayerRef = useRef<HTMLDivElement>(null)
+  const videoOverlayRef = useRef<HTMLDivElement>(null)
   const captureCanvasRef = useRef<HTMLCanvasElement>(null)
   const cameraVideoRef = useRef<HTMLVideoElement | null>(null)
   const streamRef = useRef<MediaStream | null>(null)
@@ -285,6 +309,7 @@ export default function ARScan() {
   const pendingQRRef = useRef<PendingQR | null>(null)
   const qrFallbackRef = useRef<string | null>(null)
   const dismissedSlotRef = useRef<string | null>(null)
+  const spatialPlayRequestRef = useRef(0)
   const selectionRef = useRef<Selection | null>(null)
   const videoManifestRef = useRef<Promise<VideoAsset[]> | null>(null)
   const [cameraOn, setCameraOn] = useState(false)
@@ -349,31 +374,161 @@ export default function ARScan() {
     const { left, top, right, bottom } = record.target.overlayBox
     const { width: targetWidth, height: targetHeight } =
       record.target.targetSize
-    const maxWidth = Math.max(0.001, (right - left) * targetWidth)
-    const maxHeight = Math.max(0.001, (bottom - top) * targetHeight)
+    // MindAR's post matrix scales every image target to one world unit wide.
+    // targetSize is in source-image pixels, so only its aspect ratio belongs
+    // in anchor-local coordinates.
+    const normalizedTargetHeight = targetHeight / targetWidth
+    const maxWidth = Math.max(0.001, right - left)
+    const maxHeight = Math.max(0.001, (bottom - top) * normalizedTargetHeight)
     let width = maxWidth
     let height = maxHeight
     if (width / height > aspect) width = height * aspect
     else height = width / aspect
     record.mesh.scale.set(width, height, 1)
     record.mesh.position.set(
-      ((left + right) / 2 - 0.5) * targetWidth,
-      (0.5 - (top + bottom) / 2) * targetHeight,
+      (left + right) / 2 - 0.5,
+      (0.5 - (top + bottom) / 2) * normalizedTargetHeight,
       0.012,
     )
+  }
+
+  function hideNativeVideoOverlay(
+    media = spatialRef.current,
+    deactivate = true,
+  ) {
+    if (!media) return
+    if (deactivate) media.nativeOverlayActive = false
+    media.nativeOverlayPositioned = false
+    media.video.style.opacity = "0"
+    media.video.style.transform = "translate3d(-10000px, -10000px, 0)"
+  }
+
+  function positionNativeVideoOverlay(
+    record: PlaneRecord,
+    tracker: MindARInstance,
+    THREE: typeof import("three"),
+  ) {
+    const media = spatialRef.current
+    const overlay = videoOverlayRef.current
+    const video = media?.video
+    if (
+      !media?.nativeOverlayActive ||
+      !overlay ||
+      !video ||
+      video.videoWidth <= 0 ||
+      video.videoHeight <= 0
+    )
+      return hideNativeVideoOverlay(media, false)
+
+    const viewport = tracker.renderer.domElement.getBoundingClientRect()
+    const overlayRect = overlay.getBoundingClientRect()
+    if (
+      viewport.width < 1 ||
+      viewport.height < 1 ||
+      overlayRect.width < 1 ||
+      overlayRect.height < 1
+    )
+      return hideNativeVideoOverlay(media, false)
+
+    const { left, top, right, bottom } = record.target.overlayBox
+    const { width: targetWidth, height: targetHeight } = record.target.targetSize
+    const normalizedTargetHeight = targetHeight / targetWidth
+    const maxWidth = Math.max(0.001, right - left)
+    const maxHeight = Math.max(
+      0.001,
+      (bottom - top) * normalizedTargetHeight,
+    )
+    const aspect = video.videoWidth / video.videoHeight
+    let width = maxWidth
+    let height = maxHeight
+    if (width / height > aspect) width = height * aspect
+    else height = width / aspect
+    const centerX = (left + right) / 2 - 0.5
+    const centerY = (0.5 - (top + bottom) / 2) * normalizedTargetHeight
+    const corners = [
+      [centerX - width / 2, centerY + height / 2],
+      [centerX + width / 2, centerY + height / 2],
+      [centerX + width / 2, centerY - height / 2],
+      [centerX - width / 2, centerY - height / 2],
+    ].map(([x, y]) => {
+      const point = new THREE.Vector3(x, y, 0.012)
+        .applyMatrix4(record.anchor.group.matrixWorld)
+        .project(tracker.camera)
+      return {
+        x: viewport.left + ((point.x + 1) / 2) * viewport.width - overlayRect.left,
+        y: viewport.top + ((1 - point.y) / 2) * viewport.height - overlayRect.top,
+        z: point.z,
+      }
+    })
+    if (
+      corners.some(
+        (point) =>
+          !Number.isFinite(point.x) ||
+          !Number.isFinite(point.y) ||
+          !Number.isFinite(point.z) ||
+          point.z < -1 ||
+          point.z > 1,
+      )
+    )
+      return hideNativeVideoOverlay(media, false)
+
+    // Map the native video rectangle to the projected page quadrilateral.
+    // This keeps its corners attached while the book is tilted or rotated.
+    const [p0, p1, p2, p3] = corners
+    const dx1 = p1.x - p2.x
+    const dx2 = p3.x - p2.x
+    const dx3 = p0.x - p1.x + p2.x - p3.x
+    const dy1 = p1.y - p2.y
+    const dy2 = p3.y - p2.y
+    const dy3 = p0.y - p1.y + p2.y - p3.y
+    const determinant = dx1 * dy2 - dx2 * dy1
+    if (Math.abs(determinant) < 0.000001)
+      return hideNativeVideoOverlay(media, false)
+    const g = (dx3 * dy2 - dx2 * dy3) / determinant
+    const h = (dx1 * dy3 - dx3 * dy1) / determinant
+    const a = p1.x - p0.x + g * p1.x
+    const b = p3.x - p0.x + h * p3.x
+    const c = p0.x
+    const d = p1.y - p0.y + g * p1.y
+    const e = p3.y - p0.y + h * p3.y
+    const f = p0.y
+    const sourceWidth = video.videoWidth
+    const sourceHeight = video.videoHeight
+    const coefficients = [
+      a / sourceWidth,
+      d / sourceWidth,
+      g / sourceWidth,
+      b / sourceHeight,
+      e / sourceHeight,
+      h / sourceHeight,
+      c,
+      f,
+    ]
+    if (!coefficients.every(Number.isFinite))
+      return hideNativeVideoOverlay(media, false)
+    const transform = `matrix3d(${coefficients[0]},${coefficients[1]},0,${coefficients[2]},${coefficients[3]},${coefficients[4]},0,${coefficients[5]},0,0,1,0,${coefficients[6]},${coefficients[7]},0,1)`
+    const videoWidth = `${sourceWidth}px`
+    const videoHeight = `${sourceHeight}px`
+    if (video.style.transform !== transform) video.style.transform = transform
+    if (video.style.width !== videoWidth) video.style.width = videoWidth
+    if (video.style.height !== videoHeight) video.style.height = videoHeight
+    if (video.style.opacity !== "1") video.style.opacity = "1"
+    media.nativeOverlayPositioned = true
   }
 
   async function showSpatialVideo(slot: BookSlot) {
     const media = spatialRef.current
     if (!media || !slot.arVideoUrl) return
+    const requestId = ++spatialPlayRequestRef.current
+    const isCurrentRequest = () =>
+      spatialRef.current === media &&
+      spatialPlayRequestRef.current === requestId &&
+      activePageSlotRef.current?.id === slot.id
     setError("")
     const asset = await findVideoAsset(slot)
-    if (
-      spatialRef.current !== media ||
-      activePageSlotRef.current?.id !== slot.id
-    )
-      return
+    if (!isCurrentRequest()) return
     setSelectedAsset(asset)
+    hideNativeVideoOverlay(media)
     const safari = isSafariOrIOS()
     const hasSplitAlpha = Boolean(
       asset.alpha && asset.alphaColorUrl && asset.alphaMaskUrl,
@@ -403,9 +558,9 @@ export default function ARScan() {
       url: string,
     ) => {
       setSource(video, url)
-      const frameReady = waitForVideoFrame(video)
       const playback = video.play()
-      await Promise.all([frameReady, playback])
+      await playback
+      await waitForVideoFrame(video)
       texture.needsUpdate = true
     }
     const playSplitAlpha = async () => {
@@ -439,6 +594,7 @@ export default function ARScan() {
       if (media.fallbackActive) await playSplitAlpha()
       else await playNative()
     } catch (playError) {
+      if (!isCurrentRequest()) return
       console.warn("AR video playback failed; trying the compatible source.", playError)
       media.video.pause()
       media.colorVideo.pause()
@@ -448,12 +604,17 @@ export default function ARScan() {
         else if (hasSplitAlpha && safari) await playNative()
         else throw playError
       } catch (fallbackError) {
+        if (!isCurrentRequest()) return
         console.error("No AR video source could be played.", fallbackError)
         setError("Video AR chưa phát được trên trình duyệt này. Hãy thử tải lại trang hoặc chạm bắt đầu quét lại.")
         return
       }
     }
+    if (!isCurrentRequest()) return
     media.material.needsUpdate = true
+    media.nativeOverlayActive =
+      !media.fallbackActive && media.currentVideo === media.video
+    if (!media.nativeOverlayActive) hideNativeVideoOverlay(media)
     const activeVideo = media.currentVideo
     const resize = () => {
       const ratio =
@@ -505,6 +666,8 @@ export default function ARScan() {
       material,
       currentVideo: null,
       fallbackActive: false,
+      nativeOverlayActive: false,
+      nativeOverlayPositioned: false,
       lastTextureTime: -1,
     }
     for (const [element, textureToRefresh] of [
@@ -530,7 +693,21 @@ export default function ARScan() {
         pointerEvents: "none",
         zIndex: "-1",
       })
-      cameraLayerRef.current?.append(element)
+      if (element === video) {
+        Object.assign(element.style, {
+          left: "0",
+          top: "0",
+          width: "1px",
+          height: "1px",
+          transformOrigin: "0 0",
+          objectFit: "fill",
+          willChange: "transform",
+          zIndex: "1",
+        })
+        videoOverlayRef.current?.append(element)
+      } else {
+        cameraLayerRef.current?.append(element)
+      }
     }
     spatialRef.current = media
     const records: PlaneRecord[] = []
@@ -543,7 +720,7 @@ export default function ARScan() {
       const mesh = new THREE.Mesh(geometry, material)
       mesh.renderOrder = 5
       mesh.visible = true
-      const record = { mesh, slot, target }
+      const record = { anchor, mesh, slot, target }
       resizePlane(
         record,
         slot.arVideoUrl.endsWith("/RIKO.webm") ? 9 / 16 : 16 / 9,
@@ -567,6 +744,7 @@ export default function ARScan() {
       }
       anchor.onTargetLost = () => {
         if (activePageSlotRef.current?.id !== slot.id) return
+        spatialPlayRequestRef.current += 1
         activePageSlotRef.current = null
         setTrackedPageLabel("")
         setBoxStyle(undefined)
@@ -578,6 +756,7 @@ export default function ARScan() {
         }
         spatialRef.current?.currentVideo?.pause()
         spatialRef.current?.maskVideo.pause()
+        hideNativeVideoOverlay()
       }
     }
     planeRecordsRef.current = records
@@ -587,9 +766,24 @@ export default function ARScan() {
     tracker.renderer.setAnimationLoop(() => {
       const active = activePageSlotRef.current?.id
       for (const record of records) {
-        record.mesh.visible =
+        const isActive =
           record.slot.id === active && dismissedSlotRef.current !== active
+        if (isActive && media.nativeOverlayActive && !media.fallbackActive) {
+          record.anchor.group.updateWorldMatrix(true, false)
+          tracker.camera.updateWorldMatrix(true, false)
+          positionNativeVideoOverlay(record, tracker, THREE)
+        }
+        record.mesh.visible =
+          isActive &&
+          (media.fallbackActive ||
+            !media.nativeOverlayActive ||
+            !media.nativeOverlayPositioned)
       }
+      if (
+        (!active || dismissedSlotRef.current === active) &&
+        media.nativeOverlayActive
+      )
+        hideNativeVideoOverlay(media, false)
       if (
         media.fallbackActive &&
         media.currentVideo &&
@@ -613,7 +807,10 @@ export default function ARScan() {
         if (media.fallbackActive) {
           media.colorTexture.needsUpdate = true
           media.maskTexture.needsUpdate = true
-        } else {
+        } else if (
+          !media.nativeOverlayActive ||
+          !media.nativeOverlayPositioned
+        ) {
           media.texture.needsUpdate = true
         }
         media.lastTextureTime = currentVideo.currentTime
@@ -623,6 +820,7 @@ export default function ARScan() {
   }
 
   function disposeTracker() {
+    spatialPlayRequestRef.current += 1
     scanLoopRef.current?.()
     scanLoopRef.current = null
     modelReadyRef.current = false
@@ -654,11 +852,13 @@ export default function ARScan() {
     }
     for (const record of planeRecordsRef.current) record.mesh.geometry.dispose()
     planeRecordsRef.current = []
+    hideNativeVideoOverlay(media || undefined)
     spatialRef.current = null
     cameraVideoRef.current = null
     streamRef.current?.getTracks().forEach((track) => track.stop())
     streamRef.current = null
     cameraLayerRef.current?.replaceChildren()
+    videoOverlayRef.current?.replaceChildren()
   }
 
   useEffect(() => () => disposeTracker(), [])
@@ -1055,6 +1255,13 @@ export default function ARScan() {
             ref={cameraLayerRef}
             className={`absolute inset-0 ${cameraOn ? "block" : "hidden"}`}
           />
+          {cameraOn && (
+            <div
+              ref={videoOverlayRef}
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0 z-20 overflow-hidden"
+            />
+          )}
           {cameraOn && trackerStatus !== "ready" && (
             <div className="pointer-events-none absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-[#071320] px-6 text-center text-white">
               <Camera size={42} className="text-[#A8D8E8]" />
@@ -1178,9 +1385,11 @@ export default function ARScan() {
                     type="button"
                     onClick={() => {
                       dismissedSlotRef.current = selection.slot.id
+                      spatialPlayRequestRef.current += 1
                       chooseSelection(null)
                       spatialRef.current?.currentVideo?.pause()
                       spatialRef.current?.maskVideo.pause()
+                      hideNativeVideoOverlay()
                     }}
                     className="rounded-full p-1 hover:bg-white/15"
                     aria-label="Ẩn video AR"
