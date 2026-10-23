@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "node scripts/ar/copy_litert_assets.mjs && vite build",
+    "build": "node scripts/ar/copy_litert_assets.mjs && node scripts/ar/compress_mindar_bundle.mjs && vite build",
     "preview": "vite preview",
     "format": "oxfmt"
   },
@@ -14,11 +14,13 @@
     "appwrite": "^28.3.0",
     "jsqr": "^1.4.0",
     "lucide-react": "^1.52.0",
+    "mind-ar": "^1.2.5",
     "motion": "^14.0.0",
     "qrcode": "^1.5.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-router": "^7.18.4"
+    "react-router": "^7.18.4",
+    "three": "^0.160.0"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.0.0",
@@ -26,6 +28,7 @@
     "@types/qrcode": "^1.5.6",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
+    "@types/three": "0.160.0",
     "@vitejs/plugin-react": "^6.0.0",
     "oxfmt": "^0.2.0",
     "tailwindcss": "^4.0.0",

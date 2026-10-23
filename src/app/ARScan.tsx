@@ -1,32 +1,96 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react"
-import { ArrowLeft, Camera, RotateCcw, Volume2, VolumeX, X } from "lucide-react"
+import {
+  ArrowLeft,
+  Camera,
+  Flashlight,
+  RotateCcw,
+  Volume2,
+  VolumeX,
+  X,
+} from "lucide-react"
 import { Link } from "react-router"
+import type {
+  Camera as ThreeCamera,
+  Group,
+  Mesh,
+  MeshBasicMaterial,
+  Scene,
+  Texture,
+  WebGLRenderer,
+} from "three"
 import jsQR from "jsqr"
 import bookVideoManifest from "../data/bookVideoSlots.json"
 import arTargetManifest from "../data/arTargets.json"
-import { detectBookTarget, type ARDetection, type ARMaskRegion } from "../lib/arDetector"
+import mindArTargetManifest from "../data/arPageTargets.json"
+import { detectBookTarget, type ARDetection } from "../lib/arDetector"
 import { getCoverRect } from "../lib/arScanGeometry"
-import {
-  resolveSlotFromLabel,
-  routeSlotFromQR,
-  shouldCommitQrFallback,
-} from "../lib/arScanLogic.js"
+import { resolveSlotFromLabel, routeSlotFromQR } from "../lib/arScanLogic.js"
 
-type BookSlot = (typeof bookVideoManifest.slots)[number] & {
+type BookSlot = typeof bookVideoManifest.slots[number] & {
   arTargetId?: string | null
   arVideoUrl?: string | null
   pageClass?: string
 }
-type Target = (typeof arTargetManifest.targets)[number] & {
+type MindARPageTarget = typeof mindArTargetManifest.targets[number]
+type Target = typeof arTargetManifest.targets[number] & {
   popupLabel: string
   videoUrl: string
   pages: string[]
 }
+type Selection = {
+  slot: BookSlot
+  box: ARDetection["box"] | null
+  source: "popup" | "page" | "qr"
+  score?: number
+}
+type PendingQR = { slot: BookSlot; foundAt: number }
+type VideoAsset = {
+  id: string
+  url: string
+  alpha?: boolean
+  alphaVideoUrl?: string
+  alphaColorUrl?: string
+  alphaMaskUrl?: string
+}
+type MindARAnchor = {
+  group: Group
+  onTargetFound: (() => void) | null
+  onTargetLost: (() => void) | null
+}
+type MindARInstance = {
+  video: HTMLVideoElement
+  renderer: WebGLRenderer
+  scene: Scene
+  camera: ThreeCamera
+  addAnchor: (targetIndex: number) => MindARAnchor
+  start: () => Promise<void>
+  stop: () => void
+  cssRenderer?: { domElement: HTMLElement }
+}
+type PlaneRecord = {
+  mesh: Mesh
+  slot: BookSlot
+  target: MindARPageTarget
+}
+type SpatialMedia = {
+  video: HTMLVideoElement
+  colorVideo: HTMLVideoElement
+  maskVideo: HTMLVideoElement
+  texture: Texture
+  colorTexture: Texture
+  maskTexture: Texture
+  material: MeshBasicMaterial
+  currentVideo: HTMLVideoElement | null
+  fallbackActive: boolean
+}
 
 const slots = bookVideoManifest.slots as BookSlot[]
 const targets = arTargetManifest.targets as Target[]
+const pageTargets = mindArTargetManifest.targets as MindARPageTarget[]
 const classNames = [
-  ...slots.map((slot) => slot.pageClass || `page_${slot.id.replace(/-/g, "_")}`),
+  ...slots.map(
+    (slot) => slot.pageClass || `page_${slot.id.replace(/-/g, "_")}`,
+  ),
   ...targets.map((target) => target.popupLabel),
 ]
 const detectionConfidence = (classId: number) => {
@@ -35,35 +99,23 @@ const detectionConfidence = (classId: number) => {
     ? arTargetManifest.minimumConfidenceByType.popup
     : arTargetManifest.minimumConfidenceByType.page
 }
-type Selection = {
-  slot: BookSlot
-  box: ARDetection["box"] | null
-  source: "popup" | "page" | "qr"
-  score?: number
-}
-
 const CAMERA_START_TIMEOUT_MS = 15_000
 
 function cameraErrorMessage(error: unknown) {
   if (error instanceof DOMException) {
-    if (error.name === "NotAllowedError") {
+    if (error.name === "NotAllowedError")
       return "Chưa được cấp quyền dùng camera. Hãy cho phép camera rồi bấm thử lại nhé."
-    }
-    if (error.name === "TimeoutError") {
+    if (error.name === "TimeoutError")
       return "Camera chưa phản hồi. Hãy kiểm tra quyền camera của trình duyệt rồi thử lại nhé."
-    }
-    if (error.name === "NotFoundError") {
+    if (error.name === "NotFoundError")
       return "Thiết bị này không tìm thấy camera. Hãy thử trên điện thoại hoặc máy có camera nhé."
-    }
   }
   return "Không mở được camera. Hãy kiểm tra quyền camera và thử lại trên HTTPS hoặc localhost."
 }
 
 async function requestCameraStream() {
-  if (!navigator.mediaDevices?.getUserMedia) {
+  if (!navigator.mediaDevices?.getUserMedia)
     throw new Error("Camera access is unavailable in this browser.")
-  }
-
   let requestTimedOut = false
   let timeoutId: number | undefined
   const request = navigator.mediaDevices
@@ -71,8 +123,9 @@ async function requestCameraStream() {
       audio: false,
       video: {
         facingMode: { ideal: "environment" },
-        width: { ideal: 1280 },
-        height: { ideal: 720 },
+        width: { ideal: 1920 },
+        height: { ideal: 1080 },
+        frameRate: { ideal: 30, max: 30 },
       },
     })
     .then((stream) => {
@@ -82,43 +135,137 @@ async function requestCameraStream() {
   const timeout = new Promise<null>((_, reject) => {
     timeoutId = window.setTimeout(() => {
       requestTimedOut = true
-      reject(new DOMException("Camera permission or device request timed out.", "TimeoutError"))
+      reject(
+        new DOMException(
+          "Camera permission or device request timed out.",
+          "TimeoutError",
+        ),
+      )
     }, CAMERA_START_TIMEOUT_MS)
   })
-
   try {
     const stream = await Promise.race([request, timeout])
-    if (!stream) throw new DOMException("Camera request timed out.", "TimeoutError")
+    if (!stream)
+      throw new DOMException("Camera request timed out.", "TimeoutError")
     return stream
   } finally {
     if (timeoutId !== undefined) window.clearTimeout(timeoutId)
   }
 }
 
-function slotFromDetection(detection: ARDetection, pageContext?: BookSlot | null) {
-  return resolveSlotFromLabel(classNames[detection.classId], pageContext?.id, targets, slots)
+function slotFromDetection(
+  detection: ARDetection,
+  pageContext?: BookSlot | null,
+) {
+  return resolveSlotFromLabel(
+    classNames[detection.classId],
+    pageContext?.id,
+    targets,
+    slots,
+  )
+}
+
+function isSafariOrIOS() {
+  const userAgent = navigator.userAgent
+  const isIOS =
+    /iPhone|iPad|iPod/i.test(userAgent) ||
+    (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)
+  const isSafari =
+    /Safari/i.test(userAgent) &&
+    !/(Chrome|Chromium|CriOS|Edg|OPR|Firefox|FxiOS)/i.test(userAgent)
+  return isIOS || isSafari
+}
+
+function makeVideoElement() {
+  const video = document.createElement("video")
+  video.crossOrigin = "anonymous"
+  video.preload = "auto"
+  video.loop = true
+  video.muted = true
+  video.playsInline = true
+  video.setAttribute("playsinline", "")
+  video.setAttribute("webkit-playsinline", "")
+  return video
+}
+
+async function startMindARWithStream(
+  tracker: MindARInstance,
+  stream: MediaStream,
+) {
+  const mediaDevices = navigator.mediaDevices
+  const originalDescriptor = Object.getOwnPropertyDescriptor(
+    mediaDevices,
+    "getUserMedia",
+  )
+  const restore = () => {
+    if (originalDescriptor)
+      Object.defineProperty(mediaDevices, "getUserMedia", originalDescriptor)
+    else Reflect.deleteProperty(mediaDevices, "getUserMedia")
+  }
+  Object.defineProperty(mediaDevices, "getUserMedia", {
+    configurable: true,
+    writable: true,
+    value: () => Promise.resolve(stream),
+  })
+  try {
+    const startPromise = tracker.start()
+    const camera = tracker.video
+    camera.muted = true
+    camera.playsInline = true
+    camera.style.zIndex = "0"
+    camera.style.objectFit = "cover"
+    tracker.renderer.domElement.style.zIndex = "1"
+    tracker.renderer.domElement.style.pointerEvents = "none"
+    tracker.renderer.domElement.style.background = "transparent"
+    if (tracker.cssRenderer) {
+      tracker.cssRenderer.domElement.style.zIndex = "2"
+      tracker.cssRenderer.domElement.style.pointerEvents = "none"
+    }
+    await startPromise
+  } finally {
+    restore()
+  }
 }
 
 export default function ARScan() {
-  const cameraRef = useRef<HTMLVideoElement>(null)
   const frameRef = useRef<HTMLDivElement>(null)
+  const cameraLayerRef = useRef<HTMLDivElement>(null)
   const captureCanvasRef = useRef<HTMLCanvasElement>(null)
-  const scanLoopRef = useRef<(() => void) | null>(null)
+  const cameraVideoRef = useRef<HTMLVideoElement | null>(null)
   const streamRef = useRef<MediaStream | null>(null)
+  const trackerRef = useRef<MindARInstance | null>(null)
+  const spatialRef = useRef<SpatialMedia | null>(null)
+  const planeRecordsRef = useRef<PlaneRecord[]>([])
+  const scanLoopRef = useRef<(() => void) | null>(null)
+  const modelReadyRef = useRef(false)
+  const activePageSlotRef = useRef<BookSlot | null>(null)
+  const pendingQRRef = useRef<PendingQR | null>(null)
+  const qrFallbackRef = useRef<string | null>(null)
+  const dismissedSlotRef = useRef<string | null>(null)
+  const selectionRef = useRef<Selection | null>(null)
+  const videoManifestRef = useRef<Promise<VideoAsset[]> | null>(null)
   const [cameraOn, setCameraOn] = useState(false)
   const [starting, setStarting] = useState(false)
   const [error, setError] = useState("")
-  const [modelStatus, setModelStatus] = useState<"idle" | "loading" | "ready" | "unavailable">("idle")
+  const [trackerStatus, setTrackerStatus] =
+    useState<"idle" | "loading" | "ready">("idle")
+  const [modelStatus, setModelStatus] =
+    useState<"idle" | "loading" | "ready" | "unavailable">("idle")
   const [selection, setSelection] = useState<Selection | null>(null)
-  const selectionRef = useRef<Selection | null>(null)
-  const dismissedSlotRef = useRef<string | null>(null)
+  const [selectedAsset, setSelectedAsset] = useState<VideoAsset | null>(null)
+  const [trackedPageLabel, setTrackedPageLabel] = useState("")
+  const [cameraSize, setCameraSize] = useState("")
+  const [torchSupported, setTorchSupported] = useState(false)
+  const [torchOn, setTorchOn] = useState(false)
   const [boxStyle, setBoxStyle] = useState<CSSProperties | undefined>()
   const [soundOn, setSoundOn] = useState(false)
   const [scannedQR, setScannedQR] = useState("")
 
   const selectedTarget = useMemo(() => {
     if (!selection?.slot.arTargetId) return null
-    return targets.find((target) => target.id === selection.slot.arTargetId) || null
+    return (
+      targets.find((target) => target.id === selection.slot.arTargetId) || null
+    )
   }, [selection])
 
   function chooseSelection(next: Selection | null) {
@@ -126,14 +273,274 @@ export default function ARScan() {
     setSelection(next)
   }
 
+  function videoAssets() {
+    if (!videoManifestRef.current) {
+      videoManifestRef.current = fetch("/videos/ar/manifest.json", {
+        cache: "force-cache",
+      }).then(async (response) => {
+        if (!response.ok) throw new Error("Could not load AR video manifest")
+        return (await response.json()) as VideoAsset[]
+      })
+    }
+    return videoManifestRef.current
+  }
+
+  async function findVideoAsset(slot: BookSlot) {
+    const defaultAsset: VideoAsset = {
+      id: slot.arTargetId || slot.id,
+      url: slot.arVideoUrl || "",
+    }
+    try {
+      const manifest = await videoAssets()
+      return (
+        manifest.find(
+          (item) => item.url === slot.arVideoUrl || item.id === slot.arTargetId,
+        ) || defaultAsset
+      )
+    } catch {
+      return defaultAsset
+    }
+  }
+
+  function resizePlane(record: PlaneRecord, aspect: number) {
+    const { left, top, right, bottom } = record.target.overlayBox
+    const { width: targetWidth, height: targetHeight } =
+      record.target.targetSize
+    const maxWidth = Math.max(0.001, (right - left) * targetWidth)
+    const maxHeight = Math.max(0.001, (bottom - top) * targetHeight)
+    let width = maxWidth
+    let height = maxHeight
+    if (width / height > aspect) width = height * aspect
+    else height = width / aspect
+    record.mesh.scale.set(width, height, 1)
+    record.mesh.position.set(
+      ((left + right) / 2 - 0.5) * targetWidth,
+      (0.5 - (top + bottom) / 2) * targetHeight,
+      0.012,
+    )
+  }
+
+  async function showSpatialVideo(slot: BookSlot) {
+    const media = spatialRef.current
+    if (!media || !slot.arVideoUrl) return
+    const asset = await findVideoAsset(slot)
+    if (
+      spatialRef.current !== media ||
+      activePageSlotRef.current?.id !== slot.id
+    )
+      return
+    setSelectedAsset(asset)
+    const safari = isSafariOrIOS()
+    media.fallbackActive = Boolean(
+      asset.alpha && safari && asset.alphaColorUrl && asset.alphaMaskUrl,
+    )
+    media.video.pause()
+    media.colorVideo.pause()
+    media.maskVideo.pause()
+
+    if (media.fallbackActive) {
+      const colorUrl = asset.alphaColorUrl!
+      const maskUrl = asset.alphaMaskUrl!
+      if (
+        media.colorVideo.src !== new URL(colorUrl, window.location.origin).href
+      )
+        media.colorVideo.src = colorUrl
+      if (media.maskVideo.src !== new URL(maskUrl, window.location.origin).href)
+        media.maskVideo.src = maskUrl
+      media.material.map = media.colorTexture
+      media.material.alphaMap = media.maskTexture
+      media.material.transparent = true
+      media.currentVideo = media.colorVideo
+      await Promise.all([
+        media.colorVideo.play(),
+        media.maskVideo.play(),
+      ]).catch(() => undefined)
+    } else {
+      const source =
+        asset.alpha && asset.alphaVideoUrl ? asset.alphaVideoUrl : asset.url
+      if (media.video.src !== new URL(source, window.location.origin).href)
+        media.video.src = source
+      media.material.map = media.texture
+      media.material.alphaMap = null
+      media.material.transparent = Boolean(asset.alpha)
+      media.currentVideo = media.video
+      await media.video.play().catch(() => undefined)
+    }
+    media.material.needsUpdate = true
+    const activeVideo = media.currentVideo
+    const resize = () => {
+      const ratio =
+        activeVideo?.videoWidth && activeVideo.videoHeight
+          ? activeVideo.videoWidth / activeVideo.videoHeight
+          : slot.arVideoUrl.endsWith("/RIKO.webm")
+            ? 9 / 16
+            : 16 / 9
+      for (const record of planeRecordsRef.current) resizePlane(record, ratio)
+    }
+    activeVideo?.addEventListener("loadedmetadata", resize, { once: true })
+    resize()
+  }
+
+  function createTrackerScene(
+    tracker: MindARInstance,
+    THREE: typeof import("three"),
+  ) {
+    const video = makeVideoElement()
+    const colorVideo = makeVideoElement()
+    const maskVideo = makeVideoElement()
+    const texture = new THREE.VideoTexture(video)
+    const colorTexture = new THREE.VideoTexture(colorVideo)
+    const maskTexture = new THREE.VideoTexture(maskVideo)
+    for (const item of [texture, colorTexture]) {
+      item.colorSpace = THREE.SRGBColorSpace
+      item.minFilter = THREE.LinearFilter
+      item.magFilter = THREE.LinearFilter
+      item.generateMipmaps = false
+    }
+    maskTexture.colorSpace = THREE.NoColorSpace
+    maskTexture.minFilter = THREE.LinearFilter
+    maskTexture.magFilter = THREE.LinearFilter
+    maskTexture.generateMipmaps = false
+    const material = new THREE.MeshBasicMaterial({
+      map: texture,
+      transparent: true,
+      side: THREE.DoubleSide,
+      depthWrite: false,
+      toneMapped: false,
+    })
+    const media: SpatialMedia = {
+      video,
+      colorVideo,
+      maskVideo,
+      texture,
+      colorTexture,
+      maskTexture,
+      material,
+      currentVideo: null,
+      fallbackActive: false,
+    }
+    spatialRef.current = media
+    const records: PlaneRecord[] = []
+
+    for (const target of pageTargets) {
+      const slot = slots.find((item) => item.id === target.slotId)
+      if (!slot?.arVideoUrl) continue
+      const anchor = tracker.addAnchor(target.index)
+      const geometry = new THREE.PlaneGeometry(1, 1)
+      const mesh = new THREE.Mesh(geometry, material)
+      mesh.renderOrder = 5
+      mesh.visible = true
+      const record = { mesh, slot, target }
+      resizePlane(
+        record,
+        slot.arVideoUrl.endsWith("/RIKO.webm") ? 9 / 16 : 16 / 9,
+      )
+      anchor.group.add(mesh)
+      records.push(record)
+
+      anchor.onTargetFound = () => {
+        const previous = activePageSlotRef.current
+        if (previous && previous.id !== slot.id) dismissedSlotRef.current = null
+        activePageSlotRef.current = slot
+        pendingQRRef.current = null
+        qrFallbackRef.current = null
+        setScannedQR("")
+        setTrackedPageLabel(slot.label)
+        setSoundOn(false)
+        if (dismissedSlotRef.current !== slot.id) {
+          chooseSelection({ slot, box: null, source: "page" })
+          void showSpatialVideo(slot)
+        }
+      }
+      anchor.onTargetLost = () => {
+        if (activePageSlotRef.current?.id !== slot.id) return
+        activePageSlotRef.current = null
+        setTrackedPageLabel("")
+        setBoxStyle(undefined)
+        if (
+          selectionRef.current?.slot.id === slot.id &&
+          selectionRef.current.source !== "qr"
+        ) {
+          chooseSelection(null)
+        }
+        spatialRef.current?.currentVideo?.pause()
+        spatialRef.current?.maskVideo.pause()
+      }
+    }
+    planeRecordsRef.current = records
+    tracker.renderer.setClearColor(0x000000, 0)
+    tracker.renderer.setClearAlpha(0)
+    tracker.renderer.setAnimationLoop(() => {
+      const active = activePageSlotRef.current?.id
+      for (const record of records) {
+        record.mesh.visible =
+          record.slot.id === active && dismissedSlotRef.current !== active
+      }
+      if (
+        media.fallbackActive &&
+        media.currentVideo &&
+        media.maskVideo.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA
+      ) {
+        if (
+          Math.abs(
+            media.maskVideo.currentTime - media.currentVideo.currentTime,
+          ) > 0.08
+        ) {
+          media.maskVideo.currentTime = media.currentVideo.currentTime
+        }
+      }
+      tracker.renderer.render(tracker.scene, tracker.camera)
+    })
+  }
+
+  function disposeTracker() {
+    scanLoopRef.current?.()
+    scanLoopRef.current = null
+    modelReadyRef.current = false
+    activePageSlotRef.current = null
+    pendingQRRef.current = null
+    const tracker = trackerRef.current
+    trackerRef.current = null
+    if (tracker) {
+      tracker.renderer.setAnimationLoop(null)
+      try {
+        tracker.stop()
+      } catch {
+        /* A partially initialized tracker may not have a controller yet. */
+      }
+      tracker.renderer.dispose()
+    }
+    const media = spatialRef.current
+    if (media) {
+      for (const video of [media.video, media.colorVideo, media.maskVideo]) {
+        video.pause()
+        video.removeAttribute("src")
+        video.load()
+      }
+      media.material.dispose()
+      media.texture.dispose()
+      media.colorTexture.dispose()
+      media.maskTexture.dispose()
+    }
+    for (const record of planeRecordsRef.current) record.mesh.geometry.dispose()
+    planeRecordsRef.current = []
+    spatialRef.current = null
+    cameraVideoRef.current = null
+    streamRef.current?.getTracks().forEach((track) => track.stop())
+    streamRef.current = null
+    cameraLayerRef.current?.replaceChildren()
+  }
+
+  useEffect(() => () => disposeTracker(), [])
+
   useEffect(() => {
-    if (!selection?.box || !cameraRef.current || !frameRef.current) {
+    if (!selection?.box || !cameraVideoRef.current || !frameRef.current) {
       setBoxStyle(undefined)
       return
     }
-    const camera = cameraRef.current
+    const camera = cameraVideoRef.current
     const frame = frameRef.current
-    const updateBoxStyle = () => {
+    const update = () => {
       const rect = getCoverRect(
         selection.box!,
         camera.videoWidth,
@@ -141,10 +548,7 @@ export default function ARScan() {
         frame.clientWidth,
         frame.clientHeight,
       )
-      if (!rect) {
-        setBoxStyle(undefined)
-        return
-      }
+      if (!rect) return setBoxStyle(undefined)
       setBoxStyle({
         left: `${(rect.left / frame.clientWidth) * 100}%`,
         top: `${(rect.top / frame.clientHeight) * 100}%`,
@@ -152,24 +556,17 @@ export default function ARScan() {
         height: `${(rect.height / frame.clientHeight) * 100}%`,
       })
     }
-    updateBoxStyle()
-    const resizeObserver = new ResizeObserver(updateBoxStyle)
-    resizeObserver.observe(frame)
-    camera.addEventListener("resize", updateBoxStyle)
-    window.addEventListener("resize", updateBoxStyle)
+    update()
+    const observer = new ResizeObserver(update)
+    observer.observe(frame)
+    camera.addEventListener("resize", update)
+    window.addEventListener("resize", update)
     return () => {
-      resizeObserver.disconnect()
-      camera.removeEventListener("resize", updateBoxStyle)
-      window.removeEventListener("resize", updateBoxStyle)
+      observer.disconnect()
+      camera.removeEventListener("resize", update)
+      window.removeEventListener("resize", update)
     }
   }, [selection, cameraOn])
-
-  useEffect(() => {
-    return () => {
-      scanLoopRef.current = null
-      streamRef.current?.getTracks().forEach((track) => track.stop())
-    }
-  }, [])
 
   async function startCamera() {
     setError("")
@@ -177,50 +574,111 @@ export default function ARScan() {
     chooseSelection(null)
     dismissedSlotRef.current = null
     setScannedQR("")
+    setTrackedPageLabel("")
+    setTrackerStatus("loading")
     setModelStatus("loading")
     try {
       const stream = await requestCameraStream()
       streamRef.current = stream
-      const camera = cameraRef.current
-      if (!camera) throw new Error("Không tìm thấy video camera.")
-      camera.srcObject = stream
-      await camera.play()
+      const cameraTrack = stream.getVideoTracks()[0]
+      const capabilities =
+        cameraTrack?.getCapabilities?.() as MediaTrackCapabilities & {
+          focusMode?: string[]
+          exposureMode?: string[]
+          torch?: boolean
+        } | undefined
+      setTorchSupported(Boolean(capabilities?.torch))
+      setTorchOn(false)
+      const automaticControls: Array<{
+        focusMode?: string
+        exposureMode?: string
+      }> = []
+      if (capabilities?.focusMode?.includes("continuous"))
+        automaticControls.push({ focusMode: "continuous" })
+      if (capabilities?.exposureMode?.includes("continuous"))
+        automaticControls.push({ exposureMode: "continuous" })
+      if (automaticControls.length && cameraTrack) {
+        void cameraTrack
+          .applyConstraints({
+            advanced: automaticControls as MediaTrackConstraintSet[],
+          })
+          .catch(() => undefined)
+      }
       setCameraOn(true)
-      let modelReady = false
+      await new Promise<void>((resolve) =>
+        requestAnimationFrame(() => resolve()),
+      )
+      const container = cameraLayerRef.current
+      if (!container) throw new Error("Không tìm thấy vùng camera.")
+      const [mindArModule, THREE] = await Promise.all([
+        import("mind-ar/dist/mindar-image-three.prod.js"),
+        import("three"),
+      ])
+      const MindARThree = mindArModule.MindARThree as unknown as new (
+        options: Record<string, unknown>,
+      ) => MindARInstance
+      const targetSrc = import.meta.env.DEV
+        ? "/ar/book-pages.mind"
+        : "/ar/book-pages.mind.br"
+      const tracker = new MindARThree({
+        container,
+        imageTargetSrc: targetSrc,
+        maxTrack: 1,
+        uiLoading: "no",
+        uiScanning: "no",
+        uiError: "no",
+        filterMinCF: 0.0001,
+        filterBeta: 0.001,
+        warmupTolerance: 5,
+        missTolerance: 6,
+      })
+      trackerRef.current = tracker
+      createTrackerScene(tracker, THREE)
+      await startMindARWithStream(tracker, stream)
+      cameraVideoRef.current = tracker.video
+      setCameraSize(
+        `${tracker.video.videoWidth} × ${tracker.video.videoHeight}`,
+      )
+      setTrackerStatus("ready")
+      beginScanLoop(tracker.video)
+      setStarting(false)
+
       try {
-        await detectBookTarget(camera, classNames.length, detectionConfidence)
-        modelReady = true
+        await detectBookTarget(
+          tracker.video,
+          classNames.length,
+          detectionConfidence,
+        )
+        modelReadyRef.current = true
         setModelStatus("ready")
       } catch (modelError) {
-        console.warn("Riko AR model could not be loaded; QR fallback remains active.", modelError)
+        console.warn(
+          "Popup detector is unavailable; MindAR page tracking and QR fallback remain active.",
+          modelError,
+        )
         setModelStatus("unavailable")
       }
-      beginScanLoop(modelReady)
     } catch (cameraError) {
-      streamRef.current?.getTracks().forEach((track) => track.stop())
-      streamRef.current = null
+      disposeTracker()
       setCameraOn(false)
+      setTorchSupported(false)
+      setTorchOn(false)
+      setTrackerStatus("idle")
       setModelStatus("idle")
       setError(cameraErrorMessage(cameraError))
-    } finally {
       setStarting(false)
     }
   }
 
-  function beginScanLoop(modelReady: boolean) {
+  function beginScanLoop(camera: HTMLVideoElement) {
     let active = true
     let detecting = false
     let lastDetectionAt = 0
     let lastQrAt = 0
     let lastQrLocationAt = 0
-    let qrMask: ARMaskRegion | null = null
-    let activeVisualKey = ""
-    let activeVisualSlot: BookSlot | null = null
-    let stableCount = 0
-    let pendingQr: BookSlot | null = null
-    let committedQrFallback: BookSlot | null = null
-    let qrFoundAt = 0
-    let qrFallbackCommitted = false
+    let stablePopupKey = ""
+    let stablePopupFrames = 0
+    let popupDetection: ARDetection | null = null
     const canvas = captureCanvasRef.current || document.createElement("canvas")
     captureCanvasRef.current = canvas
     const context = canvas.getContext("2d", { willReadFrequently: true })
@@ -228,170 +686,133 @@ export default function ARScan() {
       setError("Không thể khởi tạo bộ quét hình ảnh.")
       return
     }
-
-    const stop = () => {
+    scanLoopRef.current = () => {
       active = false
-      scanLoopRef.current = null
     }
-    scanLoopRef.current = stop
 
     const frame = async (now: number) => {
-      const camera = cameraRef.current
-      if (!active || !camera || camera.readyState < HTMLMediaElement.HAVE_CURRENT_DATA) {
-        if (active) requestAnimationFrame(frame)
+      if (!active) return
+      if (
+        camera.readyState < HTMLMediaElement.HAVE_CURRENT_DATA ||
+        !camera.videoWidth ||
+        !camera.videoHeight
+      ) {
+        requestAnimationFrame(frame)
         return
       }
-
       if (now - lastQrAt > 350) {
         lastQrAt = now
         const width = 480
-        const height = Math.max(1, Math.round((camera.videoHeight / camera.videoWidth) * width))
+        const height = Math.max(
+          1,
+          Math.round((camera.videoHeight / camera.videoWidth) * width),
+        )
         canvas.width = width
         canvas.height = height
         context.drawImage(camera, 0, 0, width, height)
-        const image = context.getImageData(0, 0, width, height)
-        const decoded = jsQR(image.data, width, height, { inversionAttempts: "attemptBoth" })
-        if (decoded?.location) {
-          const points = [
-            decoded.location.topLeftCorner,
-            decoded.location.topRightCorner,
-            decoded.location.bottomRightCorner,
-            decoded.location.bottomLeftCorner,
-          ]
-          const scaleX = camera.videoWidth / width
-          const scaleY = camera.videoHeight / height
-          const left = Math.min(...points.map((point) => point.x)) * scaleX
-          const top = Math.min(...points.map((point) => point.y)) * scaleY
-          const right = Math.max(...points.map((point) => point.x)) * scaleX
-          const bottom = Math.max(...points.map((point) => point.y)) * scaleY
-          qrMask = { x: left, y: top, width: right - left, height: bottom - top }
-          lastQrLocationAt = now
-        } else if (now - lastQrLocationAt > 1200) {
-          qrMask = null
-        }
+        const decoded = jsQR(
+          context.getImageData(0, 0, width, height).data,
+          width,
+          height,
+          { inversionAttempts: "attemptBoth" },
+        )
+        if (decoded?.location) lastQrLocationAt = now
         if (decoded) {
-          const slot = routeSlotFromQR(decoded.data, slots, bookVideoManifest.publicOrigin)
+          const slot = routeSlotFromQR(
+            decoded.data,
+            slots,
+            bookVideoManifest.publicOrigin,
+          )
           if (
             slot?.arVideoUrl &&
-            slot.id !== pendingQr?.id &&
-            slot.id !== selectionRef.current?.slot.id
+            activePageSlotRef.current?.id !== slot.id &&
+            qrFallbackRef.current !== slot.id
           ) {
-            pendingQr = slot
-            qrFoundAt = now
-            qrFallbackCommitted = false
-            committedQrFallback = null
-            setScannedQR(slot.id)
+            const pending = pendingQRRef.current
+            if (pending?.slot.id !== slot.id) {
+              pendingQRRef.current = { slot, foundAt: now }
+              setScannedQR(slot.id)
+            }
           }
+        } else if (now - lastQrLocationAt > 1200 && qrFallbackRef.current) {
+          qrFallbackRef.current = null
         }
       }
 
-      if (modelReady && !detecting && now - lastDetectionAt > 250) {
+      if (
+        modelReadyRef.current &&
+        !detecting &&
+        now - lastDetectionAt > 450 &&
+        activePageSlotRef.current
+      ) {
         lastDetectionAt = now
         detecting = true
         try {
+          const page = activePageSlotRef.current
           const detections = await detectBookTarget(
             camera,
             classNames.length,
             detectionConfidence,
-            qrMask,
           )
-          const pageMatch = detections.find((item) => {
-            const label = classNames[item.classId]
-            return label?.startsWith("page_") && slotFromDetection(item)?.arVideoUrl
-          })
-          const pageSlot = pageMatch ? slotFromDetection(pageMatch) : null
-          const popupMatch = detections.find((item) => {
-            const label = classNames[item.classId]
-            return label?.startsWith("popup_") && slotFromDetection(item, pageSlot)?.arVideoUrl
-          })
-          const match = popupMatch || pageMatch
-          if (match) {
-            const label = classNames[match.classId]
-            const slot = slotFromDetection(match, pageSlot)
-            const visualKey = `${label}:${slot?.id || "unresolved"}`
-            if (visualKey === activeVisualKey) stableCount += 1
-            else {
-              activeVisualKey = visualKey
-              stableCount = 1
-            }
-            activeVisualSlot = slot
-            if (stableCount >= arTargetManifest.stableFramesRequired) {
-              if (slot?.arVideoUrl) {
-                const qrReference = pendingQr || committedQrFallback
-                if (!qrReference || slot.arVideoUrl === qrReference.arVideoUrl) {
-                  pendingQr = null
-                  qrFallbackCommitted = false
-                  committedQrFallback = null
-                  const nextSelection: Selection = {
-                    slot,
-                    box: match.box,
-                    source: label.startsWith("popup_") ? "popup" : "page",
-                    score: match.score,
-                  }
-                  const current = selectionRef.current
-                  if (dismissedSlotRef.current && dismissedSlotRef.current !== slot.id) {
-                    dismissedSlotRef.current = null
-                  }
-                  if (
-                    dismissedSlotRef.current !== slot.id &&
-                    (!current ||
-                      current.slot.id !== slot.id ||
-                      current.source === "qr" ||
-                      current.source !== nextSelection.source ||
-                      !current.box ||
-                      Math.abs(current.box.x - nextSelection.box!.x) > 8 ||
-                      Math.abs(current.box.y - nextSelection.box!.y) > 8 ||
-                      Math.abs(current.box.width - nextSelection.box!.width) > 8 ||
-                      Math.abs(current.box.height - nextSelection.box!.height) > 8)
-                  ) {
-                    chooseSelection(nextSelection)
-                  }
-                }
+          const popup = detections.find(
+            (item) =>
+              classNames[item.classId]?.startsWith("popup_") &&
+              slotFromDetection(item, page)?.arVideoUrl,
+          )
+          const popupSlot = popup ? slotFromDetection(popup, page) : null
+          if (popup && popupSlot?.id === page.id) {
+            const key = `${page.id}:${classNames[popup.classId]}`
+            stablePopupFrames =
+              key === stablePopupKey ? stablePopupFrames + 1 : 1
+            stablePopupKey = key
+            popupDetection = popup
+            if (stablePopupFrames >= arTargetManifest.stableFramesRequired) {
+              const current = selectionRef.current
+              if (
+                current?.slot.id === page.id &&
+                (current.source !== "popup" ||
+                  !current.box ||
+                  Math.abs(current.box.x - popup.box.x) > 8 ||
+                  Math.abs(current.box.y - popup.box.y) > 8)
+              ) {
+                chooseSelection({
+                  slot: page,
+                  box: popup.box,
+                  source: "popup",
+                  score: popup.score,
+                })
               }
             }
           } else {
-            activeVisualKey = ""
-            activeVisualSlot = null
-            stableCount = 0
+            stablePopupFrames = 0
+            stablePopupKey = ""
+            popupDetection = null
+            const current = selectionRef.current
+            if (current?.slot.id === page.id && current.source === "popup")
+              chooseSelection({ slot: page, box: null, source: "page" })
           }
         } catch (modelError) {
-          console.warn("Riko AR frame recognition failed.", modelError)
-          modelReady = false
-          activeVisualKey = ""
-          activeVisualSlot = null
-          stableCount = 0
+          console.warn("Popup detection failed for this frame.", modelError)
+          modelReadyRef.current = false
           setModelStatus("unavailable")
         } finally {
           detecting = false
         }
       }
 
-      const qrFallbackSlot = pendingQr
+      const pending = pendingQRRef.current
       if (
-        qrFallbackSlot &&
-        shouldCommitQrFallback({
-          pendingQr: qrFallbackSlot,
-          qrFoundAt,
-          now,
-          qrFallbackCommitted,
-          stableCount,
-          stableFramesRequired: arTargetManifest.stableFramesRequired,
-          stableVisualSlot: activeVisualSlot,
-        })
+        pending &&
+        !activePageSlotRef.current &&
+        !popupDetection &&
+        now - pending.foundAt >= 800 &&
+        qrFallbackRef.current !== pending.slot.id
       ) {
-        const current = selectionRef.current
-        if (dismissedSlotRef.current && dismissedSlotRef.current !== qrFallbackSlot.id) {
-          dismissedSlotRef.current = null
-        }
-        if (
-          dismissedSlotRef.current !== qrFallbackSlot.id &&
-          (current?.slot.id !== qrFallbackSlot.id || current.source !== "qr")
-        ) {
-          chooseSelection({ slot: qrFallbackSlot, box: null, source: "qr" })
-        }
-        qrFallbackCommitted = true
-        committedQrFallback = qrFallbackSlot
-        pendingQr = null
+        qrFallbackRef.current = pending.slot.id
+        pendingQRRef.current = null
+        dismissedSlotRef.current = null
+        chooseSelection({ slot: pending.slot, box: null, source: "qr" })
+        void findVideoAsset(pending.slot).then(setSelectedAsset)
       }
       if (active) requestAnimationFrame(frame)
     }
@@ -399,24 +820,59 @@ export default function ARScan() {
   }
 
   function stopCamera() {
-    scanLoopRef.current?.()
-    streamRef.current?.getTracks().forEach((track) => track.stop())
-    streamRef.current = null
-    if (cameraRef.current) cameraRef.current.srcObject = null
+    disposeTracker()
     setCameraOn(false)
     chooseSelection(null)
-    dismissedSlotRef.current = null
-    setScannedQR("")
+    setSelectedAsset(null)
+    setTrackedPageLabel("")
+    setCameraSize("")
+    setTorchSupported(false)
+    setTorchOn(false)
+    setTrackerStatus("idle")
     setModelStatus("idle")
+    setScannedQR("")
+    dismissedSlotRef.current = null
   }
 
-  const targetLabel = selectedTarget?.label || selection?.slot.label || "Riko đang nhận diện"
-  const cameraStatus =
-    modelStatus === "ready"
-      ? "Đang nhận diện pop-up và trang sách"
-      : modelStatus === "loading"
-        ? "Đang nạp mô hình nhận diện…"
-        : "Đang quét QR dự phòng"
+  function toggleSound() {
+    const next = !soundOn
+    setSoundOn(next)
+    const media = spatialRef.current
+    if (media?.currentVideo) media.currentVideo.muted = !next
+  }
+
+  async function toggleTorch() {
+    const track = streamRef.current?.getVideoTracks()[0]
+    if (!track || !torchSupported) return
+    const next = !torchOn
+    try {
+      await track.applyConstraints({
+        advanced: [{ torch: next } as MediaTrackConstraintSet],
+      })
+      setTorchOn(next)
+    } catch (torchError) {
+      console.warn("This camera cannot change its torch state.", torchError)
+      setTorchSupported(false)
+      setTorchOn(false)
+    }
+  }
+
+  const targetLabel =
+    selectedTarget?.label ||
+    selection?.slot.label ||
+    trackedPageLabel ||
+    "Riko đang tìm trang sách"
+  const cameraStatus = trackedPageLabel
+    ? `Đã nhận ${trackedPageLabel}`
+    : trackerStatus === "loading"
+      ? "Đang nạp mục tiêu ảnh của 54 trang…"
+      : modelStatus === "unavailable"
+        ? "Đưa trọn trang vào khung hình · QR là dự phòng"
+        : "Đưa trọn trang vào khung hình · giữ yên 1–2 giây"
+  const qrVideoSrc =
+    selectedAsset?.alpha && isSafariOrIOS()
+      ? selectedAsset.alphaColorUrl || selection?.slot.arVideoUrl || ""
+      : selectedAsset?.alphaVideoUrl || selection?.slot.arVideoUrl || ""
 
   return (
     <main
@@ -428,16 +884,23 @@ export default function ARScan() {
     >
       {!cameraOn && (
         <>
-          <Link to="/book" className="inline-flex items-center gap-2 text-sm text-[#4A5461] hover:text-primary">
+          <Link
+            to="/book"
+            className="inline-flex items-center gap-2 text-sm text-[#4A5461] hover:text-primary"
+          >
             <ArrowLeft size={17} /> Về trang sách
           </Link>
           <div className="mx-auto mt-7 max-w-3xl text-center">
             <span className="inline-flex items-center gap-2 rounded-full bg-[#E7F5F7] px-4 py-2 text-xs font-bold uppercase tracking-[0.12em] text-primary">
-              <Camera size={15} /> Riko AR
+              <Camera size={15} /> Riko AR · MindAR
             </span>
-            <h1 className="mt-4 text-3xl font-bold text-primary sm:text-4xl">Quét hình pop-up để mở video</h1>
+            <h1 className="mt-4 text-3xl font-bold text-primary sm:text-4xl">
+              Đưa trọn trang sách vào khung hình
+            </h1>
             <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-[#4A5461] sm:text-base">
-              Riko ưu tiên nhận diện hình pop-up và hình ảnh của trang sách. Nếu máy chưa nhận ra, mã QR trên trang sẽ mở đúng video dự phòng.
+              MindAR khóa và bám theo trang sách để đặt video đúng vị trí. Bộ
+              nhận diện pop-up chạy bổ sung; QR chỉ mở video nếu hình chưa được
+              nhận ra sau 0,8 giây.
             </p>
           </div>
         </>
@@ -452,153 +915,246 @@ export default function ARScan() {
       >
         <div
           ref={frameRef}
-          className={`relative overflow-hidden bg-[#142333] ${cameraOn ? "h-full w-full" : "aspect-video"}`}
+          className={`relative overflow-hidden bg-[#142333] ${
+            cameraOn ? "h-full w-full" : "aspect-video"
+          }`}
         >
-          <video
-            ref={cameraRef}
-            muted
-            playsInline
-            className={`absolute inset-0 h-full w-full object-cover ${cameraOn ? "block" : "hidden"}`}
-            aria-label="Hình ảnh camera đang quét sách"
+          <div
+            ref={cameraLayerRef}
+            className={`absolute inset-0 ${cameraOn ? "block" : "hidden"}`}
           />
           {cameraOn && (
-            <div
-              className="absolute inset-x-0 top-0 z-30 flex items-start justify-between gap-4 bg-gradient-to-b from-black/75 to-transparent px-4 pb-8 pt-4 text-white sm:px-6"
-              style={{ paddingTop: "max(1rem, env(safe-area-inset-top))" }}
-            >
-              <div className="min-w-0">
-                <p className="text-sm font-bold">Riko AR</p>
-                <p className="mt-1 text-xs text-white/80">{cameraStatus}</p>
-              </div>
-              <Link
-                to="/"
-                className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-black/45 px-3 py-2 text-sm font-semibold text-white transition hover:bg-black/70"
+            <>
+              <div
+                className="pointer-events-none absolute inset-x-0 top-0 z-30 flex items-start justify-between gap-4 bg-gradient-to-b from-black/75 to-transparent px-4 pb-8 pt-4 text-white sm:px-6"
+                style={{ paddingTop: "max(1rem, env(safe-area-inset-top))" }}
               >
-                <X size={17} /> Thoát
-              </Link>
-            </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-bold">
+                    Riko AR · camera sau{" "}
+                    {cameraSize && (
+                      <span className="font-normal text-white/75">
+                        {cameraSize}
+                      </span>
+                    )}
+                  </p>
+                  <p className="mt-1 max-w-[75vw] text-xs text-white/90">
+                    {cameraStatus}
+                  </p>
+                </div>
+                <div className="pointer-events-auto flex shrink-0 items-center gap-2">
+                  {torchSupported && (
+                    <button
+                      type="button"
+                      onClick={() => void toggleTorch()}
+                      className="inline-flex items-center gap-1.5 rounded-full bg-black/45 px-3 py-2 text-sm font-semibold text-white transition hover:bg-black/70"
+                      aria-label={torchOn ? "Tắt đèn camera" : "Bật đèn camera"}
+                    >
+                      <Flashlight size={16} /> {torchOn ? "Tắt đèn" : "Bật đèn"}
+                    </button>
+                  )}
+                  <Link
+                    to="/"
+                    className="inline-flex items-center gap-1.5 rounded-full bg-black/45 px-3 py-2 text-sm font-semibold text-white transition hover:bg-black/70"
+                  >
+                    <X size={17} /> Thoát
+                  </Link>
+                </div>
+              </div>
+              {!trackedPageLabel && (
+                <div className="pointer-events-none absolute left-1/2 top-1/2 z-10 h-[68%] w-[82%] max-w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-2xl sm:h-[74%] sm:w-[56%]">
+                  <span className="absolute left-0 top-0 h-8 w-8 rounded-tl-2xl border-l-[3px] border-t-[3px] border-white drop-shadow" />
+                  <span className="absolute right-0 top-0 h-8 w-8 rounded-tr-2xl border-r-[3px] border-t-[3px] border-white drop-shadow" />
+                  <span className="absolute bottom-0 left-0 h-8 w-8 rounded-bl-2xl border-b-[3px] border-l-[3px] border-white drop-shadow" />
+                  <span className="absolute bottom-0 right-0 h-8 w-8 rounded-br-2xl border-b-[3px] border-r-[3px] border-white drop-shadow" />
+                  <span className="absolute inset-x-2 bottom-3 rounded-xl bg-black/60 px-3 py-2 text-center text-xs font-semibold text-white sm:text-sm">
+                    Giữ trọn trang sách trong khung · tránh lóa · cách camera
+                    khoảng 25–40 cm
+                  </span>
+                </div>
+              )}
+              {cameraOn && selection?.box && boxStyle && (
+                <div
+                  style={boxStyle}
+                  className="pointer-events-none absolute z-20 rounded-xl border-[3px] border-[#FFD45B] shadow-[0_0_0_999px_rgba(4,20,36,.08)]"
+                >
+                  <span className="absolute -top-8 left-0 whitespace-nowrap rounded-full bg-[#173E72] px-3 py-1 text-xs font-bold text-white shadow">
+                    Pop-up{" "}
+                    {selection.score
+                      ? `· ${Math.round(selection.score * 100)}%`
+                      : "đã nhận"}
+                  </span>
+                </div>
+              )}
+              {selection && selection.source !== "qr" && (
+                <div
+                  className="absolute bottom-5 left-1/2 z-30 flex -translate-x-1/2 items-center gap-2 rounded-full bg-[#173E72]/95 px-3 py-2 text-xs font-semibold text-white shadow-lg"
+                  style={{
+                    bottom: "max(1.25rem, env(safe-area-inset-bottom))",
+                  }}
+                >
+                  <span className="max-w-[46vw] truncate">{targetLabel}</span>
+                  {selectedAsset?.alpha && (
+                    <span className="rounded-full bg-emerald-300/20 px-2 py-0.5 text-emerald-100">
+                      alpha
+                    </span>
+                  )}
+                  <button
+                    type="button"
+                    onClick={toggleSound}
+                    className="rounded-full p-1 hover:bg-white/15"
+                    aria-label={
+                      soundOn ? "Tắt tiếng video AR" : "Bật tiếng video AR"
+                    }
+                  >
+                    {soundOn ? <Volume2 size={16} /> : <VolumeX size={16} />}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      dismissedSlotRef.current = selection.slot.id
+                      chooseSelection(null)
+                      spatialRef.current?.currentVideo?.pause()
+                      spatialRef.current?.maskVideo.pause()
+                    }}
+                    className="rounded-full p-1 hover:bg-white/15"
+                    aria-label="Ẩn video AR"
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
+              )}
+              <button
+                type="button"
+                onClick={stopCamera}
+                className="absolute left-3 top-20 z-30 inline-flex items-center gap-2 rounded-full bg-black/55 px-3 py-2 text-xs font-semibold text-white hover:bg-black/75 sm:bottom-4 sm:left-4 sm:top-auto"
+              >
+                <RotateCcw size={15} /> Dừng camera
+              </button>
+              {scannedQR && !selection && (
+                <span
+                  className="absolute bottom-5 right-3 z-20 rounded-full bg-black/65 px-3 py-2 text-xs text-white"
+                  style={{
+                    bottom: "max(1.25rem, env(safe-area-inset-bottom))",
+                  }}
+                >
+                  Đã đọc QR · chờ nhận ảnh 0,8 giây
+                </span>
+              )}
+            </>
           )}
           {!cameraOn && (
             <div className="absolute inset-0 flex flex-col items-center justify-center px-5 text-center text-white">
               <Camera size={48} className="text-[#A8D8E8]" />
-              <p className="mt-4 text-lg font-semibold">Đưa một trang sách vào khung hình</p>
-              <p className="mt-2 max-w-md text-sm text-white/75">Riko ưu tiên hình pop-up và hình minh họa; mã QR chỉ mở video dự phòng.</p>
+              <p className="mt-4 text-lg font-semibold">
+                Khung camera hiển thị toàn màn hình
+              </p>
+              <p className="mt-2 max-w-md text-sm text-white/75">
+                Cho phép camera sau, đưa trọn một trang sách vào khung và giữ
+                yên để MindAR khóa hình.
+              </p>
               <button
                 type="button"
                 onClick={startCamera}
                 disabled={starting}
                 className="mt-6 inline-flex items-center gap-2 rounded-full bg-[#F45B40] px-6 py-3 font-semibold text-white transition hover:bg-[#dc4c33] disabled:opacity-60"
               >
-                <Camera size={18} /> {starting ? "Đang mở camera…" : "Bắt đầu quét"}
+                <Camera size={18} />{" "}
+                {starting ? "Đang mở camera…" : "Bắt đầu quét"}
               </button>
             </div>
           )}
-          {cameraOn && !selection?.box && !selection && (
-            <div className="pointer-events-none absolute inset-[12%] rounded-3xl border-2 border-white/70 shadow-[0_0_0_999px_rgba(4,20,36,.12)]">
-              <span className="absolute left-3 top-3 rounded-full bg-black/50 px-3 py-1.5 text-xs font-semibold text-white">
-                {cameraStatus}
-              </span>
-            </div>
-          )}
-          {cameraOn && selection?.box && boxStyle && (
-            <div style={boxStyle} className="pointer-events-none absolute z-10 rounded-xl border-2 border-[#FFD45B] shadow-[0_0_0_999px_rgba(4,20,36,.08)]">
-              <span className="absolute -top-8 left-0 whitespace-nowrap rounded-full bg-[#173E72] px-3 py-1 text-xs font-bold text-white shadow">
-                {targetLabel}{selection.score ? ` · ${Math.round(selection.score * 100)}%` : ""}
-              </span>
-            </div>
-          )}
-          {selection && selection.slot.arVideoUrl && (
-            <div
-              className={`absolute inset-x-3 bottom-3 z-20 max-h-[60dvh] overflow-y-auto rounded-2xl border border-white/70 bg-white shadow-2xl sm:inset-x-auto sm:bottom-auto sm:w-[min(42%,420px)] ${cameraOn ? "sm:right-4 sm:top-20" : "sm:right-4 sm:top-4"}`}
-            >
-              <div className="flex items-center justify-between gap-3 bg-[#173E72] px-3 py-2 text-white">
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-bold">{targetLabel}</p>
-                  <p className="text-[11px] text-white/75">
-                    {selection.source === "popup" ? "Nhận diện hình pop-up" : selection.source === "page" ? "Nhận diện trang sách" : "Mở bằng QR dự phòng"}
-                  </p>
+          {cameraOn &&
+            selection?.source === "qr" &&
+            selection.slot.arVideoUrl && (
+              <div className="absolute inset-x-3 bottom-3 z-20 max-h-[55dvh] overflow-hidden rounded-2xl border border-white/70 bg-white shadow-2xl sm:inset-x-auto sm:bottom-auto sm:right-4 sm:top-20 sm:w-[min(42%,420px)]">
+                <div className="flex items-center justify-between gap-3 bg-[#173E72] px-3 py-2 text-white">
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-bold">{targetLabel}</p>
+                    <p className="text-[11px] text-white/75">
+                      QR dự phòng · chưa khóa được trang
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      chooseSelection(null)
+                      qrFallbackRef.current = null
+                    }}
+                    className="rounded-full p-1.5 hover:bg-white/15"
+                    aria-label="Đóng video"
+                  >
+                    <X size={17} />
+                  </button>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    dismissedSlotRef.current = selection.slot.id
-                    chooseSelection(null)
-                  }}
-                  className="rounded-full p-1.5 hover:bg-white/15"
-                  aria-label="Đóng video AR"
-                >
-                  <X size={17} />
-                </button>
+                <video
+                  key={`${selection.slot.id}:${qrVideoSrc}`}
+                  src={qrVideoSrc}
+                  autoPlay
+                  loop
+                  playsInline
+                  muted={!soundOn}
+                  controls
+                  className="aspect-video w-full bg-black object-contain"
+                />
+                <div className="flex items-center justify-between gap-3 px-3 py-2 text-[11px] text-[#596575]">
+                  <button
+                    type="button"
+                    onClick={toggleSound}
+                    className="inline-flex items-center gap-1.5 font-semibold text-primary"
+                  >
+                    {soundOn ? <Volume2 size={15} /> : <VolumeX size={15} />}{" "}
+                    {soundOn ? "Tắt tiếng" : "Bật tiếng"}
+                  </button>
+                  <Link
+                    to={`/watch/${selection.slot.id}`}
+                    className="shrink-0 font-semibold text-primary underline underline-offset-2"
+                  >
+                    Mở trang video
+                  </Link>
+                </div>
               </div>
-              <video
-                key={selection.slot.arVideoUrl}
-                src={selection.slot.arVideoUrl}
-                autoPlay
-                loop
-                playsInline
-                muted={!soundOn}
-                controls
-                className="aspect-video w-full bg-black object-contain"
-              />
-              <button
-                type="button"
-                onClick={() => setSoundOn((value) => !value)}
-                className="absolute right-3 top-12 z-10 rounded-full bg-black/55 p-2 text-white hover:bg-black/75"
-                aria-label={soundOn ? "Tắt tiếng video" : "Bật tiếng video"}
-              >
-                {soundOn ? <Volume2 size={17} /> : <VolumeX size={17} />}
-              </button>
-              <div className="flex items-center justify-between gap-3 px-3 py-2 text-[11px] text-[#596575]">
-                <span>{selection.slot.label}</span>
-                <Link to={`/watch/${selection.slot.id}`} className="shrink-0 font-semibold text-primary underline underline-offset-2">
-                  Mở trang video
-                </Link>
-              </div>
-            </div>
-          )}
-          {cameraOn && (
-            <button
-              type="button"
-              onClick={stopCamera}
-              className="absolute left-3 top-20 z-30 inline-flex items-center gap-2 rounded-full bg-black/55 px-3 py-2 text-xs font-semibold text-white hover:bg-black/75 sm:bottom-4 sm:left-4 sm:top-auto"
-            >
-              <X size={15} /> Dừng camera
-            </button>
-          )}
-          {cameraOn && scannedQR && !selection && (
-            <span className="absolute bottom-3 right-3 z-10 rounded-full bg-black/55 px-3 py-2 text-xs text-white">
-              Đã đọc QR · {scannedQR}
-            </span>
-          )}
+            )}
         </div>
         <canvas ref={captureCanvasRef} className="hidden" aria-hidden="true" />
         {!cameraOn && (
           <div className="flex flex-wrap items-center justify-between gap-3 bg-white px-4 py-4 sm:px-6">
             <p className="text-xs leading-5 text-[#596575]">
-              {modelStatus === "ready" ? "Mô hình trang và pop-up là nguồn nhận diện chính." : modelStatus === "unavailable" ? "Chưa tải được mô hình; QR vẫn hoạt động làm dự phòng." : "Mở camera để bắt đầu nhận diện."}
-              {scannedQR && !selection
-                ? ` Đã thấy QR ${scannedQR}; đang ưu tiên nhận diện hình trong 0,8 giây trước khi dùng QR dự phòng.`
-                : ""}
+              MindAR dò ảnh cả 54 trang; mô hình TFLite bổ sung vùng pop-up. Bộ
+              nhận diện ảnh chạy trong camera, không phải ảnh giả lập.
             </p>
             <div className="flex gap-2">
-              {cameraOn ? (
-                <button type="button" onClick={stopCamera} className="inline-flex items-center gap-2 rounded-full border border-[#D9E0E5] px-4 py-2 text-sm font-semibold text-primary hover:bg-[#F5F8FA]">
-                  <RotateCcw size={15} /> Quét lại
-                </button>
-              ) : (
-                <Link to="/book" className="inline-flex items-center gap-2 rounded-full border border-[#D9E0E5] px-4 py-2 text-sm font-semibold text-primary hover:bg-[#F5F8FA]">Xem sách</Link>
-              )}
+              <Link
+                to="/book"
+                className="inline-flex items-center gap-2 rounded-full border border-[#D9E0E5] px-4 py-2 text-sm font-semibold text-primary hover:bg-[#F5F8FA]"
+              >
+                Xem sách
+              </Link>
             </div>
           </div>
         )}
       </div>
-      {error && <p role="alert" className="mx-auto mt-4 max-w-3xl rounded-2xl bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>}
-      {selection && !selection.slot.arVideoUrl && (
-        <p role="status" className="mx-auto mt-4 max-w-3xl rounded-2xl bg-amber-50 px-4 py-3 text-sm text-amber-800">Trang {selection.slot.label} chưa có video được gán.</p>
+      {error && (
+        <p
+          role="alert"
+          className="mx-auto mt-4 max-w-3xl rounded-2xl bg-red-50 px-4 py-3 text-sm text-red-700"
+        >
+          {error}
+        </p>
       )}
+      {selection &&
+        selectedAsset?.alpha &&
+        isSafariOrIOS() &&
+        selection.source === "qr" && (
+          <p className="mx-auto mt-3 max-w-3xl text-center text-xs text-[#6B7480]">
+            Safari dùng clip màu MP4 ở thẻ dự phòng; khi trang được khóa, video
+            alpha được ghép trực tiếp lên sách.
+          </p>
+        )}
       {!cameraOn && (
         <p className="mx-auto mt-5 max-w-3xl text-center text-xs leading-5 text-[#6B7480]">
-          Nếu đang dùng iPhone, hãy mở trang bằng Safari và cho phép camera. Các trang chưa có video vẫn nhận QR nhưng sẽ chờ gán clip sau.
+          Trên iPhone hãy mở bằng Safari và cho phép camera. Hãy bật đủ sáng,
+          tránh ánh phản chiếu và giữ nguyên trang khoảng 1–2 giây.
         </p>
       )}
     </main>

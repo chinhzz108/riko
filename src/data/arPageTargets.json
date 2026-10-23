@@ -1,0 +1,923 @@
+{
+  "engine": "MindAR image tracking",
+  "targets": [
+    {
+      "index": 0,
+      "slotId": "book-c1-p01",
+      "label": "Chương 1 · Bìa trước · PDF trang 01",
+      "targetImage": "/tmp/ar-targets/pages/book-c1-p01.jpg",
+      "targetSize": {
+        "width": 724,
+        "height": 1024
+      },
+      "overlayBox": {
+        "left": 0.34,
+        "top": 0.23,
+        "right": 0.66,
+        "bottom": 0.77,
+        "kind": "cover"
+      }
+    },
+    {
+      "index": 1,
+      "slotId": "book-c1-p02",
+      "label": "Chương 1 · Bìa sau · PDF trang 02",
+      "targetImage": "/tmp/ar-targets/pages/book-c1-p02.jpg",
+      "targetSize": {
+        "width": 1024,
+        "height": 999
+      },
+      "overlayBox": {
+        "left": 0.34,
+        "top": 0.23,
+        "right": 0.66,
+        "bottom": 0.77,
+        "kind": "cover"
+      }
+    },
+    {
+      "index": 2,
+      "slotId": "book-c1-p03",
+      "label": "Chương 1 · PDF trang 03",
+      "targetImage": "/tmp/ar-targets/pages/book-c1-p03.jpg",
+      "targetSize": {
+        "width": 996,
+        "height": 1024
+      },
+      "overlayBox": {
+        "left": 0.16178,
+        "top": 0.28702,
+        "right": 0.6966,
+        "bottom": 0.49173,
+        "kind": "popup"
+      }
+    },
+    {
+      "index": 3,
+      "slotId": "book-c1-p04",
+      "label": "Chương 1 · PDF trang 04",
+      "targetImage": "/tmp/ar-targets/pages/book-c1-p04.jpg",
+      "targetSize": {
+        "width": 993,
+        "height": 1024
+      },
+      "overlayBox": {
+        "left": 0.12931,
+        "top": 0.24392,
+        "right": 0.67975,
+        "bottom": 0.49173,
+        "kind": "popup"
+      }
+    },
+    {
+      "index": 4,
+      "slotId": "book-c1-p05",
+      "label": "Chương 1 · PDF trang 05",
+      "targetImage": "/tmp/ar-targets/pages/book-c1-p05.jpg",
+      "targetSize": {
+        "width": 999,
+        "height": 1024
+      },
+      "overlayBox": {
+        "left": 0.24485,
+        "top": 0.25239,
+        "right": 0.67826,
+        "bottom": 0.47935,
+        "kind": "popup"
+      }
+    },
+    {
+      "index": 5,
+      "slotId": "book-c1-p06",
+      "label": "Chương 1 · PDF trang 06",
+      "targetImage": "/tmp/ar-targets/pages/book-c1-p06.jpg",
+      "targetSize": {
+        "width": 988,
+        "height": 1024
+      },
+      "overlayBox": {
+        "left": 0.03885,
+        "top": 0.24392,
+        "right": 0.36925,
+        "bottom": 0.49173,
+        "kind": "popup"
+      }
+    },
+    {
+      "index": 6,
+      "slotId": "book-c1-p07",
+      "label": "Chương 1 · PDF trang 07",
+      "targetImage": "/tmp/ar-targets/pages/book-c1-p07.jpg",
+      "targetSize": {
+        "width": 989,
+        "height": 1024
+      },
+      "overlayBox": {
+        "left": 0.00049,
+        "top": 0.2116,
+        "right": 0.6747,
+        "bottom": 0.49173,
+        "kind": "popup"
+      }
+    },
+    {
+      "index": 7,
+      "slotId": "book-c1-p08",
+      "label": "Chương 1 · PDF trang 08",
+      "targetImage": "/tmp/ar-targets/pages/book-c1-p08.jpg",
+      "targetSize": {
+        "width": 906,
+        "height": 1024
+      },
+      "overlayBox": {
+        "left": 0.0,
+        "top": 0.25048,
+        "right": 0.60293,
+        "bottom": 0.49132,
+        "kind": "popup"
+      }
+    },
+    {
+      "index": 8,
+      "slotId": "book-c1-p09",
+      "label": "Chương 1 · PDF trang 09",
+      "targetImage": "/tmp/ar-targets/pages/book-c1-p09.jpg",
+      "targetSize": {
+        "width": 1005,
+        "height": 1024
+      },
+      "overlayBox": {
+        "left": 0.27492,
+        "top": 0.22197,
+        "right": 0.6966,
+        "bottom": 0.48429,
+        "kind": "popup"
+      }
+    },
+    {
+      "index": 9,
+      "slotId": "book-c1-p10",
+      "label": "Chương 1 · PDF trang 10",
+      "targetImage": "/tmp/ar-targets/pages/book-c1-p10.jpg",
+      "targetSize": {
+        "width": 995,
+        "height": 1024
+      },
+      "overlayBox": {
+        "left": 0.04723,
+        "top": 0.23214,
+        "right": 0.65538,
+        "bottom": 0.48448,
+        "kind": "popup"
+      }
+    },
+    {
+      "index": 10,
+      "slotId": "book-c1-p11",
+      "label": "Chương 1 · PDF trang 11",
+      "targetImage": "/tmp/ar-targets/pages/book-c1-p11.jpg",
+      "targetSize": {
+        "width": 991,
+        "height": 1024
+      },
+      "overlayBox": {
+        "left": 0.19936,
+        "top": 0.25253,
+        "right": 0.67974,
+        "bottom": 0.49495,
+        "kind": "popup"
+      }
+    },
+    {
+      "index": 11,
+      "slotId": "book-c1-p12",
+      "label": "Chương 1 · PDF trang 12",
+      "targetImage": "/tmp/ar-targets/pages/book-c1-p12.jpg",
+      "targetSize": {
+        "width": 997,
+        "height": 1024
+      },
+      "overlayBox": {
+        "left": 0.2491,
+        "top": 0.26242,
+        "right": 0.6696,
+        "bottom": 0.49457,
+        "kind": "popup"
+      }
+    },
+    {
+      "index": 12,
+      "slotId": "book-c1-p13",
+      "label": "Chương 1 · PDF trang 13",
+      "targetImage": "/tmp/ar-targets/pages/book-c1-p13.jpg",
+      "targetSize": {
+        "width": 655,
+        "height": 1024
+      },
+      "overlayBox": {
+        "left": 0.16,
+        "top": 0.28,
+        "right": 0.84,
+        "bottom": 0.7,
+        "kind": "recap"
+      }
+    },
+    {
+      "index": 13,
+      "slotId": "book-c1-p14",
+      "label": "Chương 1 · PDF trang 14",
+      "targetImage": "/tmp/ar-targets/pages/book-c1-p14.jpg",
+      "targetSize": {
+        "width": 724,
+        "height": 1024
+      },
+      "overlayBox": {
+        "left": 0.34,
+        "top": 0.23,
+        "right": 0.66,
+        "bottom": 0.77,
+        "kind": "cover"
+      }
+    },
+    {
+      "index": 14,
+      "slotId": "book-c2-p01",
+      "label": "Chương 2 · Bìa trước · PDF trang 01",
+      "targetImage": "/tmp/ar-targets/pages/book-c2-p01.jpg",
+      "targetSize": {
+        "width": 724,
+        "height": 1024
+      },
+      "overlayBox": {
+        "left": 0.34,
+        "top": 0.23,
+        "right": 0.66,
+        "bottom": 0.77,
+        "kind": "cover"
+      }
+    },
+    {
+      "index": 15,
+      "slotId": "book-c2-p02",
+      "label": "Chương 2 · Bìa sau · PDF trang 02",
+      "targetImage": "/tmp/ar-targets/pages/book-c2-p02.jpg",
+      "targetSize": {
+        "width": 1024,
+        "height": 1002
+      },
+      "overlayBox": {
+        "left": 0.34,
+        "top": 0.23,
+        "right": 0.66,
+        "bottom": 0.77,
+        "kind": "cover"
+      }
+    },
+    {
+      "index": 16,
+      "slotId": "book-c2-p03",
+      "label": "Chương 2 · PDF trang 03",
+      "targetImage": "/tmp/ar-targets/pages/book-c2-p03.jpg",
+      "targetSize": {
+        "width": 970,
+        "height": 1024
+      },
+      "overlayBox": {
+        "left": 0.16,
+        "top": 0.28,
+        "right": 0.84,
+        "bottom": 0.7,
+        "kind": "recap"
+      }
+    },
+    {
+      "index": 17,
+      "slotId": "book-c2-p04",
+      "label": "Chương 2 · PDF trang 04",
+      "targetImage": "/tmp/ar-targets/pages/book-c2-p04.jpg",
+      "targetSize": {
+        "width": 994,
+        "height": 1024
+      },
+      "overlayBox": {
+        "left": 0.36,
+        "top": 0.16786,
+        "right": 0.7,
+        "bottom": 0.43742,
+        "kind": "popup"
+      }
+    },
+    {
+      "index": 18,
+      "slotId": "book-c2-p05",
+      "label": "Chương 2 · PDF trang 05",
+      "targetImage": "/tmp/ar-targets/pages/book-c2-p05.jpg",
+      "targetSize": {
+        "width": 991,
+        "height": 1024
+      },
+      "overlayBox": {
+        "left": 0.30379,
+        "top": 0.19959,
+        "right": 0.70937,
+        "bottom": 0.48015,
+        "kind": "popup"
+      }
+    },
+    {
+      "index": 19,
+      "slotId": "book-c2-p06",
+      "label": "Chương 2 · PDF trang 06",
+      "targetImage": "/tmp/ar-targets/pages/book-c2-p06.jpg",
+      "targetSize": {
+        "width": 930,
+        "height": 1024
+      },
+      "overlayBox": {
+        "left": 0.16,
+        "top": 0.28,
+        "right": 0.84,
+        "bottom": 0.7,
+        "kind": "recap"
+      }
+    },
+    {
+      "index": 20,
+      "slotId": "book-c2-p07",
+      "label": "Chương 2 · PDF trang 07",
+      "targetImage": "/tmp/ar-targets/pages/book-c2-p07.jpg",
+      "targetSize": {
+        "width": 994,
+        "height": 1024
+      },
+      "overlayBox": {
+        "left": 0.40846,
+        "top": 0.04705,
+        "right": 0.69403,
+        "bottom": 0.41451,
+        "kind": "popup"
+      }
+    },
+    {
+      "index": 21,
+      "slotId": "book-c2-p08",
+      "label": "Chương 2 · PDF trang 08",
+      "targetImage": "/tmp/ar-targets/pages/book-c2-p08.jpg",
+      "targetSize": {
+        "width": 1010,
+        "height": 1024
+      },
+      "overlayBox": {
+        "left": 0.32454,
+        "top": 0.22197,
+        "right": 0.70299,
+        "bottom": 0.48429,
+        "kind": "popup"
+      }
+    },
+    {
+      "index": 22,
+      "slotId": "book-c2-p09",
+      "label": "Chương 2 · PDF trang 09",
+      "targetImage": "/tmp/ar-targets/pages/book-c2-p09.jpg",
+      "targetSize": {
+        "width": 950,
+        "height": 1024
+      },
+      "overlayBox": {
+        "left": 0.16,
+        "top": 0.28,
+        "right": 0.84,
+        "bottom": 0.7,
+        "kind": "recap"
+      }
+    },
+    {
+      "index": 23,
+      "slotId": "book-c2-p10",
+      "label": "Chương 2 · PDF trang 10",
+      "targetImage": "/tmp/ar-targets/pages/book-c2-p10.jpg",
+      "targetSize": {
+        "width": 991,
+        "height": 1024
+      },
+      "overlayBox": {
+        "left": 0.28,
+        "top": 0.18161,
+        "right": 0.7,
+        "bottom": 0.4742,
+        "kind": "popup"
+      }
+    },
+    {
+      "index": 24,
+      "slotId": "book-c2-p11",
+      "label": "Chương 2 · PDF trang 11",
+      "targetImage": "/tmp/ar-targets/pages/book-c2-p11.jpg",
+      "targetSize": {
+        "width": 996,
+        "height": 1024
+      },
+      "overlayBox": {
+        "left": 0.15866,
+        "top": 0.23205,
+        "right": 0.69952,
+        "bottom": 0.49438,
+        "kind": "popup"
+      }
+    },
+    {
+      "index": 25,
+      "slotId": "book-c2-p12",
+      "label": "Chương 2 · PDF trang 12",
+      "targetImage": "/tmp/ar-targets/pages/book-c2-p12.jpg",
+      "targetSize": {
+        "width": 946,
+        "height": 1024
+      },
+      "overlayBox": {
+        "left": 0.16,
+        "top": 0.28,
+        "right": 0.84,
+        "bottom": 0.7,
+        "kind": "recap"
+      }
+    },
+    {
+      "index": 26,
+      "slotId": "book-c2-p13",
+      "label": "Chương 2 · PDF trang 13",
+      "targetImage": "/tmp/ar-targets/pages/book-c2-p13.jpg",
+      "targetSize": {
+        "width": 1016,
+        "height": 1024
+      },
+      "overlayBox": {
+        "left": 0.33504,
+        "top": 0.13198,
+        "right": 0.72402,
+        "bottom": 0.45686,
+        "kind": "popup"
+      }
+    },
+    {
+      "index": 27,
+      "slotId": "book-c2-p14",
+      "label": "Chương 2 · PDF trang 14",
+      "targetImage": "/tmp/ar-targets/pages/book-c2-p14.jpg",
+      "targetSize": {
+        "width": 1024,
+        "height": 1024
+      },
+      "overlayBox": {
+        "left": 0.36914,
+        "top": 0.26396,
+        "right": 0.7043,
+        "bottom": 0.49747,
+        "kind": "popup"
+      }
+    },
+    {
+      "index": 28,
+      "slotId": "book-c2-p15",
+      "label": "Chương 2 · PDF trang 15",
+      "targetImage": "/tmp/ar-targets/pages/book-c2-p15.jpg",
+      "targetSize": {
+        "width": 979,
+        "height": 1024
+      },
+      "overlayBox": {
+        "left": 0.16,
+        "top": 0.28,
+        "right": 0.84,
+        "bottom": 0.7,
+        "kind": "recap"
+      }
+    },
+    {
+      "index": 29,
+      "slotId": "book-c2-p16",
+      "label": "Chương 2 · PDF trang 16",
+      "targetImage": "/tmp/ar-targets/pages/book-c2-p16.jpg",
+      "targetSize": {
+        "width": 1018,
+        "height": 1024
+      },
+      "overlayBox": {
+        "left": 0.29455,
+        "top": 0.18339,
+        "right": 0.72516,
+        "bottom": 0.48904,
+        "kind": "popup"
+      }
+    },
+    {
+      "index": 30,
+      "slotId": "book-c2-p17",
+      "label": "Chương 2 · PDF trang 17",
+      "targetImage": "/tmp/ar-targets/pages/book-c2-p17.jpg",
+      "targetSize": {
+        "width": 1023,
+        "height": 1024
+      },
+      "overlayBox": {
+        "left": 0.2372,
+        "top": 0.20305,
+        "right": 0.70458,
+        "bottom": 0.48732,
+        "kind": "popup"
+      }
+    },
+    {
+      "index": 31,
+      "slotId": "book-c2-p18",
+      "label": "Chương 2 · PDF trang 18",
+      "targetImage": "/tmp/ar-targets/pages/book-c2-p18.jpg",
+      "targetSize": {
+        "width": 655,
+        "height": 1024
+      },
+      "overlayBox": {
+        "left": 0.16,
+        "top": 0.28,
+        "right": 0.84,
+        "bottom": 0.7,
+        "kind": "recap"
+      }
+    },
+    {
+      "index": 32,
+      "slotId": "book-c2-p19",
+      "label": "Chương 2 · PDF trang 19",
+      "targetImage": "/tmp/ar-targets/pages/book-c2-p19.jpg",
+      "targetSize": {
+        "width": 724,
+        "height": 1024
+      },
+      "overlayBox": {
+        "left": 0.34,
+        "top": 0.23,
+        "right": 0.66,
+        "bottom": 0.77,
+        "kind": "cover"
+      }
+    },
+    {
+      "index": 33,
+      "slotId": "book-c3-p01",
+      "label": "Chương 3 · Bìa trước · PDF trang 01",
+      "targetImage": "/tmp/ar-targets/pages/book-c3-p01.jpg",
+      "targetSize": {
+        "width": 724,
+        "height": 1024
+      },
+      "overlayBox": {
+        "left": 0.34,
+        "top": 0.23,
+        "right": 0.66,
+        "bottom": 0.77,
+        "kind": "cover"
+      }
+    },
+    {
+      "index": 34,
+      "slotId": "book-c3-p02",
+      "label": "Chương 3 · Bìa sau · PDF trang 02",
+      "targetImage": "/tmp/ar-targets/pages/book-c3-p02.jpg",
+      "targetSize": {
+        "width": 1024,
+        "height": 1002
+      },
+      "overlayBox": {
+        "left": 0.34,
+        "top": 0.23,
+        "right": 0.66,
+        "bottom": 0.77,
+        "kind": "cover"
+      }
+    },
+    {
+      "index": 35,
+      "slotId": "book-c3-p03",
+      "label": "Chương 3 · PDF trang 03",
+      "targetImage": "/tmp/ar-targets/pages/book-c3-p03.jpg",
+      "targetSize": {
+        "width": 1003,
+        "height": 1024
+      },
+      "overlayBox": {
+        "left": 0.30661,
+        "top": 0.12232,
+        "right": 0.69497,
+        "bottom": 0.48865,
+        "kind": "popup"
+      }
+    },
+    {
+      "index": 36,
+      "slotId": "book-c3-p04",
+      "label": "Chương 3 · PDF trang 04",
+      "targetImage": "/tmp/ar-targets/pages/book-c3-p04.jpg",
+      "targetSize": {
+        "width": 990,
+        "height": 1024
+      },
+      "overlayBox": {
+        "left": 0.24105,
+        "top": 0.14387,
+        "right": 0.71311,
+        "bottom": 0.47787,
+        "kind": "popup"
+      }
+    },
+    {
+      "index": 37,
+      "slotId": "book-c3-p05",
+      "label": "Chương 3 · PDF trang 05",
+      "targetImage": "/tmp/ar-targets/pages/book-c3-p05.jpg",
+      "targetSize": {
+        "width": 990,
+        "height": 1024
+      },
+      "overlayBox": {
+        "left": 0.31432,
+        "top": 0.17619,
+        "right": 0.70976,
+        "bottom": 0.47787,
+        "kind": "popup"
+      }
+    },
+    {
+      "index": 38,
+      "slotId": "book-c3-p06",
+      "label": "Chương 3 · PDF trang 06",
+      "targetImage": "/tmp/ar-targets/pages/book-c3-p06.jpg",
+      "targetSize": {
+        "width": 986,
+        "height": 1024
+      },
+      "overlayBox": {
+        "left": 0.15,
+        "top": 0.04983,
+        "right": 0.71,
+        "bottom": 0.47948,
+        "kind": "popup"
+      }
+    },
+    {
+      "index": 39,
+      "slotId": "book-c3-p07",
+      "label": "Chương 3 · PDF trang 07",
+      "targetImage": "/tmp/ar-targets/pages/book-c3-p07.jpg",
+      "targetSize": {
+        "width": 987,
+        "height": 1024
+      },
+      "overlayBox": {
+        "left": 0.34718,
+        "top": 0.22169,
+        "right": 0.71478,
+        "bottom": 0.49022,
+        "kind": "popup"
+      }
+    },
+    {
+      "index": 40,
+      "slotId": "book-c3-p08",
+      "label": "Chương 3 · PDF trang 08",
+      "targetImage": "/tmp/ar-targets/pages/book-c3-p08.jpg",
+      "targetSize": {
+        "width": 987,
+        "height": 1024
+      },
+      "overlayBox": {
+        "left": 0.34718,
+        "top": 0.22169,
+        "right": 0.71478,
+        "bottom": 0.49022,
+        "kind": "popup"
+      }
+    },
+    {
+      "index": 41,
+      "slotId": "book-c3-p09",
+      "label": "Chương 3 · PDF trang 09",
+      "targetImage": "/tmp/ar-targets/pages/book-c3-p09.jpg",
+      "targetSize": {
+        "width": 992,
+        "height": 1024
+      },
+      "overlayBox": {
+        "left": 0.27946,
+        "top": 0.20023,
+        "right": 0.73488,
+        "bottom": 0.49113,
+        "kind": "popup"
+      }
+    },
+    {
+      "index": 42,
+      "slotId": "book-c3-p10",
+      "label": "Chương 3 · PDF trang 10",
+      "targetImage": "/tmp/ar-targets/pages/book-c3-p10.jpg",
+      "targetSize": {
+        "width": 992,
+        "height": 1024
+      },
+      "overlayBox": {
+        "left": 0.25259,
+        "top": 0.18017,
+        "right": 0.71735,
+        "bottom": 0.49113,
+        "kind": "popup"
+      }
+    },
+    {
+      "index": 43,
+      "slotId": "book-c3-p11",
+      "label": "Chương 3 · PDF trang 11",
+      "targetImage": "/tmp/ar-targets/pages/book-c3-p11.jpg",
+      "targetSize": {
+        "width": 986,
+        "height": 1024
+      },
+      "overlayBox": {
+        "left": 0.3,
+        "top": 0.14843,
+        "right": 0.7,
+        "bottom": 0.49014,
+        "kind": "popup"
+      }
+    },
+    {
+      "index": 44,
+      "slotId": "book-c3-p12",
+      "label": "Chương 3 · PDF trang 12",
+      "targetImage": "/tmp/ar-targets/pages/book-c3-p12.jpg",
+      "targetSize": {
+        "width": 992,
+        "height": 1024
+      },
+      "overlayBox": {
+        "left": 0.31,
+        "top": 0.17985,
+        "right": 0.72,
+        "bottom": 0.49093,
+        "kind": "popup"
+      }
+    },
+    {
+      "index": 45,
+      "slotId": "book-c3-p13",
+      "label": "Chương 3 · PDF trang 13",
+      "targetImage": "/tmp/ar-targets/pages/book-c3-p13.jpg",
+      "targetSize": {
+        "width": 994,
+        "height": 1024
+      },
+      "overlayBox": {
+        "left": 0.18,
+        "top": 0.17795,
+        "right": 0.7,
+        "bottom": 0.48975,
+        "kind": "popup"
+      }
+    },
+    {
+      "index": 46,
+      "slotId": "book-c3-p14",
+      "label": "Chương 3 · PDF trang 14",
+      "targetImage": "/tmp/ar-targets/pages/book-c3-p14.jpg",
+      "targetSize": {
+        "width": 992,
+        "height": 1024
+      },
+      "overlayBox": {
+        "left": 0.40367,
+        "top": 0.20023,
+        "right": 0.74523,
+        "bottom": 0.50116,
+        "kind": "popup"
+      }
+    },
+    {
+      "index": 47,
+      "slotId": "book-c3-p15",
+      "label": "Chương 3 · PDF trang 15",
+      "targetImage": "/tmp/ar-targets/pages/book-c3-p15.jpg",
+      "targetSize": {
+        "width": 993,
+        "height": 1024
+      },
+      "overlayBox": {
+        "left": 0.24249,
+        "top": 0.17922,
+        "right": 0.70725,
+        "bottom": 0.49054,
+        "kind": "popup"
+      }
+    },
+    {
+      "index": 48,
+      "slotId": "book-c3-p16",
+      "label": "Chương 3 · PDF trang 16",
+      "targetImage": "/tmp/ar-targets/pages/book-c3-p16.jpg",
+      "targetSize": {
+        "width": 983,
+        "height": 1024
+      },
+      "overlayBox": {
+        "left": 0.15,
+        "top": 0.03966,
+        "right": 0.7,
+        "bottom": 0.48017,
+        "kind": "popup"
+      }
+    },
+    {
+      "index": 49,
+      "slotId": "book-c3-p17",
+      "label": "Chương 3 · PDF trang 17",
+      "targetImage": "/tmp/ar-targets/pages/book-c3-p17.jpg",
+      "targetSize": {
+        "width": 992,
+        "height": 1024
+      },
+      "overlayBox": {
+        "left": 0.28,
+        "top": 0.12857,
+        "right": 0.69,
+        "bottom": 0.47992,
+        "kind": "popup"
+      }
+    },
+    {
+      "index": 50,
+      "slotId": "book-c3-p18",
+      "label": "Chương 3 · PDF trang 18",
+      "targetImage": "/tmp/ar-targets/pages/book-c3-p18.jpg",
+      "targetSize": {
+        "width": 992,
+        "height": 1024
+      },
+      "overlayBox": {
+        "left": 0.24,
+        "top": 0.14942,
+        "right": 0.72,
+        "bottom": 0.50077,
+        "kind": "popup"
+      }
+    },
+    {
+      "index": 51,
+      "slotId": "book-c3-p19",
+      "label": "Chương 3 · PDF trang 19",
+      "targetImage": "/tmp/ar-targets/pages/book-c3-p19.jpg",
+      "targetSize": {
+        "width": 655,
+        "height": 1024
+      },
+      "overlayBox": {
+        "left": 0.16,
+        "top": 0.28,
+        "right": 0.84,
+        "bottom": 0.7,
+        "kind": "recap"
+      }
+    },
+    {
+      "index": 52,
+      "slotId": "book-c3-p20",
+      "label": "Chương 3 · PDF trang 20",
+      "targetImage": "/tmp/ar-targets/pages/book-c3-p20.jpg",
+      "targetSize": {
+        "width": 608,
+        "height": 1024
+      },
+      "overlayBox": {
+        "left": 0.16,
+        "top": 0.28,
+        "right": 0.84,
+        "bottom": 0.7,
+        "kind": "recap"
+      }
+    },
+    {
+      "index": 53,
+      "slotId": "book-c3-p21",
+      "label": "Chương 3 · PDF trang 21",
+      "targetImage": "/tmp/ar-targets/pages/book-c3-p21.jpg",
+      "targetSize": {
+        "width": 725,
+        "height": 1024
+      },
+      "overlayBox": {
+        "left": 0.34,
+        "top": 0.23,
+        "right": 0.66,
+        "bottom": 0.77,
+        "kind": "cover"
+      }
+    }
+  ]
+}

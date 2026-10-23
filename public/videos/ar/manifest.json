@@ -6,16 +6,26 @@
     "bytes": 629711,
     "pages": [
       "book-c1-p03"
-    ]
+    ],
+    "alpha": true,
+    "alphaVideoUrl": "/videos/ar/GT01.webm",
+    "alphaColorUrl": "/videos/ar/fallback/GT01-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/GT01-alpha.mp4"
   },
   {
     "id": "GT02",
     "url": "/videos/ar/GT02.webm",
     "source": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/GT02_bus.mp4",
-    "bytes": 811944,
+    "bytes": 1188315,
     "pages": [
       "book-c1-p04"
-    ]
+    ],
+    "alpha": true,
+    "alphaVideoUrl": "/videos/ar/GT02.webm",
+    "alphaColorUrl": "/videos/ar/fallback/GT02-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/GT02-alpha.mp4",
+    "alphaBytes": 1188315,
+    "fallbackBytes": 772208
   },
   {
     "id": "GT03",
@@ -24,7 +34,11 @@
     "bytes": 441597,
     "pages": [
       "book-c1-p05"
-    ]
+    ],
+    "alpha": true,
+    "alphaVideoUrl": "/videos/ar/GT03.webm",
+    "alphaColorUrl": "/videos/ar/fallback/GT03-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/GT03-alpha.mp4"
   },
   {
     "id": "GT04",
@@ -33,16 +47,26 @@
     "bytes": 827261,
     "pages": [
       "book-c1-p06"
-    ]
+    ],
+    "alpha": true,
+    "alphaVideoUrl": "/videos/ar/GT04.webm",
+    "alphaColorUrl": "/videos/ar/fallback/GT04-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/GT04-alpha.mp4"
   },
   {
     "id": "GT05",
     "url": "/videos/ar/GT05.webm",
     "source": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/GT05_bicycle.mp4",
-    "bytes": 1023064,
+    "bytes": 2117855,
     "pages": [
       "book-c1-p07"
-    ]
+    ],
+    "alpha": true,
+    "alphaVideoUrl": "/videos/ar/GT05.webm",
+    "alphaColorUrl": "/videos/ar/fallback/GT05-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/GT05-alpha.mp4",
+    "alphaBytes": 2117855,
+    "fallbackBytes": 1227959
   },
   {
     "id": "GT06",
@@ -51,7 +75,11 @@
     "bytes": 1150103,
     "pages": [
       "book-c1-p08"
-    ]
+    ],
+    "alpha": true,
+    "alphaVideoUrl": "/videos/ar/GT06.webm",
+    "alphaColorUrl": "/videos/ar/fallback/GT06-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/GT06-alpha.mp4"
   },
   {
     "id": "GT07",
@@ -60,7 +88,11 @@
     "bytes": 397606,
     "pages": [
       "book-c1-p09"
-    ]
+    ],
+    "alpha": true,
+    "alphaVideoUrl": "/videos/ar/GT07.webm",
+    "alphaColorUrl": "/videos/ar/fallback/GT07-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/GT07-alpha.mp4"
   },
   {
     "id": "GT08",
@@ -69,34 +101,56 @@
     "bytes": 615783,
     "pages": [
       "book-c1-p10"
-    ]
+    ],
+    "alpha": true,
+    "alphaVideoUrl": "/videos/ar/GT08.webm",
+    "alphaColorUrl": "/videos/ar/fallback/GT08-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/GT08-alpha.mp4"
   },
   {
     "id": "GT09",
     "url": "/videos/ar/GT09.webm",
     "source": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/GT09_excavator.mp4",
-    "bytes": 951867,
+    "bytes": 1090312,
     "pages": [
       "book-c1-p11"
-    ]
+    ],
+    "alpha": true,
+    "alphaVideoUrl": "/videos/ar/GT09.webm",
+    "alphaColorUrl": "/videos/ar/fallback/GT09-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/GT09-alpha.mp4",
+    "alphaBytes": 1090312,
+    "fallbackBytes": 632132
   },
   {
     "id": "GT10",
     "url": "/videos/ar/GT10.webm",
     "source": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/GT10_tractor.mp4",
-    "bytes": 1171637,
+    "bytes": 1452148,
     "pages": [
       "book-c1-p12"
-    ]
+    ],
+    "alpha": true,
+    "alphaVideoUrl": "/videos/ar/GT10.webm",
+    "alphaColorUrl": "/videos/ar/fallback/GT10-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/GT10-alpha.mp4",
+    "alphaBytes": 1452148,
+    "fallbackBytes": 856589
   },
   {
     "id": "DV01",
     "url": "/videos/ar/DV01.webm",
     "source": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/DV01_elephant.mp4",
-    "bytes": 1242712,
+    "bytes": 1420665,
     "pages": [
       "book-c2-p04"
-    ]
+    ],
+    "alpha": true,
+    "alphaVideoUrl": "/videos/ar/DV01.webm",
+    "alphaColorUrl": "/videos/ar/fallback/DV01-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/DV01-alpha.mp4",
+    "alphaBytes": 1420665,
+    "fallbackBytes": 849049
   },
   {
     "id": "DV02",
@@ -105,7 +159,11 @@
     "bytes": 595905,
     "pages": [
       "book-c2-p05"
-    ]
+    ],
+    "alpha": true,
+    "alphaVideoUrl": "/videos/ar/DV02.webm",
+    "alphaColorUrl": "/videos/ar/fallback/DV02-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/DV02-alpha.mp4"
   },
   {
     "id": "DV03",
@@ -114,7 +172,11 @@
     "bytes": 786659,
     "pages": [
       "book-c2-p07"
-    ]
+    ],
+    "alpha": true,
+    "alphaVideoUrl": "/videos/ar/DV03.webm",
+    "alphaColorUrl": "/videos/ar/fallback/DV03-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/DV03-alpha.mp4"
   },
   {
     "id": "DV04",
@@ -123,7 +185,11 @@
     "bytes": 520309,
     "pages": [
       "book-c2-p08"
-    ]
+    ],
+    "alpha": true,
+    "alphaVideoUrl": "/videos/ar/DV04.webm",
+    "alphaColorUrl": "/videos/ar/fallback/DV04-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/DV04-alpha.mp4"
   },
   {
     "id": "DV05",
@@ -132,16 +198,26 @@
     "bytes": 1854373,
     "pages": [
       "book-c2-p10"
-    ]
+    ],
+    "alpha": true,
+    "alphaVideoUrl": "/videos/ar/DV05.webm",
+    "alphaColorUrl": "/videos/ar/fallback/DV05-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/DV05-alpha.mp4"
   },
   {
     "id": "DV06",
     "url": "/videos/ar/DV06.webm",
     "source": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/DV06_crocodile.mp4",
-    "bytes": 1025486,
+    "bytes": 1086560,
     "pages": [
       "book-c2-p11"
-    ]
+    ],
+    "alpha": true,
+    "alphaVideoUrl": "/videos/ar/DV06.webm",
+    "alphaColorUrl": "/videos/ar/fallback/DV06-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/DV06-alpha.mp4",
+    "alphaBytes": 1086560,
+    "fallbackBytes": 708220
   },
   {
     "id": "DV07",
@@ -150,7 +226,11 @@
     "bytes": 513065,
     "pages": [
       "book-c2-p13"
-    ]
+    ],
+    "alpha": true,
+    "alphaVideoUrl": "/videos/ar/DV07.webm",
+    "alphaColorUrl": "/videos/ar/fallback/DV07-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/DV07-alpha.mp4"
   },
   {
     "id": "DV08",
@@ -159,7 +239,11 @@
     "bytes": 1219146,
     "pages": [
       "book-c2-p14"
-    ]
+    ],
+    "alpha": true,
+    "alphaVideoUrl": "/videos/ar/DV08.webm",
+    "alphaColorUrl": "/videos/ar/fallback/DV08-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/DV08-alpha.mp4"
   },
   {
     "id": "DV09",
@@ -168,7 +252,11 @@
     "bytes": 1061360,
     "pages": [
       "book-c2-p16"
-    ]
+    ],
+    "alpha": true,
+    "alphaVideoUrl": "/videos/ar/DV09.webm",
+    "alphaColorUrl": "/videos/ar/fallback/DV09-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/DV09-alpha.mp4"
   },
   {
     "id": "DV10",
@@ -177,16 +265,26 @@
     "bytes": 779662,
     "pages": [
       "book-c2-p17"
-    ]
+    ],
+    "alpha": true,
+    "alphaVideoUrl": "/videos/ar/DV10.webm",
+    "alphaColorUrl": "/videos/ar/fallback/DV10-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/DV10-alpha.mp4"
   },
   {
     "id": "HTTN01",
     "url": "/videos/ar/HTTN01.webm",
     "source": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/HTTN01_rainbow.mp4",
-    "bytes": 147324,
+    "bytes": 383910,
     "pages": [
       "book-c3-p03"
-    ]
+    ],
+    "alpha": true,
+    "alphaVideoUrl": "/videos/ar/HTTN01.webm",
+    "alphaColorUrl": "/videos/ar/fallback/HTTN01-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/HTTN01-alpha.mp4",
+    "alphaBytes": 383910,
+    "fallbackBytes": 313263
   },
   {
     "id": "HTTN02",
@@ -195,17 +293,27 @@
     "bytes": 5118889,
     "pages": [
       "book-c3-p05"
-    ]
+    ],
+    "alpha": true,
+    "alphaVideoUrl": "/videos/ar/HTTN02.webm",
+    "alphaColorUrl": "/videos/ar/fallback/HTTN02-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/HTTN02-alpha.mp4"
   },
   {
     "id": "HTTN03",
     "url": "/videos/ar/HTTN03.webm",
     "source": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/HTTN03_tornado.mp4",
-    "bytes": 695570,
+    "bytes": 1269208,
     "pages": [
       "book-c3-p07",
       "book-c3-p08"
-    ]
+    ],
+    "alpha": true,
+    "alphaVideoUrl": "/videos/ar/HTTN03.webm",
+    "alphaColorUrl": "/videos/ar/fallback/HTTN03-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/HTTN03-alpha.mp4",
+    "alphaBytes": 1269208,
+    "fallbackBytes": 1025002
   },
   {
     "id": "HTTN04",
@@ -214,7 +322,11 @@
     "bytes": 8771106,
     "pages": [
       "book-c3-p10"
-    ]
+    ],
+    "alpha": true,
+    "alphaVideoUrl": "/videos/ar/HTTN04.webm",
+    "alphaColorUrl": "/videos/ar/fallback/HTTN04-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/HTTN04-alpha.mp4"
   },
   {
     "id": "HTTN05",
@@ -223,7 +335,11 @@
     "bytes": 1134124,
     "pages": [
       "book-c3-p12"
-    ]
+    ],
+    "alpha": true,
+    "alphaVideoUrl": "/videos/ar/HTTN05.webm",
+    "alphaColorUrl": "/videos/ar/fallback/HTTN05-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/HTTN05-alpha.mp4"
   },
   {
     "id": "HTTN06",
@@ -232,16 +348,26 @@
     "bytes": 223676,
     "pages": [
       "book-c3-p04"
-    ]
+    ],
+    "alpha": true,
+    "alphaVideoUrl": "/videos/ar/HTTN06.webm",
+    "alphaColorUrl": "/videos/ar/fallback/HTTN06-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/HTTN06-alpha.mp4"
   },
   {
     "id": "HTTN07",
     "url": "/videos/ar/HTTN07.webm",
     "source": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/HTTN07_snow.mp4",
-    "bytes": 4947706,
+    "bytes": 4562678,
     "pages": [
       "book-c3-p06"
-    ]
+    ],
+    "alpha": true,
+    "alphaVideoUrl": "/videos/ar/HTTN07.webm",
+    "alphaColorUrl": "/videos/ar/fallback/HTTN07-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/HTTN07-alpha.mp4",
+    "alphaBytes": 4562678,
+    "fallbackBytes": 3933504
   },
   {
     "id": "HTTN08",
@@ -250,7 +376,11 @@
     "bytes": 4574010,
     "pages": [
       "book-c3-p09"
-    ]
+    ],
+    "alpha": true,
+    "alphaVideoUrl": "/videos/ar/HTTN08.webm",
+    "alphaColorUrl": "/videos/ar/fallback/HTTN08-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/HTTN08-alpha.mp4"
   },
   {
     "id": "HTTN09",
@@ -259,7 +389,11 @@
     "bytes": 728270,
     "pages": [
       "book-c3-p11"
-    ]
+    ],
+    "alpha": true,
+    "alphaVideoUrl": "/videos/ar/HTTN09.webm",
+    "alphaColorUrl": "/videos/ar/fallback/HTTN09-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/HTTN09-alpha.mp4"
   },
   {
     "id": "HTTN10",
@@ -268,7 +402,11 @@
     "bytes": 4644432,
     "pages": [
       "book-c3-p13"
-    ]
+    ],
+    "alpha": true,
+    "alphaVideoUrl": "/videos/ar/HTTN10.webm",
+    "alphaColorUrl": "/videos/ar/fallback/HTTN10-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/HTTN10-alpha.mp4"
   },
   {
     "id": "HTTN11",
@@ -277,25 +415,41 @@
     "bytes": 8073920,
     "pages": [
       "book-c3-p14"
-    ]
+    ],
+    "alpha": true,
+    "alphaVideoUrl": "/videos/ar/HTTN11.webm",
+    "alphaColorUrl": "/videos/ar/fallback/HTTN11-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/HTTN11-alpha.mp4"
   },
   {
     "id": "HTTN12",
     "url": "/videos/ar/HTTN12.webm",
     "source": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/HTTN12_tides.mp4",
-    "bytes": 9180376,
+    "bytes": 4436125,
     "pages": [
       "book-c3-p15"
-    ]
+    ],
+    "alpha": true,
+    "alphaVideoUrl": "/videos/ar/HTTN12.webm",
+    "alphaColorUrl": "/videos/ar/fallback/HTTN12-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/HTTN12-alpha.mp4",
+    "alphaBytes": 4436125,
+    "fallbackBytes": 2839069
   },
   {
     "id": "HTTN13",
     "url": "/videos/ar/HTTN13.webm",
     "source": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/HTTN13_aurora.mp4",
-    "bytes": 1268829,
+    "bytes": 2625721,
     "pages": [
       "book-c3-p16"
-    ]
+    ],
+    "alpha": true,
+    "alphaVideoUrl": "/videos/ar/HTTN13.webm",
+    "alphaColorUrl": "/videos/ar/fallback/HTTN13-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/HTTN13-alpha.mp4",
+    "alphaBytes": 2625721,
+    "fallbackBytes": 1983449
   },
   {
     "id": "HTTN14",
@@ -304,23 +458,33 @@
     "bytes": 722150,
     "pages": [
       "book-c3-p17"
-    ]
+    ],
+    "alpha": true,
+    "alphaVideoUrl": "/videos/ar/HTTN14.webm",
+    "alphaColorUrl": "/videos/ar/fallback/HTTN14-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/HTTN14-alpha.mp4"
   },
   {
     "id": "HTTN15",
     "url": "/videos/ar/HTTN15.webm",
     "source": "MAM_BOOK_AR/ORIGINAL_DOWNLOADS/HTTN15_meteor_shower.mp4",
-    "bytes": 223858,
+    "bytes": 1275247,
     "pages": [
       "book-c3-p18"
-    ]
+    ],
+    "alpha": true,
+    "alphaVideoUrl": "/videos/ar/HTTN15.webm",
+    "alphaColorUrl": "/videos/ar/fallback/HTTN15-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/HTTN15-alpha.mp4",
+    "alphaBytes": 1275247,
+    "fallbackBytes": 866311
   },
   {
     "id": "RIKO",
     "url": "/videos/ar/RIKO.webm",
     "kind": "mascot",
     "targets": [],
-    "bytes": 960573,
+    "bytes": 1064624,
     "pages": [
       "book-c1-p01",
       "book-c1-p02",
@@ -331,7 +495,13 @@
       "book-c3-p01",
       "book-c3-p02",
       "book-c3-p21"
-    ]
+    ],
+    "alpha": true,
+    "alphaVideoUrl": "/videos/ar/RIKO.webm",
+    "alphaColorUrl": "/videos/ar/fallback/RIKO-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/RIKO-alpha.mp4",
+    "alphaBytes": 1064624,
+    "fallbackBytes": 641418
   },
   {
     "id": "RECAP_GT",
@@ -349,10 +519,16 @@
       "GT09",
       "GT10"
     ],
-    "bytes": 235244,
+    "bytes": 630582,
     "pages": [
       "book-c1-p13"
-    ]
+    ],
+    "alpha": true,
+    "alphaVideoUrl": "/videos/ar/RECAP_GT.webm",
+    "alphaColorUrl": "/videos/ar/fallback/RECAP_GT-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/RECAP_GT-alpha.mp4",
+    "alphaBytes": 630582,
+    "fallbackBytes": 370582
   },
   {
     "id": "RECAP_DV_MAMMALS",
@@ -362,10 +538,16 @@
       "DV01",
       "DV02"
     ],
-    "bytes": 44093,
+    "bytes": 113998,
     "pages": [
       "book-c2-p03"
-    ]
+    ],
+    "alpha": true,
+    "alphaVideoUrl": "/videos/ar/RECAP_DV_MAMMALS.webm",
+    "alphaColorUrl": "/videos/ar/fallback/RECAP_DV_MAMMALS-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/RECAP_DV_MAMMALS-alpha.mp4",
+    "alphaBytes": 113998,
+    "fallbackBytes": 72664
   },
   {
     "id": "RECAP_DV_BIRDS",
@@ -375,10 +557,16 @@
       "DV03",
       "DV04"
     ],
-    "bytes": 80220,
+    "bytes": 168156,
     "pages": [
       "book-c2-p06"
-    ]
+    ],
+    "alpha": true,
+    "alphaVideoUrl": "/videos/ar/RECAP_DV_BIRDS.webm",
+    "alphaColorUrl": "/videos/ar/fallback/RECAP_DV_BIRDS-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/RECAP_DV_BIRDS-alpha.mp4",
+    "alphaBytes": 168156,
+    "fallbackBytes": 100038
   },
   {
     "id": "RECAP_DV_REPTILES",
@@ -388,10 +576,16 @@
       "DV05",
       "DV06"
     ],
-    "bytes": 57649,
+    "bytes": 95320,
     "pages": [
       "book-c2-p09"
-    ]
+    ],
+    "alpha": true,
+    "alphaVideoUrl": "/videos/ar/RECAP_DV_REPTILES.webm",
+    "alphaColorUrl": "/videos/ar/fallback/RECAP_DV_REPTILES-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/RECAP_DV_REPTILES-alpha.mp4",
+    "alphaBytes": 95320,
+    "fallbackBytes": 68782
   },
   {
     "id": "RECAP_DV_AMPHIBIANS",
@@ -401,10 +595,16 @@
       "DV07",
       "DV08"
     ],
-    "bytes": 66713,
+    "bytes": 112554,
     "pages": [
       "book-c2-p12"
-    ]
+    ],
+    "alpha": true,
+    "alphaVideoUrl": "/videos/ar/RECAP_DV_AMPHIBIANS.webm",
+    "alphaColorUrl": "/videos/ar/fallback/RECAP_DV_AMPHIBIANS-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/RECAP_DV_AMPHIBIANS-alpha.mp4",
+    "alphaBytes": 112554,
+    "fallbackBytes": 82935
   },
   {
     "id": "RECAP_DV_INSECTS",
@@ -414,10 +614,16 @@
       "DV09",
       "DV10"
     ],
-    "bytes": 71110,
+    "bytes": 173394,
     "pages": [
       "book-c2-p15"
-    ]
+    ],
+    "alpha": true,
+    "alphaVideoUrl": "/videos/ar/RECAP_DV_INSECTS.webm",
+    "alphaColorUrl": "/videos/ar/fallback/RECAP_DV_INSECTS-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/RECAP_DV_INSECTS-alpha.mp4",
+    "alphaBytes": 173394,
+    "fallbackBytes": 113622
   },
   {
     "id": "RECAP_DV",
@@ -435,10 +641,16 @@
       "DV09",
       "DV10"
     ],
-    "bytes": 335219,
+    "bytes": 687774,
     "pages": [
       "book-c2-p18"
-    ]
+    ],
+    "alpha": true,
+    "alphaVideoUrl": "/videos/ar/RECAP_DV.webm",
+    "alphaColorUrl": "/videos/ar/fallback/RECAP_DV-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/RECAP_DV-alpha.mp4",
+    "alphaBytes": 687774,
+    "fallbackBytes": 437508
   },
   {
     "id": "RECAP_HTTN_A",
@@ -456,10 +668,16 @@
       "HTTN06",
       "HTTN07"
     ],
-    "bytes": 258613,
+    "bytes": 617179,
     "pages": [
       "book-c3-p19"
-    ]
+    ],
+    "alpha": true,
+    "alphaVideoUrl": "/videos/ar/RECAP_HTTN_A.webm",
+    "alphaColorUrl": "/videos/ar/fallback/RECAP_HTTN_A-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/RECAP_HTTN_A-alpha.mp4",
+    "alphaBytes": 617179,
+    "fallbackBytes": 522795
   },
   {
     "id": "RECAP_HTTN_B",
@@ -472,9 +690,15 @@
       "HTTN14",
       "HTTN15"
     ],
-    "bytes": 255367,
+    "bytes": 631827,
     "pages": [
       "book-c3-p20"
-    ]
+    ],
+    "alpha": true,
+    "alphaVideoUrl": "/videos/ar/RECAP_HTTN_B.webm",
+    "alphaColorUrl": "/videos/ar/fallback/RECAP_HTTN_B-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/RECAP_HTTN_B-alpha.mp4",
+    "alphaBytes": 631827,
+    "fallbackBytes": 436684
   }
 ]

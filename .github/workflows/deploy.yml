@@ -38,7 +38,7 @@ jobs:
         run: cp .env.example .env.local
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile --ignore-scripts
 
       - name: Build site
         run: pnpm build
@@ -61,6 +61,33 @@ jobs:
             if (size <= 0) throw new Error(`Required AR asset is empty: ${path}`);
             console.log(`${path}: ${size.toLocaleString()} bytes`);
           }
+          NODE
+
+      - name: Verify MindAR targets and transparent AR clips
+        run: |
+          node --input-type=module <<'NODE'
+          import { readFile, stat } from "node:fs/promises";
+          import { brotliDecompressSync } from "node:zlib";
+
+          const compressedTargets = await readFile("dist/ar/book-pages.mind.br");
+          const decodedTargets = brotliDecompressSync(compressedTargets);
+          if (decodedTargets.byteLength < 1_000_000) throw new Error("Compiled MindAR target bundle is incomplete.");
+          console.log(`MindAR targets: ${compressedTargets.byteLength.toLocaleString()} compressed / ${decodedTargets.byteLength.toLocaleString()} decoded bytes`);
+
+          const videos = JSON.parse(await readFile("dist/videos/ar/manifest.json", "utf8"));
+          const alphaVideos = videos.filter((video) => video.alpha === true);
+          if (alphaVideos.length < 45) throw new Error(`Expected 45 transparent AR videos; found ${alphaVideos.length}.`);
+          for (const video of alphaVideos) {
+            for (const route of [video.alphaVideoUrl, video.alphaColorUrl, video.alphaMaskUrl]) {
+              if (!route) throw new Error(`Incomplete alpha manifest entry: ${video.id}`);
+              const { size } = await stat(`dist${route}`);
+              if (size <= 0) throw new Error(`Empty alpha asset: ${route}`);
+            }
+          }
+
+          const headers = await readFile("dist/_headers", "utf8");
+          if (!headers.includes("Content-Encoding: br")) throw new Error("Cloudflare Pages is missing the Brotli response header for MindAR.");
+          console.log(`Transparent AR clips verified: ${alphaVideos.length}`);
           NODE
 
       - name: Verify AR QR routing and fallback timing

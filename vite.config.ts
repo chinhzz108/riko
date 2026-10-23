@@ -2,6 +2,8 @@ import { defineConfig, type HtmlTagDescriptor, type Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import path from 'node:path'
+import { readFileSync } from 'node:fs'
+import { brotliDecompressSync } from 'node:zlib'
 
 import siteConfiguration from './.figma/make/site.json'
 
@@ -20,6 +22,7 @@ export default defineConfig(({ mode }) => {
     plugins: [
 react(),
       tailwindcss(),
+      mindArBundleRoute(),
       figmaSiteConfiguration(siteConfiguration),
       figmaErrorOverlayReplay(),
       figmaReactRefreshBoundaryFallback(),
@@ -46,6 +49,37 @@ react(),
     },
   }
 })
+
+/** Serve the brotli-packed MindAR data as decoded bytes to local Vite sessions. */
+function mindArBundleRoute(): Plugin {
+  const compressedBundle = path.resolve(__dirname, 'public/ar/book-pages.mind.br')
+  const serveBundle = (req: import('node:http').IncomingMessage, res: import('node:http').ServerResponse, next: (error?: Error) => void) => {
+    const route = req.url?.split('?')[0]
+    if (route !== '/ar/book-pages.mind' && route !== '/ar/book-pages.mind.br') return next()
+    try {
+      const compressed = readFileSync(compressedBundle)
+      const isEncodedRoute = route.endsWith('.br')
+      const bytes = isEncodedRoute ? compressed : brotliDecompressSync(compressed)
+      res.statusCode = 200
+      res.setHeader('Content-Type', 'application/octet-stream')
+      if (isEncodedRoute) res.setHeader('Content-Encoding', 'br')
+      res.setHeader('Cache-Control', 'no-store')
+      res.setHeader('Content-Length', bytes.byteLength)
+      res.end(bytes)
+    } catch (error) {
+      next(error as Error)
+    }
+  }
+  return {
+    name: 'mindar-bundle-route',
+    configureServer(server) {
+      server.middlewares.use(serveBundle)
+    },
+    configurePreviewServer(server) {
+      server.middlewares.use(serveBundle)
+    },
+  }
+}
 
 type FigmaSiteConfiguration = {
   title?: string
