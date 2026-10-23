@@ -28,11 +28,70 @@ const classNames = [
   ...slots.map((slot) => slot.pageClass || `page_${slot.id.replace(/-/g, "_")}`),
   ...targets.map((target) => target.popupLabel),
 ]
+const detectionConfidence = (classId: number) => {
+  const label = classNames[classId]
+  return label?.startsWith("popup_")
+    ? arTargetManifest.minimumConfidenceByType.popup
+    : arTargetManifest.minimumConfidenceByType.page
+}
 type Selection = {
   slot: BookSlot
   box: ARDetection["box"] | null
   source: "popup" | "page" | "qr"
   score?: number
+}
+
+const CAMERA_START_TIMEOUT_MS = 15_000
+
+function cameraErrorMessage(error: unknown) {
+  if (error instanceof DOMException) {
+    if (error.name === "NotAllowedError") {
+      return "Chưa được cấp quyền dùng camera. Hãy cho phép camera rồi bấm thử lại nhé."
+    }
+    if (error.name === "TimeoutError") {
+      return "Camera chưa phản hồi. Hãy kiểm tra quyền camera của trình duyệt rồi thử lại nhé."
+    }
+    if (error.name === "NotFoundError") {
+      return "Thiết bị này không tìm thấy camera. Hãy thử trên điện thoại hoặc máy có camera nhé."
+    }
+  }
+  return "Không mở được camera. Hãy kiểm tra quyền camera và thử lại trên HTTPS hoặc localhost."
+}
+
+async function requestCameraStream() {
+  if (!navigator.mediaDevices?.getUserMedia) {
+    throw new Error("Camera access is unavailable in this browser.")
+  }
+
+  let requestTimedOut = false
+  let timeoutId: number | undefined
+  const request = navigator.mediaDevices
+    .getUserMedia({
+      audio: false,
+      video: {
+        facingMode: { ideal: "environment" },
+        width: { ideal: 1280 },
+        height: { ideal: 720 },
+      },
+    })
+    .then((stream) => {
+      if (requestTimedOut) stream.getTracks().forEach((track) => track.stop())
+      return requestTimedOut ? null : stream
+    })
+  const timeout = new Promise<null>((_, reject) => {
+    timeoutId = window.setTimeout(() => {
+      requestTimedOut = true
+      reject(new DOMException("Camera permission or device request timed out.", "TimeoutError"))
+    }, CAMERA_START_TIMEOUT_MS)
+  })
+
+  try {
+    const stream = await Promise.race([request, timeout])
+    if (!stream) throw new DOMException("Camera request timed out.", "TimeoutError")
+    return stream
+  } finally {
+    if (timeoutId !== undefined) window.clearTimeout(timeoutId)
+  }
 }
 
 function slotFromDetection(detection: ARDetection, pageContext?: BookSlot | null) {
@@ -123,14 +182,7 @@ export default function ARScan() {
     setScannedQR("")
     setModelStatus("loading")
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: false,
-        video: {
-          facingMode: { ideal: "environment" },
-          width: { ideal: 1280 },
-          height: { ideal: 720 },
-        },
-      })
+      const stream = await requestCameraStream()
       streamRef.current = stream
       const camera = cameraRef.current
       if (!camera) throw new Error("Không tìm thấy video camera.")
@@ -139,7 +191,7 @@ export default function ARScan() {
       setCameraOn(true)
       let modelReady = false
       try {
-        await detectBookTarget(camera, classNames.length, arTargetManifest.minimumConfidence)
+        await detectBookTarget(camera, classNames.length, detectionConfidence)
         modelReady = true
         setModelStatus("ready")
       } catch (modelError) {
@@ -152,11 +204,7 @@ export default function ARScan() {
       streamRef.current = null
       setCameraOn(false)
       setModelStatus("idle")
-      setError(
-        cameraError instanceof DOMException && cameraError.name === "NotAllowedError"
-          ? "Chưa được cấp quyền dùng camera. Hãy cho phép camera rồi bấm thử lại nhé."
-          : "Không mở được camera. Hãy kiểm tra quyền camera và thử lại trên HTTPS hoặc localhost.",
-      )
+      setError(cameraErrorMessage(cameraError))
     } finally {
       setStarting(false)
     }
@@ -247,7 +295,7 @@ export default function ARScan() {
           const detections = await detectBookTarget(
             camera,
             classNames.length,
-            arTargetManifest.minimumConfidence,
+            detectionConfidence,
             qrMask,
           )
           const pageMatch = detections.find((item) => {

@@ -1,6 +1,10 @@
 {
   "modelInputSize": 320,
   "minimumConfidence": 0.35,
+  "minimumConfidenceByType": {
+    "popup": 0.2,
+    "page": 0.35
+  },
   "stableFramesRequired": 3,
   "primaryOrder": [
     "popup_detection",

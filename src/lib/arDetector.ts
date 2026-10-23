@@ -140,7 +140,7 @@ function decodeOutput(
   dimensions: number[],
   prepared: PreparedInput,
   classCount: number,
-  minimumConfidence: number,
+  minimumConfidence: number | ((classId: number) => number),
 ) {
   const channelsFirst = dimensions[1] === classCount + 4
   const rows = dimensions[channelsFirst ? 2 : 1]
@@ -161,7 +161,10 @@ function decodeOutput(
         classId = candidate
       }
     }
-    if (score < minimumConfidence || classId < 0) continue
+    if (classId < 0) continue
+    const classMinimumConfidence =
+      typeof minimumConfidence === "function" ? minimumConfidence(classId) : minimumConfidence
+    if (score < classMinimumConfidence) continue
 
     const rawCenterX = at(row, 0)
     const rawCenterY = at(row, 1)
@@ -198,7 +201,7 @@ function decodeOutput(
 export async function detectBookTarget(
   video: HTMLVideoElement,
   classCount: number,
-  minimumConfidence = 0.55,
+  minimumConfidence: number | ((classId: number) => number) = 0.55,
   maskRegion?: ARMaskRegion | null,
 ) {
   if (inferenceInProgress) return []
