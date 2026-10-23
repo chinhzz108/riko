@@ -864,6 +864,8 @@ export default function ARScan() {
     "Riko đang tìm trang sách"
   const cameraStatus = trackedPageLabel
     ? `Đã nhận ${trackedPageLabel}`
+    : starting
+      ? "Đang kết nối camera và chuẩn bị nhận diện 54 trang…"
     : trackerStatus === "loading"
       ? "Đang nạp mục tiêu ảnh của 54 trang…"
       : modelStatus === "unavailable"
