@@ -3,6 +3,11 @@ import { loadAndCompile, loadLiteRt, Tensor, type CompiledModel } from "@litertj
 const MODEL_URL = `${import.meta.env.BASE_URL}models/riko-ar-detector.tflite`
 const WASM_URL = `${import.meta.env.BASE_URL}litert/wasm/`
 const IMAGE_SIZE = 320
+const EXPOSURE_TARGET_LUMINANCE = 205
+const DARK_FRAME_LUMINANCE = 85
+const BRIGHT_FRAME_LUMINANCE = 235
+const MAX_BRIGHTENING_GAIN = 4.5
+const MIN_DARKENING_GAIN = 0.65
 
 export type ARDetection = {
   classId: number
@@ -93,16 +98,31 @@ function prepareInput(
   }
   const { data } = context.getImageData(0, 0, width, height)
   const pixels = width * height
+  let luminanceSum = 0
+  for (let y = offsetY; y < offsetY + drawnHeight; y += 1) {
+    for (let x = offsetX; x < offsetX + drawnWidth; x += 1) {
+      const source = (y * width + x) * 4
+      luminanceSum += data[source] * 0.2126 + data[source + 1] * 0.7152 + data[source + 2] * 0.0722
+    }
+  }
+  // Ignore letterbox bars so exposure correction reflects the actual camera frame.
+  const meanLuminance = luminanceSum / (drawnWidth * drawnHeight)
+  const exposureGain = getExposureGain(meanLuminance)
+  const normalizeChannel = (value: number, inCameraFrame: boolean) =>
+    (inCameraFrame && exposureGain !== 1 ? Math.min(255, value * exposureGain) : value) / 255
   for (let source = 0, target = 0; source < data.length; source += 4) {
+    const pixel = source / 4
+    const x = pixel % width
+    const y = Math.floor(pixel / width)
+    const inCameraFrame = x >= offsetX && x < offsetX + drawnWidth && y >= offsetY && y < offsetY + drawnHeight
     if (channelsFirst) {
-      const pixel = source / 4
-      values[pixel] = data[source] / 255
-      values[pixels + pixel] = data[source + 1] / 255
-      values[pixels * 2 + pixel] = data[source + 2] / 255
+      values[pixel] = normalizeChannel(data[source], inCameraFrame)
+      values[pixels + pixel] = normalizeChannel(data[source + 1], inCameraFrame)
+      values[pixels * 2 + pixel] = normalizeChannel(data[source + 2], inCameraFrame)
     } else {
-      values[target++] = data[source] / 255
-      values[target++] = data[source + 1] / 255
-      values[target++] = data[source + 2] / 255
+      values[target++] = normalizeChannel(data[source], inCameraFrame)
+      values[target++] = normalizeChannel(data[source + 1], inCameraFrame)
+      values[target++] = normalizeChannel(data[source + 2], inCameraFrame)
     }
   }
   const shape = channelsFirst
@@ -123,6 +143,16 @@ function prepareInput(
 
 function sigmoid(value: number) {
   return 1 / (1 + Math.exp(-value))
+}
+
+function getExposureGain(meanLuminance: number) {
+  if (meanLuminance < DARK_FRAME_LUMINANCE) {
+    return Math.min(MAX_BRIGHTENING_GAIN, EXPOSURE_TARGET_LUMINANCE / Math.max(1, meanLuminance))
+  }
+  if (meanLuminance > BRIGHT_FRAME_LUMINANCE) {
+    return Math.max(MIN_DARKENING_GAIN, EXPOSURE_TARGET_LUMINANCE / meanLuminance)
+  }
+  return 1
 }
 
 function overlap(a: ARDetection["box"], b: ARDetection["box"]) {
