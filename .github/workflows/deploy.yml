@@ -63,6 +63,9 @@ jobs:
           }
           NODE
 
+      - name: Verify AR QR routing and fallback timing
+        run: node scripts/ar/verify_scan_logic.mjs
+
       - name: Verify Cloudflare token and Pages access
         if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
         env:
