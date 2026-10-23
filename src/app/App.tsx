@@ -575,24 +575,35 @@ function Header() {
     ["Sách", "/book"],
     ["Khám phá", "/preview"],
     ["Quiz", "/quizzes"],
+    ["Trải nghiệm AR", "/scan"],
     ["Về Riko", "/about"],
   ]
   return (
     <header className="sticky top-0 z-30 border-b border-border/60 bg-background/95">
       <div className="mx-auto flex h-23 max-w-[1240px] items-center justify-between px-6 lg:px-10">
         <Logo />
-        <nav className="hidden items-center gap-6 lg:flex">
+        <nav className="hidden items-center gap-3 lg:flex xl:gap-5">
           {links.map(([label, path]) => (
             <Link
               key={path}
               to={path}
               viewTransition={enabled}
-              className={`relative py-3 text-base font-semibold text-primary hover:text-[#1D80C4] ${
-                location.pathname === path
-                  ? "after:absolute after:bottom-0 after:left-1/2 after:h-1 after:w-1 after:rounded-full after:bg-[#F15A3E]"
-                  : ""
-              }`}
+              aria-current={location.pathname === path ? "page" : undefined}
+              className={
+                path === "/scan"
+                  ? `inline-flex shrink-0 items-center gap-2 rounded-full bg-[#F15A3E] px-3 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-[#D94B33] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#374BA0] xl:px-4 ${
+                      location.pathname === path
+                        ? "ring-2 ring-[#FBAF37] ring-offset-2"
+                        : ""
+                    }`
+                  : `relative shrink-0 py-3 text-sm font-semibold text-primary hover:text-[#1D80C4] xl:text-base ${
+                      location.pathname === path
+                        ? "after:absolute after:bottom-0 after:left-1/2 after:h-1 after:w-1 after:rounded-full after:bg-[#F15A3E]"
+                        : ""
+                    }`
+              }
             >
+              {path === "/scan" && <ScanLine size={17} aria-hidden="true" />}
               {label}
             </Link>
           ))}
@@ -631,7 +642,17 @@ function Header() {
       {open && (
         <nav className="absolute inset-x-0 top-full flex flex-col gap-4 border-b border-border bg-background p-6 shadow-lg">
           {links.map(([label, path]) => (
-            <Link key={path} to={path}>
+            <Link
+              key={path}
+              to={path}
+              aria-current={location.pathname === path ? "page" : undefined}
+              className={
+                path === "/scan"
+                  ? "inline-flex w-fit items-center gap-2 rounded-full bg-[#F15A3E] px-4 py-3 font-bold text-white shadow-sm transition hover:bg-[#D94B33] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#374BA0]"
+                  : "font-semibold text-primary hover:text-[#1D80C4]"
+              }
+            >
+              {path === "/scan" && <ScanLine size={18} aria-hidden="true" />}
               {label}
             </Link>
           ))}
