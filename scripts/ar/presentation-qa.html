@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="vi">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body>
+  <div id="root"></div>
+  <script type="module">
+    // Dev-only replay harness. The application and tracker are the real ones;
+    // getUserMedia receives a synthetic stream, not a physical camera.
+    import slotsData from "/src/data/bookVideoSlots.json"
+    const qaUrl = location.href
+    const params = new URLSearchParams(location.search)
+    const packed = params.has("packed")
+    const firstPage = params.get("page") || "book-c1-p03"
+    if (packed) Object.defineProperty(navigator, "userAgent", {value:"Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 Version/18.0 Mobile/15E148 Safari/604.1"})
+    const canvas = document.createElement("canvas")
+    canvas.width = 960
+    canvas.height = 720
+    const context = canvas.getContext("2d")
+    const prepared = document.createElement("canvas")
+    prepared.width = canvas.width
+    prepared.height = canvas.height
+    const paint = prepared.getContext("2d")
+    const stream = canvas.captureStream(24)
+    Object.defineProperty(navigator.mediaDevices, "getUserMedia", {configurable:true,value:async()=>stream})
+    let image, tilted = false, rotation = 0, blankUntil = 0
+    const panel = document.createElement("div")
+    panel.style.cssText = "position:fixed;right:8px;top:82px;z-index:1000;background:#071320dd;color:white;padding:8px;border-radius:8px;font:11px system-ui;max-width:240px"
+    panel.innerHTML = `<strong>CAMERA GIẢ · ${packed ? "PACKED ALPHA" : "WEBM ALPHA"}</strong><br><label>Trang test <select id="qa-page" style="color:black;width:100%">${slotsData.slots.map(slot=>`<option value="${slot.id}">${slot.label}</option>`).join("")}</select></label><br><button id="qa-tilt">Nghiêng sách</button> <button id="qa-rotate">Xoay 90°</button> <button id="qa-cover">Che 300ms</button><output id="qa-media" style="display:block;word-break:break-all"></output>`
+    document.body.append(panel)
+    // Affine triangles tessellate a projective page pose for the tracker.
+    function drawTriangle(source, target) {
+      const [a,b,c] = source, [p,q,r] = target
+      const den = a[0]*(b[1]-c[1])+b[0]*(c[1]-a[1])+c[0]*(a[1]-b[1])
+      const solve = values => [
+        (values[0]*(b[1]-c[1])+values[1]*(c[1]-a[1])+values[2]*(a[1]-b[1]))/den,
+        (values[0]*(c[0]-b[0])+values[1]*(a[0]-c[0])+values[2]*(b[0]-a[0]))/den,
+        (values[0]*(b[0]*c[1]-c[0]*b[1])+values[1]*(c[0]*a[1]-a[0]*c[1])+values[2]*(a[0]*b[1]-b[0]*a[1]))/den,
+      ]
+      const x=solve([p[0],q[0],r[0]]),y=solve([p[1],q[1],r[1]])
+      paint.save();paint.beginPath();paint.moveTo(...p);paint.lineTo(...q);paint.lineTo(...r);paint.closePath();paint.clip()
+      paint.transform(x[0],y[0],x[1],y[1],x[2],y[2]);paint.drawImage(image,0,0);paint.restore()
+    }
+    function prepare() {
+      paint.fillStyle = "#bba68e";paint.fillRect(0,0,960,720)
+      paint.save();paint.translate(480,365);paint.rotate(rotation*Math.PI/180)
+      const h = 600, w = h*image.width/image.height
+      if (!tilted) paint.drawImage(image,-w/2,-h/2,w,h)
+      else {
+        const quad=[[-w*.52,-h*.43],[w*.4,-h*.32],[w*.53,h*.44],[-w*.45,h*.53]]
+        const [p0,p1,p2,p3]=quad
+        const dx1=p1[0]-p2[0],dx2=p3[0]-p2[0],dx3=p0[0]-p1[0]+p2[0]-p3[0]
+        const dy1=p1[1]-p2[1],dy2=p3[1]-p2[1],dy3=p0[1]-p1[1]+p2[1]-p3[1]
+        const determinant=dx1*dy2-dx2*dy1,g=(dx3*dy2-dx2*dy3)/determinant,k=(dx1*dy3-dx3*dy1)/determinant
+        const a=p1[0]-p0[0]+g*p1[0],b=p3[0]-p0[0]+k*p3[0],d=p1[1]-p0[1]+g*p1[1],e=p3[1]-p0[1]+k*p3[1]
+        const point=(u,v)=>[(a*u+b*v+p0[0])/(g*u+k*v+1),(d*u+e*v+p0[1])/(g*u+k*v+1)]
+        const n=8
+        for(let y=0;y<n;y++)for(let x=0;x<n;x++){
+          const u=x/n,v=y/n,U=(x+1)/n,V=(y+1)/n
+          const src=[[u*image.width,v*image.height],[U*image.width,v*image.height],[U*image.width,V*image.height],[u*image.width,V*image.height]]
+          const dst=[point(u,v),point(U,v),point(U,V),point(u,V)]
+          drawTriangle([src[0],src[1],src[2]],[dst[0],dst[1],dst[2]])
+          drawTriangle([src[0],src[2],src[3]],[dst[0],dst[2],dst[3]])
+        }
+      }
+      paint.restore()
+    }
+    async function loadPage(id) {
+      image = new Image();image.src=`/tmp/ar-targets/pages/${id}.jpg`;await image.decode();prepare()
+    }
+    const select = panel.querySelector("#qa-page")
+    select.value=firstPage
+    select.onchange=()=>{blankUntil=performance.now()+1600;void loadPage(select.value)}
+    panel.querySelector("#qa-tilt").onclick=()=>{tilted=!tilted;prepare()}
+    panel.querySelector("#qa-rotate").onclick=()=>{rotation=(rotation+90)%360;prepare()}
+    panel.querySelector("#qa-cover").onclick=()=>{blankUntil=performance.now()+300}
+    await loadPage(firstPage)
+    function frame() {
+      if(performance.now()<blankUntil){context.fillStyle="#bba68e";context.fillRect(0,0,960,720)}
+      else context.drawImage(prepared,0,0)
+      requestAnimationFrame(frame)
+    }
+    frame()
+    history.replaceState(null,"",`/scan?qa=${packed?"packed":"native"}`)
+    await import("/src/main.tsx")
+    // Keep reloads inside this explicit test harness after Vite updates.
+    history.replaceState(null,"",qaUrl)
+    setInterval(()=>{
+      const active=[...document.querySelectorAll("video")].find(video=>video.src.includes("/videos/ar/")&&!video.paused)
+      panel.querySelector("#qa-media").textContent=active?`${new URL(active.src).pathname} · ${active.videoWidth}×${active.videoHeight} · ${active.currentTime.toFixed(2)}s`:"Đang chờ phát video"
+    },250)
+  </script>
+</body>
+</html>

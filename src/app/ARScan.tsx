@@ -3,6 +3,8 @@ import {
   ArrowLeft,
   Camera,
   Flashlight,
+  Minus,
+  Plus,
   RotateCcw,
   Volume2,
   VolumeX,
@@ -14,6 +16,7 @@ import type {
   Group,
   Mesh,
   MeshBasicMaterial,
+  Matrix4,
   Scene,
   Texture,
   WebGLRenderer,
@@ -22,9 +25,17 @@ import jsQR from "jsqr"
 import bookVideoManifest from "../data/bookVideoSlots.json"
 import arTargetManifest from "../data/arTargets.json"
 import mindArTargetManifest from "../data/arPageTargets.json"
+import videoPresentations from "../data/arVideoPresentation.json"
 import { detectBookTarget, type ARDetection } from "../lib/arDetector"
 import { getCoverRect } from "../lib/arScanGeometry"
 import { resolveSlotFromLabel, routeSlotFromQR } from "../lib/arScanLogic.js"
+import {
+  DEFAULT_VIDEO_PRESENTATION,
+  getBillboardBasis,
+  getPresentationLayout,
+  type PresentationLayout,
+  type VideoPresentation,
+} from "../lib/arPresentation.js"
 
 type BookSlot = typeof bookVideoManifest.slots[number] & {
   arTargetId?: string | null
@@ -54,6 +65,7 @@ type VideoAsset = {
 }
 type MindARAnchor = {
   group: Group
+  visible: boolean
   onTargetFound: (() => void) | null
   onTargetLost: (() => void) | null
 }
@@ -72,6 +84,10 @@ type PlaneRecord = {
   mesh: Mesh
   slot: BookSlot
   target: MindARPageTarget
+  shadow: Mesh
+  layout: PresentationLayout
+  enteredAt: number
+  lastPose: Matrix4
 }
 type SpatialMedia = {
   video: HTMLVideoElement
@@ -80,9 +96,16 @@ type SpatialMedia = {
   texture: Texture
   colorTexture: Texture
   maskTexture: Texture
+  packedMaskTexture: Texture
   material: MeshBasicMaterial
+  shadowMaterial: MeshBasicMaterial
+  shadowTexture: Texture
+  nativeFrame: HTMLDivElement
+  profile: VideoPresentation
   currentVideo: HTMLVideoElement | null
   fallbackActive: boolean
+  packedActive: boolean
+  ready: boolean
   nativeOverlayActive: boolean
   nativeOverlayPositioned: boolean
   lastTextureTime: number
@@ -104,7 +127,6 @@ const detectionConfidence = (classId: number) => {
     : arTargetManifest.minimumConfidenceByType.page
 }
 const CAMERA_START_TIMEOUT_MS = 15_000
-const TRACKED_VIDEO_SCALE = 1.35
 const TARGET_LOST_GRACE_MS = 650
 
 function cameraErrorMessage(error: unknown) {
@@ -332,6 +354,7 @@ export default function ARScan() {
   const qrFallbackRef = useRef<string | null>(null)
   const dismissedSlotRef = useRef<string | null>(null)
   const spatialPlayRequestRef = useRef(0)
+  const presentationScaleRef = useRef(1)
   const selectionRef = useRef<Selection | null>(null)
   const videoManifestRef = useRef<Promise<VideoAsset[]> | null>(null)
   const [cameraOn, setCameraOn] = useState(false)
@@ -350,6 +373,7 @@ export default function ARScan() {
   const [boxStyle, setBoxStyle] = useState<CSSProperties | undefined>()
   const [soundOn, setSoundOn] = useState(false)
   const [scannedQR, setScannedQR] = useState("")
+  const [presentationScale, setPresentationScale] = useState(1)
 
   const selectedTarget = useMemo(() => {
     if (!selection?.slot.arTargetId) return null
@@ -393,27 +417,34 @@ export default function ARScan() {
   }
 
   function resizePlane(record: PlaneRecord, aspect: number) {
-    const { left, top, right, bottom } = record.target.overlayBox
-    const { width: targetWidth, height: targetHeight } =
-      record.target.targetSize
-    // MindAR's post matrix scales every image target to one world unit wide.
-    // targetSize is in source-image pixels, so only its aspect ratio belongs
-    // in anchor-local coordinates.
-    const normalizedTargetHeight = targetHeight / targetWidth
-    const maxWidth = Math.max(0.001, right - left)
-    const maxHeight = Math.max(0.001, (bottom - top) * normalizedTargetHeight)
-    let width = maxWidth
-    let height = maxHeight
-    if (width / height > aspect) width = height * aspect
-    else height = width / aspect
-    width *= TRACKED_VIDEO_SCALE
-    height *= TRACKED_VIDEO_SCALE
-    record.mesh.scale.set(width, height, 1)
-    record.mesh.position.set(
-      (left + right) / 2 - 0.5,
-      (0.5 - (top + bottom) / 2) * normalizedTargetHeight,
-      0.012,
+    const profile = spatialRef.current?.profile || DEFAULT_VIDEO_PRESENTATION
+    record.layout = getPresentationLayout(
+      record.target,
+      profile,
+      aspect,
+      presentationScaleRef.current,
     )
+    const { width, height, baseX, baseY, shadowWidth, shadowDepth, crop } = record.layout
+    record.mesh.scale.set(width, height, 1)
+    const uv = record.mesh.geometry.attributes.uv
+    uv.setXY(0, crop.left, 1 - crop.top)
+    uv.setXY(1, crop.right, 1 - crop.top)
+    uv.setXY(2, crop.left, 1 - crop.bottom)
+    uv.setXY(3, crop.right, 1 - crop.bottom)
+    uv.needsUpdate = true
+    record.shadow.position.set(baseX, baseY, 0.003)
+    record.shadow.scale.set(shadowWidth, shadowDepth, 1)
+  }
+
+  function changePresentationScale(delta: number) {
+    const next = Math.min(1.75, Math.max(0.75, presentationScaleRef.current + delta))
+    presentationScaleRef.current = next
+    setPresentationScale(next)
+    const media = spatialRef.current
+    const video = media?.currentVideo
+    if (!media || !video?.videoWidth || !video.videoHeight) return
+    const aspect = video.videoWidth / video.videoHeight / (media.packedActive ? 2 : 1)
+    for (const record of planeRecordsRef.current) resizePlane(record, aspect)
   }
 
   function hideNativeVideoOverlay(
@@ -423,8 +454,8 @@ export default function ARScan() {
     if (!media) return
     if (deactivate) media.nativeOverlayActive = false
     media.nativeOverlayPositioned = false
-    media.video.style.opacity = "0"
-    media.video.style.transform = "translate3d(-10000px, -10000px, 0)"
+    media.nativeFrame.style.opacity = "0"
+    media.nativeFrame.style.transform = "translate3d(-10000px, -10000px, 0)"
   }
 
   function positionNativeVideoOverlay(
@@ -454,31 +485,14 @@ export default function ARScan() {
     )
       return hideNativeVideoOverlay(media, false)
 
-    const { left, top, right, bottom } = record.target.overlayBox
-    const { width: targetWidth, height: targetHeight } = record.target.targetSize
-    const normalizedTargetHeight = targetHeight / targetWidth
-    const maxWidth = Math.max(0.001, right - left)
-    const maxHeight = Math.max(
-      0.001,
-      (bottom - top) * normalizedTargetHeight,
-    )
-    const aspect = video.videoWidth / video.videoHeight
-    let width = maxWidth
-    let height = maxHeight
-    if (width / height > aspect) width = height * aspect
-    else height = width / aspect
-    width *= TRACKED_VIDEO_SCALE
-    height *= TRACKED_VIDEO_SCALE
-    const centerX = (left + right) / 2 - 0.5
-    const centerY = (0.5 - (top + bottom) / 2) * normalizedTargetHeight
     const corners = [
-      [centerX - width / 2, centerY + height / 2],
-      [centerX + width / 2, centerY + height / 2],
-      [centerX + width / 2, centerY - height / 2],
-      [centerX - width / 2, centerY - height / 2],
+      [-0.5, 0.5],
+      [0.5, 0.5],
+      [0.5, -0.5],
+      [-0.5, -0.5],
     ].map(([x, y]) => {
-      const point = new THREE.Vector3(x, y, 0.012)
-        .applyMatrix4(record.anchor.group.matrixWorld)
+      const point = new THREE.Vector3(x, y, 0)
+        .applyMatrix4(record.mesh.matrixWorld)
         .project(tracker.camera)
       return {
         x: viewport.left + ((point.x + 1) / 2) * viewport.width - overlayRect.left,
@@ -498,8 +512,7 @@ export default function ARScan() {
     )
       return hideNativeVideoOverlay(media, false)
 
-    // Map the native video rectangle to the projected page quadrilateral.
-    // This keeps its corners attached while the book is tilted or rotated.
+    // Native alpha and the WebGL fallback use the exact same upright geometry.
     const [p0, p1, p2, p3] = corners
     const dx1 = p1.x - p2.x
     const dx2 = p3.x - p2.x
@@ -518,8 +531,9 @@ export default function ARScan() {
     const d = p1.y - p0.y + g * p1.y
     const e = p3.y - p0.y + h * p3.y
     const f = p0.y
-    const sourceWidth = video.videoWidth
-    const sourceHeight = video.videoHeight
+    const crop = record.layout.crop
+    const sourceWidth = video.videoWidth * (crop.right - crop.left)
+    const sourceHeight = video.videoHeight * (crop.bottom - crop.top)
     const coefficients = [
       a / sourceWidth,
       d / sourceWidth,
@@ -535,10 +549,15 @@ export default function ARScan() {
     const transform = `matrix3d(${coefficients[0]},${coefficients[1]},0,${coefficients[2]},${coefficients[3]},${coefficients[4]},0,${coefficients[5]},0,0,1,0,${coefficients[6]},${coefficients[7]},0,1)`
     const videoWidth = `${sourceWidth}px`
     const videoHeight = `${sourceHeight}px`
-    if (video.style.transform !== transform) video.style.transform = transform
-    if (video.style.width !== videoWidth) video.style.width = videoWidth
-    if (video.style.height !== videoHeight) video.style.height = videoHeight
-    if (video.style.opacity !== "1") video.style.opacity = "1"
+    const nativeFrame = media.nativeFrame
+    if (nativeFrame.style.transform !== transform) nativeFrame.style.transform = transform
+    if (nativeFrame.style.width !== videoWidth) nativeFrame.style.width = videoWidth
+    if (nativeFrame.style.height !== videoHeight) nativeFrame.style.height = videoHeight
+    video.style.width = `${video.videoWidth}px`
+    video.style.height = `${video.videoHeight}px`
+    video.style.left = `${-crop.left * video.videoWidth}px`
+    video.style.top = `${-crop.top * video.videoHeight}px`
+    nativeFrame.style.opacity = String(media.material.opacity)
     media.nativeOverlayPositioned = true
   }
 
@@ -546,6 +565,7 @@ export default function ARScan() {
     const media = spatialRef.current
     if (!media || !slot.arVideoUrl) return
     const requestId = ++spatialPlayRequestRef.current
+    media.ready = false
     const isCurrentRequest = () =>
       spatialRef.current === media &&
       spatialPlayRequestRef.current === requestId &&
@@ -553,6 +573,7 @@ export default function ARScan() {
     setError("")
     const asset = await findVideoAsset(slot)
     if (!isCurrentRequest()) return
+    media.profile = (videoPresentations as Record<string, VideoPresentation>)[asset.id] || DEFAULT_VIDEO_PRESENTATION
     setSelectedAsset(asset)
     hideNativeVideoOverlay(media)
     const safari = isSafariOrIOS()
@@ -560,6 +581,7 @@ export default function ARScan() {
       asset.alpha && asset.alphaColorUrl && asset.alphaMaskUrl,
     )
     media.fallbackActive = Boolean(hasSplitAlpha && safari)
+    media.packedActive = false
     media.video.pause()
     media.colorVideo.pause()
     media.maskVideo.pause()
@@ -594,6 +616,8 @@ export default function ARScan() {
       const colorUrl = asset.alphaColorUrl!
       const maskUrl = asset.alphaMaskUrl!
       media.fallbackActive = true
+      media.packedActive = false
+      media.colorTexture.repeat.set(1, 1)
       media.material.map = media.colorTexture
       media.material.alphaMap = media.maskTexture
       media.material.transparent = true
@@ -603,12 +627,31 @@ export default function ARScan() {
         playTexture(media.maskVideo, media.maskTexture, maskUrl),
       ])
     }
+    const playCompatibleAlpha = async () => {
+      const packed = media.profile.packedVideoUrl
+      if (!packed) return playSplitAlpha()
+      try {
+        media.fallbackActive = true
+        media.packedActive = true
+        media.colorTexture.repeat.set(0.5, 1)
+        media.material.map = media.colorTexture
+        media.material.alphaMap = media.packedMaskTexture
+        media.material.transparent = true
+        media.currentVideo = media.colorVideo
+        await playTexture(media.colorVideo, media.colorTexture, packed)
+        media.packedMaskTexture.needsUpdate = true
+      } catch (error) {
+        console.warn("Packed alpha could not play; trying separate matte streams.", error)
+        await playSplitAlpha()
+      }
+    }
     const playNative = async () => {
       const source = asset.alpha && asset.alphaVideoUrl
         ? asset.alphaVideoUrl
         : asset.url
       if (!source) throw new Error("Thiếu đường dẫn video AR.")
       media.fallbackActive = false
+      media.packedActive = false
       media.material.map = media.texture
       media.material.alphaMap = null
       media.material.transparent = Boolean(asset.alpha)
@@ -619,12 +662,12 @@ export default function ARScan() {
           "Browser decoded the AR WebM without transparency; switching to the color/matte fallback.",
         )
         media.video.pause()
-        await playSplitAlpha()
+        await playCompatibleAlpha()
       }
     }
 
     try {
-      if (media.fallbackActive) await playSplitAlpha()
+      if (media.fallbackActive) await playCompatibleAlpha()
       else await playNative()
     } catch (playError) {
       if (!isCurrentRequest()) return
@@ -633,7 +676,7 @@ export default function ARScan() {
       media.colorVideo.pause()
       media.maskVideo.pause()
       try {
-        if (hasSplitAlpha && !media.fallbackActive) await playSplitAlpha()
+        if (hasSplitAlpha && !media.fallbackActive) await playCompatibleAlpha()
         else if (hasSplitAlpha && safari) await playNative()
         else throw playError
       } catch (fallbackError) {
@@ -645,6 +688,9 @@ export default function ARScan() {
     }
     if (!isCurrentRequest()) return
     media.material.needsUpdate = true
+    media.ready = true
+    const activeRecord = planeRecordsRef.current.find((record) => record.slot.id === slot.id)
+    if (activeRecord) activeRecord.enteredAt = performance.now()
     media.nativeOverlayActive =
       !media.fallbackActive && media.currentVideo === media.video
     if (!media.nativeOverlayActive) hideNativeVideoOverlay(media)
@@ -652,7 +698,7 @@ export default function ARScan() {
     const resize = () => {
       const ratio =
         activeVideo?.videoWidth && activeVideo.videoHeight
-          ? activeVideo.videoWidth / activeVideo.videoHeight
+          ? activeVideo.videoWidth / activeVideo.videoHeight / (media.packedActive ? 2 : 1)
           : slot.arVideoUrl.endsWith("/RIKO.webm")
             ? 9 / 16
             : 16 / 9
@@ -672,6 +718,7 @@ export default function ARScan() {
     const texture = new THREE.VideoTexture(video)
     const colorTexture = new THREE.VideoTexture(colorVideo)
     const maskTexture = new THREE.VideoTexture(maskVideo)
+    const packedMaskTexture = new THREE.VideoTexture(colorVideo)
     for (const item of [texture, colorTexture]) {
       item.colorSpace = THREE.SRGBColorSpace
       item.minFilter = THREE.LinearFilter
@@ -682,13 +729,54 @@ export default function ARScan() {
     maskTexture.minFilter = THREE.LinearFilter
     maskTexture.magFilter = THREE.LinearFilter
     maskTexture.generateMipmaps = false
+    packedMaskTexture.colorSpace = THREE.NoColorSpace
+    packedMaskTexture.minFilter = THREE.LinearFilter
+    packedMaskTexture.magFilter = THREE.LinearFilter
+    packedMaskTexture.generateMipmaps = false
+    packedMaskTexture.repeat.set(0.5, 1)
+    packedMaskTexture.offset.set(0.5, 0)
     const material = new THREE.MeshBasicMaterial({
       map: texture,
       transparent: true,
       side: THREE.DoubleSide,
       depthWrite: false,
+      depthTest: false,
       toneMapped: false,
+      forceSinglePass: true,
     })
+    const shadowCanvas = document.createElement("canvas")
+    shadowCanvas.width = 128
+    shadowCanvas.height = 128
+    const shadowContext = shadowCanvas.getContext("2d")!
+    const gradient = shadowContext.createRadialGradient(64, 64, 2, 64, 64, 64)
+    gradient.addColorStop(0, "rgba(13,18,25,0.64)")
+    gradient.addColorStop(0.35, "rgba(13,18,25,0.3)")
+    gradient.addColorStop(1, "rgba(13,18,25,0)")
+    shadowContext.fillStyle = gradient
+    shadowContext.fillRect(0, 0, 128, 128)
+    const shadowTexture = new THREE.CanvasTexture(shadowCanvas)
+    const shadowMaterial = new THREE.MeshBasicMaterial({
+      map: shadowTexture,
+      transparent: true,
+      opacity: 0.65,
+      depthWrite: false,
+      depthTest: false,
+      side: THREE.DoubleSide,
+      toneMapped: false,
+      forceSinglePass: true,
+    })
+    const nativeFrame = document.createElement("div")
+    nativeFrame.dataset.arVideoSurface = "upright"
+    Object.assign(nativeFrame.style, {
+      position: "absolute",
+      left: "0",
+      top: "0",
+      transformOrigin: "0 0",
+      overflow: "hidden",
+      opacity: "0",
+      willChange: "transform",
+    })
+    videoOverlayRef.current?.append(nativeFrame)
     const media: SpatialMedia = {
       video,
       colorVideo,
@@ -696,9 +784,16 @@ export default function ARScan() {
       texture,
       colorTexture,
       maskTexture,
+      packedMaskTexture,
       material,
+      shadowMaterial,
+      shadowTexture,
+      nativeFrame,
+      profile: DEFAULT_VIDEO_PRESENTATION,
       currentVideo: null,
       fallbackActive: false,
+      packedActive: false,
+      ready: false,
       nativeOverlayActive: false,
       nativeOverlayPositioned: false,
       lastTextureTime: -1,
@@ -734,10 +829,10 @@ export default function ARScan() {
           height: "1px",
           transformOrigin: "0 0",
           objectFit: "fill",
-          willChange: "transform",
+          opacity: "1",
           zIndex: "1",
         })
-        videoOverlayRef.current?.append(element)
+        nativeFrame.append(element)
       } else {
         cameraLayerRef.current?.append(element)
       }
@@ -751,17 +846,25 @@ export default function ARScan() {
       const anchor = tracker.addAnchor(target.index)
       const geometry = new THREE.PlaneGeometry(1, 1)
       const mesh = new THREE.Mesh(geometry, material)
+      mesh.frustumCulled = false
       mesh.renderOrder = 5
-      mesh.visible = true
-      const record = { anchor, mesh, slot, target }
+      mesh.visible = false
+      const shadow = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), shadowMaterial)
+      shadow.renderOrder = 4
+      shadow.visible = false
+      const record: PlaneRecord = {
+        anchor, mesh, shadow, slot, target, enteredAt: 0, lastPose: new THREE.Matrix4(),
+        layout: getPresentationLayout(target, DEFAULT_VIDEO_PRESENTATION, 16 / 9),
+      }
       resizePlane(
         record,
         slot.arVideoUrl.endsWith("/RIKO.webm") ? 9 / 16 : 16 / 9,
       )
-      anchor.group.add(mesh)
+      anchor.group.add(shadow, mesh)
       records.push(record)
 
       anchor.onTargetFound = () => {
+        record.lastPose.copy(anchor.group.matrix)
         const previous = activePageSlotRef.current
         if (targetLostTimeoutRef.current !== null) {
           window.clearTimeout(targetLostTimeoutRef.current)
@@ -778,7 +881,10 @@ export default function ARScan() {
           chooseSelection({ slot, box: null, source: "page" })
           // Keep playback continuous when MindAR reacquires the same page
           // during the brief lost-target grace period.
-          if (previous?.id !== slot.id) void showSpatialVideo(slot)
+        if (previous?.id !== slot.id) {
+          record.enteredAt = performance.now()
+          void showSpatialVideo(slot)
+        }
         }
       }
       anchor.onTargetLost = () => {
@@ -808,11 +914,88 @@ export default function ARScan() {
     tracker.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5))
     tracker.renderer.setClearColor(0x000000, 0)
     tracker.renderer.setClearAlpha(0)
+    const localCamera = new THREE.Vector3()
+    const localScreenUp = new THREE.Vector3()
+    const inverseAnchor = new THREE.Matrix4()
+    const rightAxis = new THREE.Vector3()
+    const upAxis = new THREE.Vector3()
+    const normalAxis = new THREE.Vector3()
+    const rotationMatrix = new THREE.Matrix4()
+    const projectedPoint = new THREE.Vector3()
+    const projectedFoot = new THREE.Vector3()
     tracker.renderer.setAnimationLoop(() => {
       const active = activePageSlotRef.current?.id
       for (const record of records) {
+        if (record.anchor.visible) record.lastPose.copy(record.anchor.group.matrix)
         const isActive =
-          record.slot.id === active && dismissedSlotRef.current !== active
+          record.slot.id === active && dismissedSlotRef.current !== active && media.ready
+        record.shadow.visible = isActive && media.profile.grounded
+        if (isActive) {
+          // Hold the last stable anchor through brief tracking gaps instead of blinking.
+          if (!record.anchor.visible && targetLostTimeoutRef.current !== null) {
+            record.anchor.group.matrix = record.lastPose
+            record.anchor.group.matrixWorldNeedsUpdate = true
+          }
+          record.anchor.group.visible = true
+          record.anchor.group.updateWorldMatrix(true, false)
+          tracker.camera.getWorldPosition(localCamera)
+          record.anchor.group.worldToLocal(localCamera)
+          localScreenUp.set(0, 1, 0).transformDirection(tracker.camera.matrixWorld)
+            .transformDirection(inverseAnchor.copy(record.anchor.group.matrixWorld).invert())
+          const layout = record.layout
+          const basis = getBillboardBasis(
+            localCamera.x - layout.baseX,
+            localCamera.y - layout.baseY,
+            localCamera.z - layout.lift,
+            localScreenUp.toArray(),
+          )
+          rightAxis.fromArray(basis.right)
+          upAxis.fromArray(basis.up)
+          normalAxis.fromArray(basis.normal)
+          rotationMatrix.makeBasis(rightAxis, upAxis, normalAxis)
+          record.mesh.quaternion.setFromRotationMatrix(rotationMatrix)
+          const progress = Math.min(1, (performance.now() - record.enteredAt) / 260)
+          const reveal = 1 - Math.pow(1 - progress, 3)
+          const entryScale = 0.94 + reveal * 0.06
+          let width = layout.width * entryScale
+          let height = layout.height * entryScale
+          const place = () => {
+            record.mesh.scale.set(width, height, 1)
+            record.mesh.position.set(layout.baseX, layout.baseY, layout.lift)
+              .addScaledVector(upAxis, height / 2)
+            record.mesh.updateWorldMatrix(true, false)
+          }
+          place()
+          const viewport = tracker.renderer.domElement.getBoundingClientRect()
+          const frame = frameRef.current?.getBoundingClientRect()
+          let fit = 1
+          if (frame && viewport.width > 0 && frame.width > 0) {
+            projectedFoot.set(layout.baseX, layout.baseY, layout.lift)
+              .applyMatrix4(record.anchor.group.matrixWorld).project(tracker.camera)
+            const footX = viewport.left + (projectedFoot.x + 1) * viewport.width / 2 - frame.left
+            const footY = viewport.top + (1 - projectedFoot.y) * viewport.height / 2 - frame.top
+            for (const [x, y] of [[-0.5, 0.5], [0.5, 0.5], [-0.5, -0.5], [0.5, -0.5]]) {
+              projectedPoint.set(x, y, 0).applyMatrix4(record.mesh.matrixWorld).project(tracker.camera)
+              const px = viewport.left + (projectedPoint.x + 1) * viewport.width / 2 - frame.left
+              const py = viewport.top + (1 - projectedPoint.y) * viewport.height / 2 - frame.top
+              const dx = px - footX
+              const dy = py - footY
+              if (dx > 1 && footX < frame.width * 0.96) fit = Math.min(fit, (frame.width * 0.96 - footX) / dx)
+              if (dx < -1 && footX > frame.width * 0.04) fit = Math.min(fit, (frame.width * 0.04 - footX) / dx)
+              if (dy < -1 && footY > frame.height * 0.14) fit = Math.min(fit, (frame.height * 0.14 - footY) / dy)
+              if (dy > 1 && footY < frame.height * 0.86) fit = Math.min(fit, (frame.height * 0.86 - footY) / dy)
+            }
+          }
+          fit = Math.max(0.25, fit)
+          if (fit < 1) {
+            width *= fit
+            height *= fit
+            place()
+          }
+          record.shadow.scale.set(layout.shadowWidth * fit, layout.shadowDepth * fit, 1)
+          media.material.opacity = reveal
+          media.shadowMaterial.opacity = reveal * 0.65
+        }
         if (isActive && media.nativeOverlayActive && !media.fallbackActive) {
           record.anchor.group.updateWorldMatrix(true, false)
           tracker.camera.updateWorldMatrix(true, false)
@@ -831,6 +1014,7 @@ export default function ARScan() {
         hideNativeVideoOverlay(media, false)
       if (
         media.fallbackActive &&
+        !media.packedActive &&
         media.currentVideo &&
         media.maskVideo.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA
       ) {
@@ -851,7 +1035,8 @@ export default function ARScan() {
       ) {
         if (media.fallbackActive) {
           media.colorTexture.needsUpdate = true
-          media.maskTexture.needsUpdate = true
+          if (media.packedActive) media.packedMaskTexture.needsUpdate = true
+          else media.maskTexture.needsUpdate = true
         } else if (
           !media.nativeOverlayActive ||
           !media.nativeOverlayPositioned
@@ -898,8 +1083,15 @@ export default function ARScan() {
       media.texture.dispose()
       media.colorTexture.dispose()
       media.maskTexture.dispose()
+      media.packedMaskTexture.dispose()
+      media.shadowTexture.dispose()
+      media.shadowMaterial.dispose()
+      media.nativeFrame.remove()
     }
-    for (const record of planeRecordsRef.current) record.mesh.geometry.dispose()
+    for (const record of planeRecordsRef.current) {
+      record.mesh.geometry.dispose()
+      record.shadow.geometry.dispose()
+    }
     planeRecordsRef.current = []
     hideNativeVideoOverlay(media || undefined)
     spatialRef.current = null
@@ -1006,8 +1198,9 @@ export default function ARScan() {
         uiLoading: "no",
         uiScanning: "no",
         uiError: "no",
-        filterMinCF: 0.0001,
-        filterBeta: 0.001,
+        // MindAR's normal OneEuro response avoids a visibly trailing cutout.
+        filterMinCF: 0.001,
+        filterBeta: 1000,
         warmupTolerance: 5,
         missTolerance: 6,
       })
@@ -1259,7 +1452,7 @@ export default function ARScan() {
     <main
       className={
         cameraOn
-          ? "fixed inset-0 z-[60] h-[100dvh] w-screen overflow-hidden bg-[#071320] p-0"
+          ? "fixed inset-0 z-[60] h-[100dvh] w-screen overflow-clip bg-[#071320] p-0"
           : "mx-auto min-h-[70vh] max-w-[1120px] px-5 py-8 sm:px-8 sm:py-12"
       }
     >
@@ -1273,15 +1466,14 @@ export default function ARScan() {
           </Link>
           <div className="mx-auto mt-7 max-w-3xl text-center">
             <span className="inline-flex items-center gap-2 rounded-full bg-[#E7F5F7] px-4 py-2 text-xs font-bold uppercase tracking-[0.12em] text-primary">
-              <Camera size={15} /> Riko AR · MindAR
+              <Camera size={15} /> Riko AR
             </span>
             <h1 className="mt-4 text-3xl font-bold text-primary sm:text-4xl">
               Đưa trọn trang sách vào khung hình
             </h1>
             <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-[#4A5461] sm:text-base">
-              MindAR khóa và bám theo trang sách để đặt video đúng vị trí. Bộ
-              nhận diện pop-up chạy bổ sung; QR chỉ mở video nếu hình chưa được
-              nhận ra sau 0,8 giây.
+              Đưa trang sách vào khung để nhân vật hiện ra trên sách. Di chuyển
+              máy nhẹ nhàng để khám phá và dùng nút + / − để chỉnh kích thước.
             </p>
           </div>
         </>
@@ -1290,14 +1482,14 @@ export default function ARScan() {
       <div
         className={
           cameraOn
-            ? "relative h-full w-full overflow-hidden bg-[#142333]"
+            ? "relative h-full w-full overflow-clip bg-[#142333]"
             : "mx-auto mt-8 max-w-4xl overflow-hidden rounded-[28px] border border-[#DFE5E8] bg-[#142333] shadow-xl"
         }
       >
         <div
           ref={frameRef}
-          className={`relative overflow-hidden bg-[#142333] ${
-            cameraOn ? "h-full w-full" : "aspect-video"
+          className={`relative bg-[#142333] ${
+            cameraOn ? "h-full w-full overflow-clip" : "aspect-video overflow-hidden"
           }`}
         >
           <div
@@ -1331,12 +1523,7 @@ export default function ARScan() {
               >
                 <div className="min-w-0">
                   <p className="text-sm font-bold">
-                    Riko AR · camera sau{" "}
-                    {cameraSize && (
-                      <span className="font-normal text-white/75">
-                        {cameraSize}
-                      </span>
-                    )}
+                    Riko AR · camera sau
                   </p>
                   <p className="mt-1 max-w-[75vw] text-xs text-white/90">
                     {cameraStatus}
@@ -1409,42 +1596,61 @@ export default function ARScan() {
               )}
               {selection && selection.source !== "qr" && (
                 <div
-                  className="absolute bottom-5 left-1/2 z-30 flex -translate-x-1/2 items-center gap-2 rounded-full bg-[#173E72]/95 px-3 py-2 text-xs font-semibold text-white shadow-lg"
+                  className="absolute bottom-5 left-1/2 z-30 flex max-w-[94vw] -translate-x-1/2 flex-col gap-2 rounded-2xl bg-[#173E72]/95 px-4 py-3 text-xs font-semibold text-white shadow-lg backdrop-blur-sm"
                   style={{
                     bottom: "max(1.25rem, env(safe-area-inset-bottom))",
                   }}
                 >
-                  <span className="max-w-[46vw] truncate">{targetLabel}</span>
-                  {selectedAsset?.alpha && (
-                    <span className="rounded-full bg-emerald-300/20 px-2 py-0.5 text-emerald-100">
-                      alpha
-                    </span>
-                  )}
-                  <button
-                    type="button"
-                    onClick={toggleSound}
-                    className="rounded-full p-1 hover:bg-white/15"
-                    aria-label={
-                      soundOn ? "Tắt tiếng video AR" : "Bật tiếng video AR"
-                    }
-                  >
-                    {soundOn ? <Volume2 size={16} /> : <VolumeX size={16} />}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      dismissedSlotRef.current = selection.slot.id
-                      spatialPlayRequestRef.current += 1
-                      chooseSelection(null)
-                      spatialRef.current?.currentVideo?.pause()
-                      spatialRef.current?.maskVideo.pause()
-                      hideNativeVideoOverlay()
-                    }}
-                    className="rounded-full p-1 hover:bg-white/15"
-                    aria-label="Ẩn video AR"
-                  >
-                    <X size={16} />
-                  </button>
+                  <div className="flex w-full items-center justify-between gap-3">
+                    <span className="max-w-[54vw] truncate">{targetLabel}</span>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={toggleSound}
+                        className="rounded-full p-1 hover:bg-white/15"
+                        aria-label={soundOn ? "Tắt tiếng video AR" : "Bật tiếng video AR"}
+                      >
+                        {soundOn ? <Volume2 size={16} /> : <VolumeX size={16} />}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          dismissedSlotRef.current = selection.slot.id
+                          spatialPlayRequestRef.current += 1
+                          chooseSelection(null)
+                          spatialRef.current?.currentVideo?.pause()
+                          spatialRef.current?.maskVideo.pause()
+                          hideNativeVideoOverlay()
+                        }}
+                        className="rounded-full p-1 hover:bg-white/15"
+                        aria-label="Ẩn video AR"
+                      >
+                        <X size={16} />
+                      </button>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-center gap-3 border-t border-white/15 pt-2">
+                    <span className="text-white/75">Kích thước</span>
+                    <button
+                      type="button"
+                      onClick={() => changePresentationScale(-0.25)}
+                      disabled={presentationScale <= 0.75}
+                      aria-label="Thu nhỏ video AR"
+                      className="rounded-full bg-white/15 p-2 disabled:opacity-30"
+                    >
+                      <Minus size={16} />
+                    </button>
+                    <span className="w-10 text-center tabular-nums">{Math.round(presentationScale * 100)}%</span>
+                    <button
+                      type="button"
+                      onClick={() => changePresentationScale(0.25)}
+                      disabled={presentationScale >= 1.75}
+                      aria-label="Phóng to video AR"
+                      className="rounded-full bg-white/15 p-2 disabled:opacity-30"
+                    >
+                      <Plus size={16} />
+                    </button>
+                  </div>
                 </div>
               )}
               <button
@@ -1543,8 +1749,8 @@ export default function ARScan() {
         {!cameraOn && (
           <div className="flex flex-wrap items-center justify-between gap-3 bg-white px-4 py-4 sm:px-6">
             <p className="text-xs leading-5 text-[#596575]">
-              MindAR dò ảnh cả 54 trang; mô hình TFLite bổ sung vùng pop-up. Bộ
-              nhận diện ảnh chạy trong camera, không phải ảnh giả lập.
+              Dùng sách thật, giữ trọn trang trong khung hình và tránh ánh phản
+              chiếu. Nhân vật sẽ hiện ra ngay khi trang được nhận diện.
             </p>
             <div className="flex gap-2">
               <Link

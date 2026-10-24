@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en"><head><meta charset="UTF-8"><title>AR packed alpha regression</title></head>
+<body style="background:#152233;color:#eef4fa;font:14px system-ui;padding:24px">
+<h1>AR packed alpha · browser decode + WebGL render</h1>
+<p>Every delivered clip is decoded, advanced, then rendered using the app's H.264 color/matte texture transforms.</p>
+<output id="summary">Starting…</output><div id="view"></div><pre id="results"></pre>
+<script type="module">
+import * as THREE from "three"
+import profiles from "/src/data/arVideoPresentation.json"
+const assets=await fetch("/videos/ar/manifest.json").then(r=>r.json())
+const video=document.createElement("video"),reference=document.createElement("video")
+for(const v of [video,reference]){v.muted=true;v.playsInline=true;v.crossOrigin="anonymous";v.style.cssText="width:240px;height:140px";document.querySelector("#view").append(v)}
+const renderer=new THREE.WebGLRenderer({alpha:true,preserveDrawingBuffer:true,antialias:false})
+renderer.setSize(128,128);renderer.setClearColor(0,0)
+document.querySelector("#view").append(renderer.domElement)
+const scene=new THREE.Scene(),camera=new THREE.OrthographicCamera(-1,1,1,-1,.1,5);camera.position.z=2
+const color=new THREE.VideoTexture(video),matte=new THREE.VideoTexture(video)
+color.colorSpace=THREE.SRGBColorSpace;color.repeat.set(.5,1)
+matte.colorSpace=THREE.NoColorSpace;matte.repeat.set(.5,1);matte.offset.set(.5,0)
+for(const texture of [color,matte]){texture.minFilter=THREE.LinearFilter;texture.magFilter=THREE.LinearFilter;texture.generateMipmaps=false}
+const material=new THREE.MeshBasicMaterial({map:color,alphaMap:matte,transparent:true,depthWrite:false,toneMapped:false})
+scene.add(new THREE.Mesh(new THREE.PlaneGeometry(2,2),material))
+const canvas=document.createElement("canvas");canvas.width=128;canvas.height=128
+const ctx=canvas.getContext("2d",{willReadFrequently:true})
+const summary=document.querySelector("#summary"),log=document.querySelector("#results")
+const results=[]
+async function firstFrame(v,url){
+ v.pause();v.src=url;v.load()
+ await Promise.race([v.play(),new Promise((_,reject)=>setTimeout(()=>reject(new Error("decode timeout")),10000))])
+ await new Promise((resolve,reject)=>{const timer=setTimeout(()=>reject(new Error("no video frame")),8000);v.requestVideoFrameCallback(()=>{clearTimeout(timer);v.pause();resolve()})})
+ v.currentTime=0
+ if(v.seeking)await new Promise(resolve=>v.addEventListener("seeked",resolve,{once:true}))
+}
+for(const asset of assets.filter(v=>v.alpha)){
+ try{
+  await Promise.all([firstFrame(video,profiles[asset.id].packedVideoUrl),firstFrame(reference,asset.alphaVideoUrl)])
+  if(video.videoWidth!==reference.videoWidth*2||video.videoHeight!==reference.videoHeight)throw new Error("packed dimensions differ from the source")
+  color.needsUpdate=true;matte.needsUpdate=true;renderer.render(scene,camera)
+  ctx.clearRect(0,0,128,128);ctx.drawImage(renderer.domElement,0,0,128,128);const actual=ctx.getImageData(0,0,128,128).data
+  ctx.clearRect(0,0,128,128);ctx.drawImage(reference,0,0,128,128);const expected=ctx.getImageData(0,0,128,128).data
+  let error=0,transparent=0
+  for(let i=3;i<actual.length;i+=4){error+=Math.abs(actual[i]-expected[i])/255;if(actual[i]<245)transparent++}
+  error/=128*128
+  if(error>.065)throw new Error(`alpha differs: ${error.toFixed(4)}`)
+  if(!transparent)throw new Error("WebGL returned an opaque rectangle")
+  await video.play();const before=video.currentTime;await new Promise(resolve=>setTimeout(resolve,160));video.pause()
+  if(video.currentTime<=before)throw new Error("video did not advance")
+  results.push({id:asset.id,pass:true,alphaMAE:error,dimensions:[video.videoWidth,video.videoHeight]})
+ }catch(error){results.push({id:asset.id,pass:false,error:String(error)})}
+ log.textContent=results.map(r=>`${r.pass?"PASS":"FAIL"} ${r.id} ${r.pass?`alpha error=${r.alphaMAE.toFixed(4)}`:r.error}`).join("\n")
+ summary.textContent=`${results.length}/${assets.length} clips checked · ${results.filter(r=>!r.pass).length} failures`
+}
+video.pause();reference.pause();summary.dataset.done="true";summary.dataset.failures=String(results.filter(r=>!r.pass).length)
+summary.dataset.results=JSON.stringify(results)
+</script></body></html>
