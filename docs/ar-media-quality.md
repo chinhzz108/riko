@@ -32,6 +32,8 @@ material opacity multiplies the texture's alpha, as documented by
 - Original MP4s copied byte-for-byte for QR/watch playback for all 35 page clips.
 - Nine recaps assembled from repaired lossless intermediates, before encoding.
 - Printed QR URLs and all 54 page-to-video mappings are preserved.
+- The scanner uses a versioned manifest request and HTTP revalidation, so an old
+  force-cached manifest cannot select the previous damaged WebM files.
 - Each delivered media file must stay below the Cloudflare Pages 25 MiB limit.
 
 ## Checks and their limits

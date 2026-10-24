@@ -410,8 +410,8 @@ export default function ARScan() {
 
   function videoAssets() {
     if (!videoManifestRef.current) {
-      videoManifestRef.current = fetch("/videos/ar/manifest.json", {
-        cache: "force-cache",
+      videoManifestRef.current = fetch("/videos/ar/manifest.json?v=detail-preserved-v2", {
+        cache: "no-cache",
       }).then(async (response) => {
         if (!response.ok) throw new Error("Could not load AR video manifest")
         return (await response.json()) as VideoAsset[]
