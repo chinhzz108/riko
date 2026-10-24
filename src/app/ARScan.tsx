@@ -19,14 +19,26 @@ import type {
   Matrix4,
   Scene,
   Texture,
+  Vector3,
   WebGLRenderer,
 } from "three"
-import jsQR from "jsqr"
+import { installARGestures } from "../lib/arGestures"
+import { configurePackedAlpha } from "../lib/arPackedMaterial"
+import {
+  clampARScale,
+  MAX_AR_SCALE,
+  MIN_AR_SCALE,
+  poseSmoothingAlpha,
+} from "../lib/arMotion.js"
 import bookVideoManifest from "../data/bookVideoSlots.json"
 import arTargetManifest from "../data/arTargets.json"
 import mindArTargetManifest from "../data/arPageTargets.json"
 import videoPresentations from "../data/arVideoPresentation.json"
-import { detectBookTarget, type ARDetection } from "../lib/arDetector"
+import {
+  detectBookTarget,
+  disposeARDetector,
+  type ARDetection,
+} from "../lib/arDetector"
 import { getCoverRect } from "../lib/arScanGeometry"
 import { resolveSlotFromLabel, routeSlotFromQR } from "../lib/arScanLogic.js"
 import {
@@ -81,6 +93,7 @@ type MindARInstance = {
 }
 type PlaneRecord = {
   anchor: MindARAnchor
+  root: Group
   mesh: Mesh
   slot: BookSlot
   target: MindARPageTarget
@@ -88,6 +101,9 @@ type PlaneRecord = {
   layout: PresentationLayout
   enteredAt: number
   lastPose: Matrix4
+  poseReady: boolean
+  fitScale: number
+  offset: { x: number; y: number }
 }
 type SpatialMedia = {
   video: HTMLVideoElement
@@ -96,7 +112,7 @@ type SpatialMedia = {
   texture: Texture
   colorTexture: Texture
   maskTexture: Texture
-  packedMaskTexture: Texture
+  packedAlpha: { value: number }
   material: MeshBasicMaterial
   shadowMaterial: MeshBasicMaterial
   shadowTexture: Texture
@@ -108,8 +124,9 @@ type SpatialMedia = {
   ready: boolean
   nativeOverlayActive: boolean
   nativeOverlayPositioned: boolean
-  lastTextureTime: number
 }
+
+type StageViewport = { renderer: DOMRect; frame: DOMRect; overlay: DOMRect }
 
 const slots = bookVideoManifest.slots as BookSlot[]
 const targets = arTargetManifest.targets as Target[]
@@ -267,7 +284,8 @@ function waitForVideoFrame(video: HTMLVideoElement, timeoutMs = 8000) {
     const fail = () =>
       finishWithError(video.error || new Error("Video không giải mã được."))
     timer = window.setTimeout(
-      () => finishWithError(new Error("Video không tạo được khung hình đầu tiên.")),
+      () =>
+        finishWithError(new Error("Video không tạo được khung hình đầu tiên.")),
       timeoutMs,
     )
     video.addEventListener("loadeddata", check)
@@ -347,6 +365,8 @@ export default function ARScan() {
   const spatialRef = useRef<SpatialMedia | null>(null)
   const planeRecordsRef = useRef<PlaneRecord[]>([])
   const scanLoopRef = useRef<(() => void) | null>(null)
+  const stageCleanupRef = useRef<(() => void) | null>(null)
+  const viewportRef = useRef<StageViewport | null>(null)
   const modelReadyRef = useRef(false)
   const activePageSlotRef = useRef<BookSlot | null>(null)
   const targetLostTimeoutRef = useRef<number | null>(null)
@@ -424,7 +444,8 @@ export default function ARScan() {
       aspect,
       presentationScaleRef.current,
     )
-    const { width, height, baseX, baseY, shadowWidth, shadowDepth, crop } = record.layout
+    const { width, height, baseX, baseY, shadowWidth, shadowDepth, crop } =
+      record.layout
     record.mesh.scale.set(width, height, 1)
     const uv = record.mesh.geometry.attributes.uv
     uv.setXY(0, crop.left, 1 - crop.top)
@@ -437,14 +458,20 @@ export default function ARScan() {
   }
 
   function changePresentationScale(delta: number) {
-    const next = Math.min(1.75, Math.max(0.75, presentationScaleRef.current + delta))
+    const next = clampARScale(presentationScaleRef.current + delta)
     presentationScaleRef.current = next
     setPresentationScale(next)
     const media = spatialRef.current
     const video = media?.currentVideo
     if (!media || !video?.videoWidth || !video.videoHeight) return
-    const aspect = video.videoWidth / video.videoHeight / (media.packedActive ? 2 : 1)
+    const aspect =
+      video.videoWidth / video.videoHeight / (media.packedActive ? 2 : 1)
     for (const record of planeRecordsRef.current) resizePlane(record, aspect)
+  }
+
+  function resetPresentation() {
+    for (const record of planeRecordsRef.current) record.offset = { x: 0, y: 0 }
+    changePresentationScale(1 - presentationScaleRef.current)
   }
 
   function hideNativeVideoOverlay(
@@ -461,7 +488,7 @@ export default function ARScan() {
   function positionNativeVideoOverlay(
     record: PlaneRecord,
     tracker: MindARInstance,
-    THREE: typeof import("three"),
+    corners: Vector3[],
   ) {
     const media = spatialRef.current
     const overlay = videoOverlayRef.current
@@ -475,9 +502,11 @@ export default function ARScan() {
     )
       return hideNativeVideoOverlay(media, false)
 
-    const viewport = tracker.renderer.domElement.getBoundingClientRect()
-    const overlayRect = overlay.getBoundingClientRect()
+    const viewport = viewportRef.current?.renderer
+    const overlayRect = viewportRef.current?.overlay
     if (
+      !viewport ||
+      !overlayRect ||
       viewport.width < 1 ||
       viewport.height < 1 ||
       overlayRect.width < 1 ||
@@ -485,21 +514,17 @@ export default function ARScan() {
     )
       return hideNativeVideoOverlay(media, false)
 
-    const corners = [
-      [-0.5, 0.5],
-      [0.5, 0.5],
-      [0.5, -0.5],
-      [-0.5, -0.5],
-    ].map(([x, y]) => {
-      const point = new THREE.Vector3(x, y, 0)
+    for (let i = 0; i < 4; i++) {
+      const point = corners[i]
+      point
+        .set(i === 0 || i === 3 ? -0.5 : 0.5, i < 2 ? 0.5 : -0.5, 0)
         .applyMatrix4(record.mesh.matrixWorld)
         .project(tracker.camera)
-      return {
-        x: viewport.left + ((point.x + 1) / 2) * viewport.width - overlayRect.left,
-        y: viewport.top + ((1 - point.y) / 2) * viewport.height - overlayRect.top,
-        z: point.z,
-      }
-    })
+      point.x =
+        viewport.left + ((point.x + 1) / 2) * viewport.width - overlayRect.left
+      point.y =
+        viewport.top + ((1 - point.y) / 2) * viewport.height - overlayRect.top
+    }
     if (
       corners.some(
         (point) =>
@@ -550,13 +575,22 @@ export default function ARScan() {
     const videoWidth = `${sourceWidth}px`
     const videoHeight = `${sourceHeight}px`
     const nativeFrame = media.nativeFrame
-    if (nativeFrame.style.transform !== transform) nativeFrame.style.transform = transform
-    if (nativeFrame.style.width !== videoWidth) nativeFrame.style.width = videoWidth
-    if (nativeFrame.style.height !== videoHeight) nativeFrame.style.height = videoHeight
-    video.style.width = `${video.videoWidth}px`
-    video.style.height = `${video.videoHeight}px`
-    video.style.left = `${-crop.left * video.videoWidth}px`
-    video.style.top = `${-crop.top * video.videoHeight}px`
+    if (nativeFrame.style.transform !== transform)
+      nativeFrame.style.transform = transform
+    if (nativeFrame.style.width !== videoWidth)
+      nativeFrame.style.width = videoWidth
+    if (nativeFrame.style.height !== videoHeight)
+      nativeFrame.style.height = videoHeight
+    if (
+      nativeFrame.dataset.source !==
+      `${video.videoWidth}:${video.videoHeight}:${crop.left}:${crop.top}`
+    ) {
+      video.style.width = `${video.videoWidth}px`
+      video.style.height = `${video.videoHeight}px`
+      video.style.left = `${-crop.left * video.videoWidth}px`
+      video.style.top = `${-crop.top * video.videoHeight}px`
+      nativeFrame.dataset.source = `${video.videoWidth}:${video.videoHeight}:${crop.left}:${crop.top}`
+    }
     nativeFrame.style.opacity = String(media.material.opacity)
     media.nativeOverlayPositioned = true
   }
@@ -573,7 +607,9 @@ export default function ARScan() {
     setError("")
     const asset = await findVideoAsset(slot)
     if (!isCurrentRequest()) return
-    media.profile = (videoPresentations as Record<string, VideoPresentation>)[asset.id] || DEFAULT_VIDEO_PRESENTATION
+    media.profile =
+      (videoPresentations as Record<string, VideoPresentation>)[asset.id] ||
+      DEFAULT_VIDEO_PRESENTATION
     setSelectedAsset(asset)
     hideNativeVideoOverlay(media)
     const safari = isSafariOrIOS()
@@ -588,7 +624,6 @@ export default function ARScan() {
     media.video.muted = true
     media.colorVideo.muted = true
     media.maskVideo.muted = true
-    media.lastTextureTime = -1
 
     const setSource = (video: HTMLVideoElement, url: string) => {
       const absoluteUrl = new URL(url, window.location.origin).href
@@ -617,6 +652,7 @@ export default function ARScan() {
       const maskUrl = asset.alphaMaskUrl!
       media.fallbackActive = true
       media.packedActive = false
+      media.packedAlpha.value = 0
       media.colorTexture.repeat.set(1, 1)
       media.material.map = media.colorTexture
       media.material.alphaMap = media.maskTexture
@@ -633,25 +669,28 @@ export default function ARScan() {
       try {
         media.fallbackActive = true
         media.packedActive = true
+        media.packedAlpha.value = 1
         media.colorTexture.repeat.set(0.5, 1)
         media.material.map = media.colorTexture
-        media.material.alphaMap = media.packedMaskTexture
+        media.material.alphaMap = null
         media.material.transparent = true
         media.currentVideo = media.colorVideo
         await playTexture(media.colorVideo, media.colorTexture, packed)
-        media.packedMaskTexture.needsUpdate = true
       } catch (error) {
-        console.warn("Packed alpha could not play; trying separate matte streams.", error)
+        console.warn(
+          "Packed alpha could not play; trying separate matte streams.",
+          error,
+        )
         await playSplitAlpha()
       }
     }
     const playNative = async () => {
-      const source = asset.alpha && asset.alphaVideoUrl
-        ? asset.alphaVideoUrl
-        : asset.url
+      const source =
+        asset.alpha && asset.alphaVideoUrl ? asset.alphaVideoUrl : asset.url
       if (!source) throw new Error("Thiếu đường dẫn video AR.")
       media.fallbackActive = false
       media.packedActive = false
+      media.packedAlpha.value = 0
       media.material.map = media.texture
       media.material.alphaMap = null
       media.material.transparent = Boolean(asset.alpha)
@@ -671,7 +710,10 @@ export default function ARScan() {
       else await playNative()
     } catch (playError) {
       if (!isCurrentRequest()) return
-      console.warn("AR video playback failed; trying the compatible source.", playError)
+      console.warn(
+        "AR video playback failed; trying the compatible source.",
+        playError,
+      )
       media.video.pause()
       media.colorVideo.pause()
       media.maskVideo.pause()
@@ -682,14 +724,18 @@ export default function ARScan() {
       } catch (fallbackError) {
         if (!isCurrentRequest()) return
         console.error("No AR video source could be played.", fallbackError)
-        setError("Video AR chưa phát được trên trình duyệt này. Hãy thử tải lại trang hoặc chạm bắt đầu quét lại.")
+        setError(
+          "Video AR chưa phát được trên trình duyệt này. Hãy thử tải lại trang hoặc chạm bắt đầu quét lại.",
+        )
         return
       }
     }
     if (!isCurrentRequest()) return
     media.material.needsUpdate = true
     media.ready = true
-    const activeRecord = planeRecordsRef.current.find((record) => record.slot.id === slot.id)
+    const activeRecord = planeRecordsRef.current.find(
+      (record) => record.slot.id === slot.id,
+    )
     if (activeRecord) activeRecord.enteredAt = performance.now()
     media.nativeOverlayActive =
       !media.fallbackActive && media.currentVideo === media.video
@@ -698,7 +744,9 @@ export default function ARScan() {
     const resize = () => {
       const ratio =
         activeVideo?.videoWidth && activeVideo.videoHeight
-          ? activeVideo.videoWidth / activeVideo.videoHeight / (media.packedActive ? 2 : 1)
+          ? activeVideo.videoWidth /
+            activeVideo.videoHeight /
+            (media.packedActive ? 2 : 1)
           : slot.arVideoUrl.endsWith("/RIKO.webm")
             ? 9 / 16
             : 16 / 9
@@ -718,7 +766,6 @@ export default function ARScan() {
     const texture = new THREE.VideoTexture(video)
     const colorTexture = new THREE.VideoTexture(colorVideo)
     const maskTexture = new THREE.VideoTexture(maskVideo)
-    const packedMaskTexture = new THREE.VideoTexture(colorVideo)
     for (const item of [texture, colorTexture]) {
       item.colorSpace = THREE.SRGBColorSpace
       item.minFilter = THREE.LinearFilter
@@ -729,12 +776,6 @@ export default function ARScan() {
     maskTexture.minFilter = THREE.LinearFilter
     maskTexture.magFilter = THREE.LinearFilter
     maskTexture.generateMipmaps = false
-    packedMaskTexture.colorSpace = THREE.NoColorSpace
-    packedMaskTexture.minFilter = THREE.LinearFilter
-    packedMaskTexture.magFilter = THREE.LinearFilter
-    packedMaskTexture.generateMipmaps = false
-    packedMaskTexture.repeat.set(0.5, 1)
-    packedMaskTexture.offset.set(0.5, 0)
     const material = new THREE.MeshBasicMaterial({
       map: texture,
       transparent: true,
@@ -744,6 +785,10 @@ export default function ARScan() {
       toneMapped: false,
       forceSinglePass: true,
     })
+    const packedAlpha = configurePackedAlpha(
+      material,
+      THREE.ShaderChunk.map_fragment,
+    )
     const shadowCanvas = document.createElement("canvas")
     shadowCanvas.width = 128
     shadowCanvas.height = 128
@@ -784,7 +829,7 @@ export default function ARScan() {
       texture,
       colorTexture,
       maskTexture,
-      packedMaskTexture,
+      packedAlpha,
       material,
       shadowMaterial,
       shadowTexture,
@@ -796,7 +841,6 @@ export default function ARScan() {
       ready: false,
       nativeOverlayActive: false,
       nativeOverlayPositioned: false,
-      lastTextureTime: -1,
     }
     for (const [element, textureToRefresh] of [
       [video, texture],
@@ -844,28 +888,50 @@ export default function ARScan() {
       const slot = slots.find((item) => item.id === target.slotId)
       if (!slot?.arVideoUrl) continue
       const anchor = tracker.addAnchor(target.index)
+      // MindAR owns its raw anchor matrix. Render a separate, filtered pose.
+      const root = new THREE.Group()
+      root.visible = false
+      tracker.scene.add(root)
       const geometry = new THREE.PlaneGeometry(1, 1)
       const mesh = new THREE.Mesh(geometry, material)
       mesh.frustumCulled = false
       mesh.renderOrder = 5
       mesh.visible = false
-      const shadow = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), shadowMaterial)
+      const shadow = new THREE.Mesh(
+        new THREE.PlaneGeometry(1, 1),
+        shadowMaterial,
+      )
       shadow.renderOrder = 4
       shadow.visible = false
       const record: PlaneRecord = {
-        anchor, mesh, shadow, slot, target, enteredAt: 0, lastPose: new THREE.Matrix4(),
-        layout: getPresentationLayout(target, DEFAULT_VIDEO_PRESENTATION, 16 / 9),
+        anchor,
+        root,
+        mesh,
+        shadow,
+        slot,
+        target,
+        enteredAt: 0,
+        lastPose: new THREE.Matrix4(),
+        poseReady: false,
+        fitScale: 1,
+        offset: { x: 0, y: 0 },
+        layout: getPresentationLayout(
+          target,
+          DEFAULT_VIDEO_PRESENTATION,
+          16 / 9,
+        ),
       }
       resizePlane(
         record,
         slot.arVideoUrl.endsWith("/RIKO.webm") ? 9 / 16 : 16 / 9,
       )
-      anchor.group.add(shadow, mesh)
+      root.add(shadow, mesh)
       records.push(record)
 
       anchor.onTargetFound = () => {
         record.lastPose.copy(anchor.group.matrix)
         const previous = activePageSlotRef.current
+        if (previous?.id !== slot.id) record.poseReady = false
         if (targetLostTimeoutRef.current !== null) {
           window.clearTimeout(targetLostTimeoutRef.current)
           targetLostTimeoutRef.current = null
@@ -881,10 +947,10 @@ export default function ARScan() {
           chooseSelection({ slot, box: null, source: "page" })
           // Keep playback continuous when MindAR reacquires the same page
           // during the brief lost-target grace period.
-        if (previous?.id !== slot.id) {
-          record.enteredAt = performance.now()
-          void showSpatialVideo(slot)
-        }
+          if (previous?.id !== slot.id) {
+            record.enteredAt = performance.now()
+            void showSpatialVideo(slot)
+          }
         }
       }
       anchor.onTargetLost = () => {
@@ -923,29 +989,162 @@ export default function ARScan() {
     const rotationMatrix = new THREE.Matrix4()
     const projectedPoint = new THREE.Vector3()
     const projectedFoot = new THREE.Vector3()
-    tracker.renderer.setAnimationLoop(() => {
+    const overlayCorners = Array.from({ length: 4 }, () => new THREE.Vector3())
+    const desiredPosition = new THREE.Vector3()
+    const desiredRotation = new THREE.Quaternion()
+    const desiredScale = new THREE.Vector3()
+    const screenCorners = [
+      [-0.5, 0.5],
+      [0.5, 0.5],
+      [-0.5, -0.5],
+      [0.5, -0.5],
+    ]
+    const updateViewport = () => {
+      const frame = frameRef.current
+      const overlay = videoOverlayRef.current
+      if (!frame || !overlay) return
+      viewportRef.current = {
+        renderer: tracker.renderer.domElement.getBoundingClientRect(),
+        frame: frame.getBoundingClientRect(),
+        overlay: overlay.getBoundingClientRect(),
+      }
+    }
+    const viewportObserver = new ResizeObserver(updateViewport)
+    viewportObserver.observe(tracker.renderer.domElement)
+    if (frameRef.current) viewportObserver.observe(frameRef.current)
+    window.addEventListener("resize", updateViewport)
+    window.visualViewport?.addEventListener("resize", updateViewport)
+    window.visualViewport?.addEventListener("scroll", updateViewport)
+    updateViewport()
+
+    const raycaster = new THREE.Raycaster()
+    const pointer = new THREE.Vector2()
+    const localRay = new THREE.Ray()
+    const pagePlane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0)
+    const intersection = new THREE.Vector3()
+    const activeRecord = () =>
+      records.find(
+        (record) =>
+          record.slot.id === activePageSlotRef.current?.id &&
+          record.root.visible,
+      )
+    const gestureCleanup = frameRef.current
+      ? installARGestures(frameRef.current, {
+          canStart: () =>
+            Boolean(
+              activeRecord() &&
+                media.ready &&
+                dismissedSlotRef.current !== activePageSlotRef.current?.id,
+            ),
+          project: (x, y) => {
+            const record = activeRecord()
+            const rect = viewportRef.current?.renderer
+            if (!record || !rect?.width || !rect.height) return null
+            pointer.set(
+              ((x - rect.left) / rect.width) * 2 - 1,
+              1 - ((y - rect.top) / rect.height) * 2,
+            )
+            raycaster.setFromCamera(pointer, tracker.camera)
+            localRay
+              .copy(raycaster.ray)
+              .applyMatrix4(
+                inverseAnchor.copy(record.root.matrixWorld).invert(),
+              )
+            if (Math.abs(localRay.direction.z) < 0.08) return null
+            pagePlane.constant = -record.layout.lift
+            if (!localRay.intersectPlane(pagePlane, intersection)) return null
+            return { x: intersection.x, y: intersection.y }
+          },
+          getTransform: () => ({
+            x: activeRecord()?.offset.x || 0,
+            y: activeRecord()?.offset.y || 0,
+            scale: presentationScaleRef.current,
+          }),
+          setTransform: (value) => {
+            const record = activeRecord()
+            if (!record) return
+            record.offset.x = Math.min(1.25, Math.max(-1.25, value.x))
+            const pageHeight =
+              record.target.targetSize.height / record.target.targetSize.width
+            record.offset.y = Math.min(
+              pageHeight,
+              Math.max(-pageHeight, value.y),
+            )
+            if (Math.abs(value.scale - presentationScaleRef.current) > 0.0001) {
+              presentationScaleRef.current = value.scale
+              const video = media.currentVideo
+              if (video?.videoWidth && video.videoHeight)
+                resizePlane(
+                  record,
+                  video.videoWidth /
+                    video.videoHeight /
+                    (media.packedActive ? 2 : 1),
+                )
+            }
+          },
+          commit: () => setPresentationScale(presentationScaleRef.current),
+        })
+      : () => {}
+    stageCleanupRef.current = () => {
+      gestureCleanup()
+      viewportObserver.disconnect()
+      window.removeEventListener("resize", updateViewport)
+      window.visualViewport?.removeEventListener("resize", updateViewport)
+      window.visualViewport?.removeEventListener("scroll", updateViewport)
+      viewportRef.current = null
+    }
+    let previousFrameAt = 0
+    tracker.renderer.setAnimationLoop((now: number) => {
+      const delta = previousFrameAt ? (now - previousFrameAt) / 1000 : 1 / 60
+      previousFrameAt = now
       const active = activePageSlotRef.current?.id
       for (const record of records) {
-        if (record.anchor.visible) record.lastPose.copy(record.anchor.group.matrix)
+        if (record.anchor.visible)
+          record.lastPose.copy(record.anchor.group.matrix)
         const isActive =
-          record.slot.id === active && dismissedSlotRef.current !== active && media.ready
+          record.slot.id === active &&
+          dismissedSlotRef.current !== active &&
+          media.ready
+        record.root.visible = isActive
         record.shadow.visible = isActive && media.profile.grounded
         if (isActive) {
-          // Hold the last stable anchor through brief tracking gaps instead of blinking.
-          if (!record.anchor.visible && targetLostTimeoutRef.current !== null) {
-            record.anchor.group.matrix = record.lastPose
-            record.anchor.group.matrixWorldNeedsUpdate = true
+          // Interpolate position/rotation/scale, never raw matrix elements (which shear).
+          record.lastPose.decompose(
+            desiredPosition,
+            desiredRotation,
+            desiredScale,
+          )
+          if (!record.poseReady) {
+            record.root.position.copy(desiredPosition)
+            record.root.quaternion.copy(desiredRotation)
+            record.root.scale.copy(desiredScale)
+            record.poseReady = true
+          } else {
+            const alpha = poseSmoothingAlpha(
+              delta,
+              record.root.position.distanceTo(desiredPosition) /
+                Math.max(0.001, desiredScale.x),
+              record.root.quaternion.angleTo(desiredRotation),
+            )
+            record.root.position.lerp(desiredPosition, alpha)
+            record.root.quaternion.slerp(desiredRotation, alpha)
+            record.root.scale.lerp(desiredScale, alpha)
           }
-          record.anchor.group.visible = true
-          record.anchor.group.updateWorldMatrix(true, false)
+          record.root.updateWorldMatrix(true, false)
           tracker.camera.getWorldPosition(localCamera)
-          record.anchor.group.worldToLocal(localCamera)
-          localScreenUp.set(0, 1, 0).transformDirection(tracker.camera.matrixWorld)
-            .transformDirection(inverseAnchor.copy(record.anchor.group.matrixWorld).invert())
+          record.root.worldToLocal(localCamera)
+          localScreenUp
+            .set(0, 1, 0)
+            .transformDirection(tracker.camera.matrixWorld)
+            .transformDirection(
+              inverseAnchor.copy(record.root.matrixWorld).invert(),
+            )
           const layout = record.layout
+          const baseX = layout.baseX + record.offset.x
+          const baseY = layout.baseY + record.offset.y
           const basis = getBillboardBasis(
-            localCamera.x - layout.baseX,
-            localCamera.y - layout.baseY,
+            localCamera.x - baseX,
+            localCamera.y - baseY,
             localCamera.z - layout.lift,
             localScreenUp.toArray(),
           )
@@ -954,52 +1153,83 @@ export default function ARScan() {
           normalAxis.fromArray(basis.normal)
           rotationMatrix.makeBasis(rightAxis, upAxis, normalAxis)
           record.mesh.quaternion.setFromRotationMatrix(rotationMatrix)
-          const progress = Math.min(1, (performance.now() - record.enteredAt) / 260)
+          const progress = Math.min(1, (now - record.enteredAt) / 260)
           const reveal = 1 - Math.pow(1 - progress, 3)
           const entryScale = 0.94 + reveal * 0.06
           let width = layout.width * entryScale
           let height = layout.height * entryScale
           const place = () => {
             record.mesh.scale.set(width, height, 1)
-            record.mesh.position.set(layout.baseX, layout.baseY, layout.lift)
+            record.mesh.position
+              .set(baseX, baseY, layout.lift)
               .addScaledVector(upAxis, height / 2)
             record.mesh.updateWorldMatrix(true, false)
           }
           place()
-          const viewport = tracker.renderer.domElement.getBoundingClientRect()
-          const frame = frameRef.current?.getBoundingClientRect()
+          const viewport = viewportRef.current?.renderer
+          const frame = viewportRef.current?.frame
           let fit = 1
-          if (frame && viewport.width > 0 && frame.width > 0) {
-            projectedFoot.set(layout.baseX, layout.baseY, layout.lift)
-              .applyMatrix4(record.anchor.group.matrixWorld).project(tracker.camera)
-            const footX = viewport.left + (projectedFoot.x + 1) * viewport.width / 2 - frame.left
-            const footY = viewport.top + (1 - projectedFoot.y) * viewport.height / 2 - frame.top
-            for (const [x, y] of [[-0.5, 0.5], [0.5, 0.5], [-0.5, -0.5], [0.5, -0.5]]) {
-              projectedPoint.set(x, y, 0).applyMatrix4(record.mesh.matrixWorld).project(tracker.camera)
-              const px = viewport.left + (projectedPoint.x + 1) * viewport.width / 2 - frame.left
-              const py = viewport.top + (1 - projectedPoint.y) * viewport.height / 2 - frame.top
+          if (frame && viewport && viewport.width > 0 && frame.width > 0) {
+            projectedFoot
+              .set(baseX, baseY, layout.lift)
+              .applyMatrix4(record.root.matrixWorld)
+              .project(tracker.camera)
+            const footX =
+              viewport.left +
+              ((projectedFoot.x + 1) * viewport.width) / 2 -
+              frame.left
+            const footY =
+              viewport.top +
+              ((1 - projectedFoot.y) * viewport.height) / 2 -
+              frame.top
+            for (const [x, y] of screenCorners) {
+              projectedPoint
+                .set(x, y, 0)
+                .applyMatrix4(record.mesh.matrixWorld)
+                .project(tracker.camera)
+              const px =
+                viewport.left +
+                ((projectedPoint.x + 1) * viewport.width) / 2 -
+                frame.left
+              const py =
+                viewport.top +
+                ((1 - projectedPoint.y) * viewport.height) / 2 -
+                frame.top
               const dx = px - footX
               const dy = py - footY
-              if (dx > 1 && footX < frame.width * 0.96) fit = Math.min(fit, (frame.width * 0.96 - footX) / dx)
-              if (dx < -1 && footX > frame.width * 0.04) fit = Math.min(fit, (frame.width * 0.04 - footX) / dx)
-              if (dy < -1 && footY > frame.height * 0.14) fit = Math.min(fit, (frame.height * 0.14 - footY) / dy)
-              if (dy > 1 && footY < frame.height * 0.86) fit = Math.min(fit, (frame.height * 0.86 - footY) / dy)
+              if (dx > 1 && footX < frame.width * 0.96)
+                fit = Math.min(fit, (frame.width * 0.96 - footX) / dx)
+              if (dx < -1 && footX > frame.width * 0.04)
+                fit = Math.min(fit, (frame.width * 0.04 - footX) / dx)
+              if (dy < -1 && footY > frame.height * 0.14)
+                fit = Math.min(fit, (frame.height * 0.14 - footY) / dy)
+              if (dy > 1 && footY < frame.height * 0.86)
+                fit = Math.min(fit, (frame.height * 0.86 - footY) / dy)
             }
           }
           fit = Math.max(0.25, fit)
-          if (fit < 1) {
-            width *= fit
-            height *= fit
+          // Ease automatic fitting instead of changing size on every noisy pose.
+          record.fitScale +=
+            (fit - record.fitScale) *
+            (1 - Math.exp(-Math.min(delta, 0.1) / 0.12))
+          if (record.fitScale < 0.999) {
+            width *= record.fitScale
+            height *= record.fitScale
             place()
           }
-          record.shadow.scale.set(layout.shadowWidth * fit, layout.shadowDepth * fit, 1)
+          record.shadow.position.set(baseX, baseY, 0.003)
+          record.shadow.scale.set(
+            layout.shadowWidth * record.fitScale,
+            layout.shadowDepth * record.fitScale,
+            1,
+          )
           media.material.opacity = reveal
           media.shadowMaterial.opacity = reveal * 0.65
         }
         if (isActive && media.nativeOverlayActive && !media.fallbackActive) {
-          record.anchor.group.updateWorldMatrix(true, false)
+          record.root.updateWorldMatrix(true, false)
           tracker.camera.updateWorldMatrix(true, false)
-          positionNativeVideoOverlay(record, tracker, THREE)
+          positionNativeVideoOverlay(record, tracker, overlayCorners)
         }
         record.mesh.visible =
           isActive &&
@@ -1026,25 +1256,8 @@ export default function ARScan() {
           media.maskVideo.currentTime = media.currentVideo.currentTime
         }
       }
-      const currentVideo = media.currentVideo
-      if (
-        currentVideo &&
-        currentVideo.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA &&
-        currentVideo.videoWidth > 0 &&
-        currentVideo.currentTime !== media.lastTextureTime
-      ) {
-        if (media.fallbackActive) {
-          media.colorTexture.needsUpdate = true
-          if (media.packedActive) media.packedMaskTexture.needsUpdate = true
-          else media.maskTexture.needsUpdate = true
-        } else if (
-          !media.nativeOverlayActive ||
-          !media.nativeOverlayPositioned
-        ) {
-          media.texture.needsUpdate = true
-        }
-        media.lastTextureTime = currentVideo.currentTime
-      }
+      // VideoTexture schedules uploads on decoded frames via requestVideoFrameCallback.
+      // Setting needsUpdate each display frame re-uploads the same 24fps image.
       tracker.renderer.render(tracker.scene, tracker.camera)
     })
   }
@@ -1057,6 +1270,9 @@ export default function ARScan() {
     }
     scanLoopRef.current?.()
     scanLoopRef.current = null
+    disposeARDetector()
+    stageCleanupRef.current?.()
+    stageCleanupRef.current = null
     modelReadyRef.current = false
     activePageSlotRef.current = null
     pendingQRRef.current = null
@@ -1083,7 +1299,6 @@ export default function ARScan() {
       media.texture.dispose()
       media.colorTexture.dispose()
       media.maskTexture.dispose()
-      media.packedMaskTexture.dispose()
       media.shadowTexture.dispose()
       media.shadowMaterial.dispose()
       media.nativeFrame.remove()
@@ -1091,6 +1306,7 @@ export default function ARScan() {
     for (const record of planeRecordsRef.current) {
       record.mesh.geometry.dispose()
       record.shadow.geometry.dispose()
+      record.root.removeFromParent()
     }
     planeRecordsRef.current = []
     hideNativeVideoOverlay(media || undefined)
@@ -1221,9 +1437,11 @@ export default function ARScan() {
           classNames.length,
           detectionConfidence,
         )
+        if (trackerRef.current !== tracker) return
         modelReadyRef.current = true
         setModelStatus("ready")
       } catch (modelError) {
+        if (trackerRef.current !== tracker) return
         console.warn(
           "Popup detector is unavailable; MindAR page tracking and QR fallback remain active.",
           modelError,
@@ -1251,6 +1469,50 @@ export default function ARScan() {
     let stablePopupKey = ""
     let stablePopupFrames = 0
     let popupDetection: ARDetection | null = null
+    let qrBusy = false
+    let qrWorker: Worker | null = null
+    try {
+      qrWorker = new Worker(new URL("../lib/arQr.worker.ts", import.meta.url), {
+        type: "module",
+      })
+      qrWorker.onmessage = (
+        event: MessageEvent<{ data: string | null; located: boolean }>,
+      ) => {
+        qrBusy = false
+        if (!active) return
+        const now = performance.now()
+        if (event.data.located) lastQrLocationAt = now
+        if (event.data.data) {
+          const slot = routeSlotFromQR(
+            event.data.data,
+            slots,
+            bookVideoManifest.publicOrigin,
+          )
+          if (
+            slot?.arVideoUrl &&
+            activePageSlotRef.current?.id !== slot.id &&
+            qrFallbackRef.current !== slot.id
+          ) {
+            if (pendingQRRef.current?.slot.id !== slot.id) {
+              pendingQRRef.current = { slot, foundAt: now }
+              setScannedQR(slot.id)
+            }
+          }
+        } else if (now - lastQrLocationAt > 1200 && qrFallbackRef.current) {
+          qrFallbackRef.current = null
+        }
+      }
+      qrWorker.onerror = () => {
+        qrBusy = false
+        qrWorker?.terminate()
+        qrWorker = null
+      }
+    } catch (workerError) {
+      console.warn(
+        "QR worker is unavailable; image tracking remains active.",
+        workerError,
+      )
+    }
     const canvas = captureCanvasRef.current || document.createElement("canvas")
     captureCanvasRef.current = canvas
     const context = canvas.getContext("2d", { willReadFrequently: true })
@@ -1260,9 +1522,10 @@ export default function ARScan() {
     }
     scanLoopRef.current = () => {
       active = false
+      qrWorker?.terminate()
     }
 
-    const frame = async (now: number) => {
+    const frame = (now: number) => {
       if (!active) return
       if (
         camera.readyState < HTMLMediaElement.HAVE_CURRENT_DATA ||
@@ -1272,43 +1535,23 @@ export default function ARScan() {
         requestAnimationFrame(frame)
         return
       }
-      if (now - lastQrAt > 350) {
+      if (
+        qrWorker &&
+        !qrBusy &&
+        now - lastQrAt > (activePageSlotRef.current ? 1200 : 250)
+      ) {
         lastQrAt = now
         const width = 480
         const height = Math.max(
           1,
           Math.round((camera.videoHeight / camera.videoWidth) * width),
         )
-        canvas.width = width
-        canvas.height = height
+        if (canvas.width !== width) canvas.width = width
+        if (canvas.height !== height) canvas.height = height
         context.drawImage(camera, 0, 0, width, height)
-        const decoded = jsQR(
-          context.getImageData(0, 0, width, height).data,
-          width,
-          height,
-          { inversionAttempts: "attemptBoth" },
-        )
-        if (decoded?.location) lastQrLocationAt = now
-        if (decoded) {
-          const slot = routeSlotFromQR(
-            decoded.data,
-            slots,
-            bookVideoManifest.publicOrigin,
-          )
-          if (
-            slot?.arVideoUrl &&
-            activePageSlotRef.current?.id !== slot.id &&
-            qrFallbackRef.current !== slot.id
-          ) {
-            const pending = pendingQRRef.current
-            if (pending?.slot.id !== slot.id) {
-              pendingQRRef.current = { slot, foundAt: now }
-              setScannedQR(slot.id)
-            }
-          }
-        } else if (now - lastQrLocationAt > 1200 && qrFallbackRef.current) {
-          qrFallbackRef.current = null
-        }
+        const pixels = context.getImageData(0, 0, width, height).data.buffer
+        qrBusy = true
+        qrWorker.postMessage({ pixels, width, height }, [pixels])
       }
 
       if (
@@ -1319,57 +1562,66 @@ export default function ARScan() {
       ) {
         lastDetectionAt = now
         detecting = true
-        try {
-          const page = activePageSlotRef.current
-          const detections = await detectBookTarget(
-            camera,
-            classNames.length,
-            detectionConfidence,
-          )
-          const popup = detections.find(
-            (item) =>
-              classNames[item.classId]?.startsWith("popup_") &&
-              slotFromDetection(item, page)?.arVideoUrl,
-          )
-          const popupSlot = popup ? slotFromDetection(popup, page) : null
-          if (popup && popupSlot?.id === page.id) {
-            const key = `${page.id}:${classNames[popup.classId]}`
-            stablePopupFrames =
-              key === stablePopupKey ? stablePopupFrames + 1 : 1
-            stablePopupKey = key
-            popupDetection = popup
-            if (stablePopupFrames >= arTargetManifest.stableFramesRequired) {
-              const current = selectionRef.current
-              if (
-                current?.slot.id === page.id &&
-                (current.source !== "popup" ||
-                  !current.box ||
-                  Math.abs(current.box.x - popup.box.x) > 8 ||
-                  Math.abs(current.box.y - popup.box.y) > 8)
-              ) {
-                chooseSelection({
-                  slot: page,
-                  box: popup.box,
-                  source: "popup",
-                  score: popup.score,
-                })
-              }
+        // Keep the QR fallback clock independent of an asynchronous inference.
+        void (async () => {
+          try {
+            const page = activePageSlotRef.current
+            if (!page) return
+            const detections = await detectBookTarget(
+              camera,
+              classNames.length,
+              detectionConfidence,
+            )
+            if (!active || activePageSlotRef.current?.id !== page.id) {
+              popupDetection = null
+              stablePopupFrames = 0
+              return
             }
-          } else {
-            stablePopupFrames = 0
-            stablePopupKey = ""
-            popupDetection = null
-            const current = selectionRef.current
-            if (current?.slot.id === page.id && current.source === "popup")
-              chooseSelection({ slot: page, box: null, source: "page" })
+            const popup = detections.find(
+              (item) =>
+                classNames[item.classId]?.startsWith("popup_") &&
+                slotFromDetection(item, page)?.arVideoUrl,
+            )
+            const popupSlot = popup ? slotFromDetection(popup, page) : null
+            if (popup && popupSlot?.id === page.id) {
+              const key = `${page.id}:${classNames[popup.classId]}`
+              stablePopupFrames =
+                key === stablePopupKey ? stablePopupFrames + 1 : 1
+              stablePopupKey = key
+              popupDetection = popup
+              if (stablePopupFrames >= arTargetManifest.stableFramesRequired) {
+                const current = selectionRef.current
+                if (
+                  current?.slot.id === page.id &&
+                  (current.source !== "popup" ||
+                    !current.box ||
+                    Math.abs(current.box.x - popup.box.x) > 8 ||
+                    Math.abs(current.box.y - popup.box.y) > 8)
+                ) {
+                  chooseSelection({
+                    slot: page,
+                    box: popup.box,
+                    source: "popup",
+                    score: popup.score,
+                  })
+                }
+              }
+            } else {
+              stablePopupFrames = 0
+              stablePopupKey = ""
+              popupDetection = null
+              const current = selectionRef.current
+              if (current?.slot.id === page.id && current.source === "popup")
+                chooseSelection({ slot: page, box: null, source: "page" })
+            }
+          } catch (modelError) {
+            console.warn("Popup detection failed for this frame.", modelError)
+            modelReadyRef.current = false
+            setModelStatus("unavailable")
+          } finally {
+            detecting = false
           }
-        } catch (modelError) {
-          console.warn("Popup detection failed for this frame.", modelError)
-          modelReadyRef.current = false
-          setModelStatus("unavailable")
-        } finally {
-          detecting = false
-        }
+        })()
       }
 
       const pending = pendingQRRef.current
@@ -1438,11 +1690,11 @@ export default function ARScan() {
     ? `Đã nhận ${trackedPageLabel}`
     : starting
       ? "Đang kết nối camera và chuẩn bị nhận diện 54 trang…"
-    : trackerStatus === "loading"
-      ? "Đang nạp mục tiêu ảnh của 54 trang…"
-      : modelStatus === "unavailable"
-        ? "Đưa trọn trang vào khung hình · QR là dự phòng"
-        : "Đưa trọn trang vào khung hình · giữ yên 1–2 giây"
+      : trackerStatus === "loading"
+        ? "Đang nạp mục tiêu ảnh của 54 trang…"
+        : modelStatus === "unavailable"
+          ? "Đưa trọn trang vào khung hình · QR là dự phòng"
+          : "Đưa trọn trang vào khung hình · giữ yên 1–2 giây"
   const qrVideoSrc =
     selectedAsset?.alpha && isSafariOrIOS()
       ? selectedAsset.alphaColorUrl || selection?.slot.arVideoUrl || ""
@@ -1473,7 +1725,8 @@ export default function ARScan() {
             </h1>
             <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-[#4A5461] sm:text-base">
               Đưa trang sách vào khung để nhân vật hiện ra trên sách. Di chuyển
-              máy nhẹ nhàng để khám phá và dùng nút + / − để chỉnh kích thước.
+              máy nhẹ nhàng để khám phá. Kéo một ngón để di chuyển nhân vật,
+              chụm hoặc mở hai ngón để chỉnh kích thước.
             </p>
           </div>
         </>
@@ -1488,8 +1741,15 @@ export default function ARScan() {
       >
         <div
           ref={frameRef}
+          data-ar-stage="true"
+          style={{
+            touchAction: cameraOn ? "none" : "auto",
+            userSelect: "none",
+          }}
           className={`relative bg-[#142333] ${
-            cameraOn ? "h-full w-full overflow-clip" : "aspect-video overflow-hidden"
+            cameraOn
+              ? "h-full w-full overflow-clip"
+              : "aspect-video overflow-hidden"
           }`}
         >
           <div
@@ -1522,9 +1782,7 @@ export default function ARScan() {
                 style={{ paddingTop: "max(1rem, env(safe-area-inset-top))" }}
               >
                 <div className="min-w-0">
-                  <p className="text-sm font-bold">
-                    Riko AR · camera sau
-                  </p>
+                  <p className="text-sm font-bold">Riko AR · camera sau</p>
                   <p className="mt-1 max-w-[75vw] text-xs text-white/90">
                     {cameraStatus}
                   </p>
@@ -1578,7 +1836,8 @@ export default function ARScan() {
                   role="alert"
                   className="absolute inset-x-4 bottom-20 z-40 mx-auto flex max-w-md items-center justify-between gap-3 rounded-2xl bg-red-950/90 px-4 py-3 text-sm font-semibold text-white shadow-xl"
                   style={{
-                    bottom: "max(5rem, calc(env(safe-area-inset-bottom) + 4rem))",
+                    bottom:
+                      "max(5rem, calc(env(safe-area-inset-bottom) + 4rem))",
                   }}
                 >
                   <span>{error}</span>
@@ -1586,7 +1845,8 @@ export default function ARScan() {
                     type="button"
                     className="shrink-0 rounded-full bg-white/15 px-3 py-2 text-xs"
                     onClick={() => {
-                      const slot = selectionRef.current?.slot || activePageSlotRef.current
+                      const slot =
+                        selectionRef.current?.slot || activePageSlotRef.current
                       if (slot) void showSpatialVideo(slot)
                     }}
                   >
@@ -1596,6 +1856,7 @@ export default function ARScan() {
               )}
               {selection && selection.source !== "qr" && (
                 <div
+                  data-ar-controls="true"
                   className="absolute bottom-5 left-1/2 z-30 flex max-w-[94vw] -translate-x-1/2 flex-col gap-2 rounded-2xl bg-[#173E72]/95 px-4 py-3 text-xs font-semibold text-white shadow-lg backdrop-blur-sm"
                   style={{
                     bottom: "max(1.25rem, env(safe-area-inset-bottom))",
@@ -1608,9 +1869,15 @@ export default function ARScan() {
                         type="button"
                         onClick={toggleSound}
                         className="rounded-full p-1 hover:bg-white/15"
-                        aria-label={soundOn ? "Tắt tiếng video AR" : "Bật tiếng video AR"}
+                        aria-label={
+                          soundOn ? "Tắt tiếng video AR" : "Bật tiếng video AR"
+                        }
                       >
-                        {soundOn ? <Volume2 size={16} /> : <VolumeX size={16} />}
+                        {soundOn ? (
+                          <Volume2 size={16} />
+                        ) : (
+                          <VolumeX size={16} />
+                        )}
                       </button>
                       <button
                         type="button"
@@ -1634,23 +1901,36 @@ export default function ARScan() {
                     <button
                       type="button"
                       onClick={() => changePresentationScale(-0.25)}
-                      disabled={presentationScale <= 0.75}
+                      disabled={presentationScale <= MIN_AR_SCALE}
                       aria-label="Thu nhỏ video AR"
                       className="rounded-full bg-white/15 p-2 disabled:opacity-30"
                     >
                       <Minus size={16} />
                     </button>
-                    <span className="w-10 text-center tabular-nums">{Math.round(presentationScale * 100)}%</span>
+                    <span className="w-10 text-center tabular-nums">
+                      {Math.round(presentationScale * 100)}%
+                    </span>
                     <button
                       type="button"
                       onClick={() => changePresentationScale(0.25)}
-                      disabled={presentationScale >= 1.75}
+                      disabled={presentationScale >= MAX_AR_SCALE}
                       aria-label="Phóng to video AR"
                       className="rounded-full bg-white/15 p-2 disabled:opacity-30"
                     >
                       <Plus size={16} />
                     </button>
+                    <button
+                      type="button"
+                      onClick={resetPresentation}
+                      aria-label="Đặt lại vị trí và kích thước AR"
+                      className="rounded-full bg-white/15 p-2"
+                    >
+                      <RotateCcw size={16} />
+                    </button>
                   </div>
+                  <p className="text-center text-[10px] font-normal text-white/75">
+                    Kéo để di chuyển · Chụm hai ngón để thu phóng
+                  </p>
                 </div>
               )}
               <button

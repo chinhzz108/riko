@@ -6,6 +6,7 @@
 <output id="summary">Starting…</output><div id="view"></div><pre id="results"></pre>
 <script type="module">
 import * as THREE from "three"
+import { configurePackedAlpha } from "/src/lib/arPackedMaterial.ts"
 import profiles from "/src/data/arVideoPresentation.json"
 const assets=await fetch("/videos/ar/manifest.json").then(r=>r.json())
 const video=document.createElement("video"),reference=document.createElement("video")
@@ -14,11 +15,11 @@ const renderer=new THREE.WebGLRenderer({alpha:true,preserveDrawingBuffer:true,an
 renderer.setSize(128,128);renderer.setClearColor(0,0)
 document.querySelector("#view").append(renderer.domElement)
 const scene=new THREE.Scene(),camera=new THREE.OrthographicCamera(-1,1,1,-1,.1,5);camera.position.z=2
-const color=new THREE.VideoTexture(video),matte=new THREE.VideoTexture(video)
+const color=new THREE.VideoTexture(video)
 color.colorSpace=THREE.SRGBColorSpace;color.repeat.set(.5,1)
-matte.colorSpace=THREE.NoColorSpace;matte.repeat.set(.5,1);matte.offset.set(.5,0)
-for(const texture of [color,matte]){texture.minFilter=THREE.LinearFilter;texture.magFilter=THREE.LinearFilter;texture.generateMipmaps=false}
-const material=new THREE.MeshBasicMaterial({map:color,alphaMap:matte,transparent:true,depthWrite:false,toneMapped:false})
+color.minFilter=THREE.LinearFilter;color.magFilter=THREE.LinearFilter;color.generateMipmaps=false
+const material=new THREE.MeshBasicMaterial({map:color,transparent:true,depthWrite:false,toneMapped:false})
+configurePackedAlpha(material,THREE.ShaderChunk.map_fragment).value=1
 scene.add(new THREE.Mesh(new THREE.PlaneGeometry(2,2),material))
 const canvas=document.createElement("canvas");canvas.width=128;canvas.height=128
 const ctx=canvas.getContext("2d",{willReadFrequently:true})
@@ -35,7 +36,7 @@ for(const asset of assets.filter(v=>v.alpha)){
  try{
   await Promise.all([firstFrame(video,profiles[asset.id].packedVideoUrl),firstFrame(reference,asset.alphaVideoUrl)])
   if(video.videoWidth!==reference.videoWidth*2||video.videoHeight!==reference.videoHeight)throw new Error("packed dimensions differ from the source")
-  color.needsUpdate=true;matte.needsUpdate=true;renderer.render(scene,camera)
+  color.needsUpdate=true;renderer.render(scene,camera)
   ctx.clearRect(0,0,128,128);ctx.drawImage(renderer.domElement,0,0,128,128);const actual=ctx.getImageData(0,0,128,128).data
   ctx.clearRect(0,0,128,128);ctx.drawImage(reference,0,0,128,128);const expected=ctx.getImageData(0,0,128,128).data
   let error=0,transparent=0

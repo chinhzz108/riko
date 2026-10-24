@@ -7,9 +7,21 @@
     // Dev-only replay harness. The application and tracker are the real ones;
     // getUserMedia receives a synthetic stream, not a physical camera.
     import slotsData from "/src/data/bookVideoSlots.json"
+    import { getARDetectorStatus } from "/src/lib/arDetector.ts"
+    import QRCode from "qrcode"
     const qaUrl = location.href
     const params = new URLSearchParams(location.search)
     const packed = params.has("packed")
+    let uploads = 0
+    for (const GL of [WebGLRenderingContext, WebGL2RenderingContext]) {
+      for (const name of ["texImage2D", "texSubImage2D"]) {
+        const original = GL.prototype[name]
+        GL.prototype[name] = function (...args) {
+          if (args.some(value => value instanceof HTMLVideoElement && value.src.includes("/videos/ar/"))) uploads++
+          return original.apply(this, args)
+        }
+      }
+    }
     const firstPage = params.get("page") || "book-c1-p03"
     if (packed) Object.defineProperty(navigator, "userAgent", {value:"Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 Version/18.0 Mobile/15E148 Safari/604.1"})
     const canvas = document.createElement("canvas")
@@ -25,8 +37,33 @@
     let image, tilted = false, rotation = 0, blankUntil = 0
     const panel = document.createElement("div")
     panel.style.cssText = "position:fixed;right:8px;top:82px;z-index:1000;background:#071320dd;color:white;padding:8px;border-radius:8px;font:11px system-ui;max-width:240px"
-    panel.innerHTML = `<strong>CAMERA GIẢ · ${packed ? "PACKED ALPHA" : "WEBM ALPHA"}</strong><br><label>Trang test <select id="qa-page" style="color:black;width:100%">${slotsData.slots.map(slot=>`<option value="${slot.id}">${slot.label}</option>`).join("")}</select></label><br><button id="qa-tilt">Nghiêng sách</button> <button id="qa-rotate">Xoay 90°</button> <button id="qa-cover">Che 300ms</button><output id="qa-media" style="display:block;word-break:break-all"></output>`
+    panel.innerHTML = `<strong>CAMERA GIẢ · ${packed ? "PACKED ALPHA" : "WEBM ALPHA"}</strong><br><label>Trang test <select id="qa-page" style="color:black;width:100%">${slotsData.slots.map(slot=>`<option value="${slot.id}">${slot.label}</option>`).join("")}</select></label><br><button id="qa-tilt">Nghiêng sách</button> <button id="qa-rotate">Xoay 90°</button> <button id="qa-cover">Che 300ms</button><output id="qa-media" style="display:block;word-break:break-all"></output><output id="qa-detector" style="display:block"></output>`
     document.body.append(panel)
+    const benchmark = document.createElement("button")
+    benchmark.textContent = "Đo 10 giây"
+    panel.append(benchmark)
+    const metrics = document.createElement("output")
+    metrics.id = "qa-performance"
+    metrics.style.display = "block"
+    panel.append(metrics)
+    benchmark.onclick = () => {
+      const times = [], tasks = [], start = performance.now(), uploadStart = uploads
+      let previous = start
+      const observer = new PerformanceObserver(list => tasks.push(...list.getEntries().map(entry => entry.duration)))
+      observer.observe({type:"longtask", buffered:false})
+      benchmark.disabled = true
+      const tick = now => {
+        times.push(now - previous); previous = now
+        if (now - start < 10000) return requestAnimationFrame(tick)
+        observer.disconnect()
+        times.sort((a,b)=>a-b)
+        const result = {frames:times.length,p95Ms:times[Math.floor(times.length*.95)],maxMs:Math.max(...times),longTasks:tasks.length,longTaskMs:tasks.reduce((a,b)=>a+b,0),videoUploads:uploads-uploadStart}
+        metrics.textContent = JSON.stringify(result)
+        metrics.dataset.result = JSON.stringify(result)
+        benchmark.disabled = false
+      }
+      metrics.textContent = "Đang đo…";requestAnimationFrame(tick)
+    }
     // Affine triangles tessellate a projective page pose for the tracker.
     function drawTriangle(source, target) {
       const [a,b,c] = source, [p,q,r] = target
@@ -65,7 +102,11 @@
       paint.restore()
     }
     async function loadPage(id) {
-      image = new Image();image.src=`/tmp/ar-targets/pages/${id}.jpg`;await image.decode();prepare()
+      image = new Image()
+      image.src = params.has("qr")
+        ? await QRCode.toDataURL(`https://rikokid.me/watch/${id}`, { width:600, margin:4 })
+        : `/tmp/ar-targets/pages/${id}.jpg`
+      await image.decode();prepare()
     }
     const select = panel.querySelector("#qa-page")
     select.value=firstPage
@@ -87,6 +128,7 @@
     setInterval(()=>{
       const active=[...document.querySelectorAll("video")].find(video=>video.src.includes("/videos/ar/")&&!video.paused)
       panel.querySelector("#qa-media").textContent=active?`${new URL(active.src).pathname} · ${active.videoWidth}×${active.videoHeight} · ${active.currentTime.toFixed(2)}s`:"Đang chờ phát video"
+      panel.querySelector("#qa-detector").textContent=JSON.stringify(getARDetectorStatus())
     },250)
   </script>
 </body>
