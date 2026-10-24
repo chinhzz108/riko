@@ -10,6 +10,7 @@ import subprocess
 import sys
 from pathlib import Path
 
+import resource_budget
 import numpy as np
 
 
@@ -25,7 +26,7 @@ GROUNDED = {
 
 def make_packed(asset: dict) -> str:
     """One H.264 clock for both color and matte prevents moving edge mismatch."""
-    route = f"/videos/ar/packed/{asset['id']}.mp4"
+    route = asset.get("packedVideoUrl", f"/videos/ar/packed/{asset['id']}.mp4")
     destination = ROOT / "public" / route.lstrip("/")
     destination.parent.mkdir(parents=True, exist_ok=True)
     soft_alpha = asset["id"].startswith("HTTN") or asset["id"] == "RIKO"
@@ -81,13 +82,13 @@ def measure(asset: dict) -> dict:
         "right": round(min(width, right + padding_x) / width, 6),
         "bottom": round(min(height, bottom + padding_y) / height, 6),
     }
-    if asset["id"] in SCENES:
+    if asset.get("presentationMode") in {"scene", "mixed"} or asset["id"] in SCENES:
         bounds = {"left": 0, "top": 0, "right": 1, "bottom": 1}
     print(f"{asset['id']}: {frames} frames, bounds={bounds}", flush=True)
     return {
         "bounds": bounds,
-        "grounded": asset["id"] in GROUNDED,
-        "mode": "scene" if asset["id"] in SCENES else "cutout",
+        "grounded": asset["id"] in GROUNDED and asset.get("presentationMode") not in {"scene", "glow", "mixed"},
+        "mode": asset.get("presentationMode", "scene" if asset["id"] in SCENES else "cutout"),
         "measuredFrames": frames,
     }
 
@@ -104,8 +105,10 @@ if __name__ == "__main__":
         if "--pack" in sys.argv or "--pack-only" in sys.argv:
             profile["packedVideoUrl"] = make_packed(asset)
             print(f"{asset['id']}: packed color/matte ready", flush=True)
-        elif previous.get(asset["id"], {}).get("packedVideoUrl"):
-            profile["packedVideoUrl"] = previous[asset["id"]]["packedVideoUrl"]
+        elif asset.get("packedVideoUrl") or previous.get(asset["id"], {}).get("packedVideoUrl"):
+            profile["packedVideoUrl"] = asset.get("packedVideoUrl") or previous[asset["id"]]["packedVideoUrl"]
+        if asset.get("previewVideoUrl"):
+            profile["previewVideoUrl"] = asset["previewVideoUrl"]
         profiles[asset["id"]] = profile
     OUTPUT.write_text(json.dumps(profiles, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(f"Wrote {len(profiles)} presentation profiles to {OUTPUT}")

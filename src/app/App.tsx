@@ -98,6 +98,7 @@ import rikoEncouraging from "../assets/riko/encouraging.png"
 import rikoActivity from "../assets/riko/activity.png"
 import rikoExplaining from "../assets/riko/explaining.png"
 import bookVideoManifest from "../data/bookVideoSlots.json"
+import arVideoPresentations from "../data/arVideoPresentation.json"
 const ARScan = lazy(() => import("./ARScan"))
 
 const createOrder: typeof import("../lib/appwrite").createOrder = (...args) =>
@@ -2070,13 +2071,17 @@ function Watch() {
   const location = useLocation()
   const videoId = location.pathname.split("/").pop() || ""
   const slot = qrVideoSlots.find((videoSlot) => videoSlot.id === videoId)
+  const arAssetId = slot?.arVideoUrl?.split("/").pop()?.replace(/\.webm$/, "")
+  const arPreviewUrl = arAssetId
+    ? (arVideoPresentations as Record<string, { previewVideoUrl?: string }>)[arAssetId]?.previewVideoUrl
+    : undefined
   const localARVideo: VideoItem | null = slot?.arVideoUrl
     ? {
         id: slot.id,
         title: slot.label,
         chapter: slot.group,
         duration: "",
-        url: slot.arVideoUrl,
+        url: arPreviewUrl || slot.arVideoUrl,
       }
     : null
   const [linkedVideo, setLinkedVideo] = useState<VideoItem | null>(null)

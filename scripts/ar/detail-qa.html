@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Riko — đối chiếu chi tiết AR</title>
+<style>
+body{margin:0;padding:20px;background:#101827;color:#edf3fb;font:14px system-ui}h1{font-size:24px;margin:0 0 8px}button,select{padding:8px 12px;border:1px solid #69778f;border-radius:8px;margin:4px;color:inherit;background:#26344d}label{margin-right:12px}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:20px}.panel{border:1px solid #53617a;border-radius:12px;overflow:hidden}.label{padding:12px;font-weight:700}.surface{background-color:#c975a0;background-image:linear-gradient(45deg,#45536d 25%,transparent 25%),linear-gradient(-45deg,#45536d 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#45536d 75%),linear-gradient(-45deg,transparent 75%,#45536d 75%);background-size:32px 32px;background-position:0 0,0 16px,16px -16px,-16px 0}.surface video{display:block;width:100%;height:360px;object-fit:contain}#result{display:block;margin-top:18px;white-space:pre-wrap;font:12px monospace}#mode{color:#b3daff}body.light .surface{background:#fffdf3}body.dark .surface{background:#172132}@media(max-width:800px){.grid{grid-template-columns:1fr}.surface video{height:300px}}
+</style></head><body>
+<h1>Riko — đối chiếu chi tiết AR</h1><p>MP4 nguồn · bản AR cũ · bản AR sửa. Chọn cùng một thời điểm để xem cánh hoa, cành cây, nan hoa và phần thân có bị thủng hay không.</p>
+<label>Clip <select id="asset"></select></label><button id="one">1 giây</button><button id="four">4 giây</button><button id="eight">8 giây</button><button id="play">Phát đồng thời</button><button id="pause">Dừng hình</button>
+<br><button id="checker">Ô caro</button><button id="light">Nền sáng</button><button id="dark">Nền tối</button><span id="mode"></span>
+<div class="grid"><section class="panel"><div class="label">1. Video nguồn</div><div class="surface"><video id="original" muted playsinline loop controls></video></div></section><section class="panel"><div class="label">2. AR trước khi sửa</div><div class="surface"><video id="before" muted playsinline loop controls></video></div></section><section class="panel"><div class="label">3. AR đã sửa</div><div class="surface"><video id="after" muted playsinline loop controls></video></div></section></div>
+<output id="result">Đang tải…</output>
+<script type="module">
+const manifest=await fetch('/videos/ar/manifest.json',{cache:'no-store'}).then(r=>r.json())
+const select=document.querySelector('#asset'),result=document.querySelector('#result'),mode=document.querySelector('#mode')
+const videos=['original','before','after'].map(id=>document.getElementById(id))
+for(const asset of manifest){const option=document.createElement('option');option.value=asset.id;option.textContent=asset.id;select.append(option)}
+let active
+async function load(id){
+ active=manifest.find(a=>a.id===id);select.value=id;result.textContent='Đang tải '+id;delete result.dataset.ready
+ mode.textContent=active.presentationMode==='scene'?'Giữ nguyên cảnh để giữ đủ nội dung':active.presentationMode==='glow'?'Giữ hiệu ứng ánh sáng':'Giữ vật thể và chi tiết sáng'
+ const sources=[active.previewVideoUrl||active.url,active.url,active.alphaVideoUrl]
+ await Promise.all(videos.map((video,i)=>new Promise((resolve,reject)=>{
+  video.pause();video.onloadeddata=resolve;video.onerror=()=>reject(new Error('Không đọc được '+sources[i]));video.src=sources[i];video.load()
+ })))
+ await seek(4);result.dataset.ready='true'
+}
+async function seek(time){
+ await Promise.all(videos.map(video=>new Promise(resolve=>{
+  video.pause();const next=Math.min(time,Math.max(0,video.duration-.1))
+  if(Math.abs(video.currentTime-next)<.001)return resolve()
+  video.onseeked=()=>resolve();video.currentTime=next
+ })))
+ update()
+}
+function update(){
+ const after=videos[2],canvas=document.createElement('canvas');canvas.width=after.videoWidth;canvas.height=after.videoHeight
+ const ctx=canvas.getContext('2d',{willReadFrequently:true});ctx.drawImage(after,0,0);const pixels=ctx.getImageData(0,0,canvas.width,canvas.height).data
+ let visible=0,opaque=0;for(let i=3;i<pixels.length;i+=4){if(pixels[i]>10)visible++;if(pixels[i]>=245)opaque++}
+ const values={id:active.id,mode:active.presentationMode,time:after.currentTime,visiblePixels:visible,opaquePixels:opaque,opaqueAmongVisible:visible?opaque/visible:0,dimensions:videos.map(v=>[v.videoWidth,v.videoHeight]),sources:videos.map(v=>new URL(v.currentSrc).pathname)}
+ result.textContent=JSON.stringify(values,null,2);result.dataset.values=JSON.stringify(values)
+}
+select.onchange=()=>load(select.value).catch(error=>result.textContent=String(error))
+for(const [id,time]of[['one',1],['four',4],['eight',8]])document.getElementById(id).onclick=()=>seek(time)
+document.querySelector('#play').onclick=async()=>{await seek(videos[2].currentTime);await Promise.all(videos.map(v=>v.play()));update()}
+document.querySelector('#pause').onclick=()=>{videos.forEach(v=>v.pause());update()}
+for(const name of ['checker','light','dark'])document.getElementById(name).onclick=()=>document.body.className=name==='checker'?'':name
+load(new URLSearchParams(location.search).get('id')||'DV10').catch(error=>result.textContent=String(error))
+</script></body></html>

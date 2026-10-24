@@ -3,7 +3,8 @@
 <body style="background:#152233;color:#eef4fa;font:14px system-ui;padding:24px">
 <h1>AR packed alpha · browser decode + WebGL render</h1>
 <p>Every delivered clip is decoded, advanced, then rendered using the app's H.264 color/matte texture transforms.</p>
-<output id="summary">Starting…</output><div id="view"></div><pre id="results"></pre>
+<button id="start">Check 45 clips sequentially</button> <button id="stop" disabled>Stop</button>
+<output id="summary">Ready · no camera or continuous benchmark</output><div id="view"></div><pre id="results"></pre>
 <script type="module">
 import * as THREE from "three"
 import { configurePackedAlpha } from "/src/lib/arPackedMaterial.ts"
@@ -12,7 +13,8 @@ const assets=await fetch("/videos/ar/manifest.json").then(r=>r.json())
 const video=document.createElement("video"),reference=document.createElement("video")
 for(const v of [video,reference]){v.muted=true;v.playsInline=true;v.crossOrigin="anonymous";v.style.cssText="width:240px;height:140px";document.querySelector("#view").append(v)}
 const renderer=new THREE.WebGLRenderer({alpha:true,preserveDrawingBuffer:true,antialias:false})
-renderer.setSize(128,128);renderer.setClearColor(0,0)
+const size=384
+renderer.setSize(size,size);renderer.setClearColor(0,0)
 document.querySelector("#view").append(renderer.domElement)
 const scene=new THREE.Scene(),camera=new THREE.OrthographicCamera(-1,1,1,-1,.1,5);camera.position.z=2
 const color=new THREE.VideoTexture(video)
@@ -21,7 +23,7 @@ color.minFilter=THREE.LinearFilter;color.magFilter=THREE.LinearFilter;color.gene
 const material=new THREE.MeshBasicMaterial({map:color,transparent:true,depthWrite:false,toneMapped:false})
 configurePackedAlpha(material,THREE.ShaderChunk.map_fragment).value=1
 scene.add(new THREE.Mesh(new THREE.PlaneGeometry(2,2),material))
-const canvas=document.createElement("canvas");canvas.width=128;canvas.height=128
+const canvas=document.createElement("canvas");canvas.width=size;canvas.height=size
 const ctx=canvas.getContext("2d",{willReadFrequently:true})
 const summary=document.querySelector("#summary"),log=document.querySelector("#results")
 const results=[]
@@ -29,28 +31,54 @@ async function firstFrame(v,url){
  v.pause();v.src=url;v.load()
  await Promise.race([v.play(),new Promise((_,reject)=>setTimeout(()=>reject(new Error("decode timeout")),10000))])
  await new Promise((resolve,reject)=>{const timer=setTimeout(()=>reject(new Error("no video frame")),8000);v.requestVideoFrameCallback(()=>{clearTimeout(timer);v.pause();resolve()})})
- v.currentTime=0
+ // Compare a settled, visible subject, not its tiny entrance at frame zero.
+ // Opus/WebM can start a few milliseconds after the MP4 timestamp. Seek to
+ // the middle of the same 24 fps frame, rather than opposite frame boundaries.
+ const frame=Math.floor(Math.min(4,Math.max(0,v.duration-.2))*24)
+ v.currentTime=(frame+.5)/24
  if(v.seeking)await new Promise(resolve=>v.addEventListener("seeked",resolve,{once:true}))
 }
+let cancelled=false
+const start=document.querySelector('#start'),stop=document.querySelector('#stop')
+stop.onclick=()=>{cancelled=true;video.pause();reference.pause()}
+start.onclick=async()=>{
+ cancelled=false;results.length=0;start.disabled=true;stop.disabled=false
+ delete summary.dataset.done;delete summary.dataset.results
 for(const asset of assets.filter(v=>v.alpha)){
+ if(cancelled)break
  try{
   await Promise.all([firstFrame(video,profiles[asset.id].packedVideoUrl),firstFrame(reference,asset.alphaVideoUrl)])
   if(video.videoWidth!==reference.videoWidth*2||video.videoHeight!==reference.videoHeight)throw new Error("packed dimensions differ from the source")
   color.needsUpdate=true;renderer.render(scene,camera)
-  ctx.clearRect(0,0,128,128);ctx.drawImage(renderer.domElement,0,0,128,128);const actual=ctx.getImageData(0,0,128,128).data
-  ctx.clearRect(0,0,128,128);ctx.drawImage(reference,0,0,128,128);const expected=ctx.getImageData(0,0,128,128).data
-  let error=0,transparent=0
-  for(let i=3;i<actual.length;i+=4){error+=Math.abs(actual[i]-expected[i])/255;if(actual[i]<245)transparent++}
-  error/=128*128
+  ctx.clearRect(0,0,size,size);ctx.drawImage(renderer.domElement,0,0,size,size);const actual=ctx.getImageData(0,0,size,size).data
+  ctx.clearRect(0,0,size,size);ctx.drawImage(reference,0,0,size,size);const expected=ctx.getImageData(0,0,size,size).data
+  let error=0,transparent=0,expectedTransparent=0,colorError=0,opaqueChannels=0
+  for(let y=0;y<size;y++)for(let x=0;x<size;x++){
+   const i=(y*size+x)*4+3
+   error+=Math.abs(actual[i]-expected[i])/255
+   if(actual[i]<245)transparent++
+   if(expected[i]<245)expectedTransparent++
+   // Edges are antialiased differently by canvas and WebGL. Compare colors
+   // only inside a 3x3 opaque core; alpha is checked across every pixel above.
+   let core=actual[i]>252&&expected[i]>252&&x>0&&y>0&&x<size-1&&y<size-1
+   if(core)for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++)if(expected[i+(dy*size+dx)*4]<253)core=false
+   if(core)for(let j=1;j<=3;j++){colorError+=Math.abs(actual[i-j]-expected[i-j])/255;opaqueChannels++}
+  }
+  error/=size*size
   if(error>.065)throw new Error(`alpha differs: ${error.toFixed(4)}`)
-  if(!transparent)throw new Error("WebGL returned an opaque rectangle")
+  if(profiles[asset.id].mode==='scene') {if(transparent)throw new Error("A preserved scene acquired unwanted transparent holes")}
+  else if(expectedTransparent&&!transparent)throw new Error("WebGL lost the reference transparency")
+  colorError/=Math.max(1,opaqueChannels)
+  if(colorError>.035)throw new Error(`opaque subject colors differ: ${colorError.toFixed(4)}`)
   await video.play();const before=video.currentTime;await new Promise(resolve=>setTimeout(resolve,160));video.pause()
   if(video.currentTime<=before)throw new Error("video did not advance")
-  results.push({id:asset.id,pass:true,alphaMAE:error,dimensions:[video.videoWidth,video.videoHeight]})
+  results.push({id:asset.id,pass:true,alphaMAE:error,colorMAE:colorError,mode:profiles[asset.id].mode,dimensions:[video.videoWidth,video.videoHeight]})
  }catch(error){results.push({id:asset.id,pass:false,error:String(error)})}
  log.textContent=results.map(r=>`${r.pass?"PASS":"FAIL"} ${r.id} ${r.pass?`alpha error=${r.alphaMAE.toFixed(4)}`:r.error}`).join("\n")
  summary.textContent=`${results.length}/${assets.length} clips checked · ${results.filter(r=>!r.pass).length} failures`
 }
 video.pause();reference.pause();summary.dataset.done="true";summary.dataset.failures=String(results.filter(r=>!r.pass).length)
 summary.dataset.results=JSON.stringify(results)
+start.disabled=false;stop.disabled=true
+}
 </script></body></html>

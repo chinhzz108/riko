@@ -1,0 +1,3105 @@
+{
+  "qualityVersion": "detail-preserved-v2",
+  "date": "2026-10-24",
+  "limits": [
+    "Source contrast cores are not semantic ground truth for every white edge.",
+    "Visual review uses 1, 4 and 8 second snapshots; numerical comparison uses every decoded frame.",
+    "Browser shader QA runs in Chromium without a camera; physical iPhone Safari was not tested.",
+    "Studio edge halos and source framing can remain; no claim of lossless matting or true 3D."
+  ],
+  "routes": [
+    {
+      "id": "book-c1-p01",
+      "arVideoUrl": "/videos/ar/RIKO.webm"
+    },
+    {
+      "id": "book-c1-p02",
+      "arVideoUrl": "/videos/ar/RIKO.webm"
+    },
+    {
+      "id": "book-c1-p03",
+      "arVideoUrl": "/videos/ar/GT01.webm"
+    },
+    {
+      "id": "book-c1-p04",
+      "arVideoUrl": "/videos/ar/GT02.webm"
+    },
+    {
+      "id": "book-c1-p05",
+      "arVideoUrl": "/videos/ar/GT03.webm"
+    },
+    {
+      "id": "book-c1-p06",
+      "arVideoUrl": "/videos/ar/GT04.webm"
+    },
+    {
+      "id": "book-c1-p07",
+      "arVideoUrl": "/videos/ar/GT05.webm"
+    },
+    {
+      "id": "book-c1-p08",
+      "arVideoUrl": "/videos/ar/GT06.webm"
+    },
+    {
+      "id": "book-c1-p09",
+      "arVideoUrl": "/videos/ar/GT07.webm"
+    },
+    {
+      "id": "book-c1-p10",
+      "arVideoUrl": "/videos/ar/GT08.webm"
+    },
+    {
+      "id": "book-c1-p11",
+      "arVideoUrl": "/videos/ar/GT09.webm"
+    },
+    {
+      "id": "book-c1-p12",
+      "arVideoUrl": "/videos/ar/GT10.webm"
+    },
+    {
+      "id": "book-c1-p13",
+      "arVideoUrl": "/videos/ar/RECAP_GT.webm"
+    },
+    {
+      "id": "book-c1-p14",
+      "arVideoUrl": "/videos/ar/RIKO.webm"
+    },
+    {
+      "id": "book-c2-p01",
+      "arVideoUrl": "/videos/ar/RIKO.webm"
+    },
+    {
+      "id": "book-c2-p02",
+      "arVideoUrl": "/videos/ar/RIKO.webm"
+    },
+    {
+      "id": "book-c2-p03",
+      "arVideoUrl": "/videos/ar/RECAP_DV_MAMMALS.webm"
+    },
+    {
+      "id": "book-c2-p04",
+      "arVideoUrl": "/videos/ar/DV01.webm"
+    },
+    {
+      "id": "book-c2-p05",
+      "arVideoUrl": "/videos/ar/DV02.webm"
+    },
+    {
+      "id": "book-c2-p06",
+      "arVideoUrl": "/videos/ar/RECAP_DV_BIRDS.webm"
+    },
+    {
+      "id": "book-c2-p07",
+      "arVideoUrl": "/videos/ar/DV03.webm"
+    },
+    {
+      "id": "book-c2-p08",
+      "arVideoUrl": "/videos/ar/DV04.webm"
+    },
+    {
+      "id": "book-c2-p09",
+      "arVideoUrl": "/videos/ar/RECAP_DV_REPTILES.webm"
+    },
+    {
+      "id": "book-c2-p10",
+      "arVideoUrl": "/videos/ar/DV05.webm"
+    },
+    {
+      "id": "book-c2-p11",
+      "arVideoUrl": "/videos/ar/DV06.webm"
+    },
+    {
+      "id": "book-c2-p12",
+      "arVideoUrl": "/videos/ar/RECAP_DV_AMPHIBIANS.webm"
+    },
+    {
+      "id": "book-c2-p13",
+      "arVideoUrl": "/videos/ar/DV07.webm"
+    },
+    {
+      "id": "book-c2-p14",
+      "arVideoUrl": "/videos/ar/DV08.webm"
+    },
+    {
+      "id": "book-c2-p15",
+      "arVideoUrl": "/videos/ar/RECAP_DV_INSECTS.webm"
+    },
+    {
+      "id": "book-c2-p16",
+      "arVideoUrl": "/videos/ar/DV09.webm"
+    },
+    {
+      "id": "book-c2-p17",
+      "arVideoUrl": "/videos/ar/DV10.webm"
+    },
+    {
+      "id": "book-c2-p18",
+      "arVideoUrl": "/videos/ar/RECAP_DV.webm"
+    },
+    {
+      "id": "book-c2-p19",
+      "arVideoUrl": "/videos/ar/RIKO.webm"
+    },
+    {
+      "id": "book-c3-p01",
+      "arVideoUrl": "/videos/ar/RIKO.webm"
+    },
+    {
+      "id": "book-c3-p02",
+      "arVideoUrl": "/videos/ar/RIKO.webm"
+    },
+    {
+      "id": "book-c3-p03",
+      "arVideoUrl": "/videos/ar/HTTN01.webm"
+    },
+    {
+      "id": "book-c3-p04",
+      "arVideoUrl": "/videos/ar/HTTN06.webm"
+    },
+    {
+      "id": "book-c3-p05",
+      "arVideoUrl": "/videos/ar/HTTN02.webm"
+    },
+    {
+      "id": "book-c3-p06",
+      "arVideoUrl": "/videos/ar/HTTN07.webm"
+    },
+    {
+      "id": "book-c3-p07",
+      "arVideoUrl": "/videos/ar/HTTN03.webm"
+    },
+    {
+      "id": "book-c3-p08",
+      "arVideoUrl": "/videos/ar/HTTN03.webm"
+    },
+    {
+      "id": "book-c3-p09",
+      "arVideoUrl": "/videos/ar/HTTN08.webm"
+    },
+    {
+      "id": "book-c3-p10",
+      "arVideoUrl": "/videos/ar/HTTN04.webm"
+    },
+    {
+      "id": "book-c3-p11",
+      "arVideoUrl": "/videos/ar/HTTN09.webm"
+    },
+    {
+      "id": "book-c3-p12",
+      "arVideoUrl": "/videos/ar/HTTN05.webm"
+    },
+    {
+      "id": "book-c3-p13",
+      "arVideoUrl": "/videos/ar/HTTN10.webm"
+    },
+    {
+      "id": "book-c3-p14",
+      "arVideoUrl": "/videos/ar/HTTN11.webm"
+    },
+    {
+      "id": "book-c3-p15",
+      "arVideoUrl": "/videos/ar/HTTN12.webm"
+    },
+    {
+      "id": "book-c3-p16",
+      "arVideoUrl": "/videos/ar/HTTN13.webm"
+    },
+    {
+      "id": "book-c3-p17",
+      "arVideoUrl": "/videos/ar/HTTN14.webm"
+    },
+    {
+      "id": "book-c3-p18",
+      "arVideoUrl": "/videos/ar/HTTN15.webm"
+    },
+    {
+      "id": "book-c3-p19",
+      "arVideoUrl": "/videos/ar/RECAP_HTTN_A.webm"
+    },
+    {
+      "id": "book-c3-p20",
+      "arVideoUrl": "/videos/ar/RECAP_HTTN_B.webm"
+    },
+    {
+      "id": "book-c3-p21",
+      "arVideoUrl": "/videos/ar/RIKO.webm"
+    }
+  ],
+  "assets": [
+    {
+      "id": "GT01",
+      "canonicalUrl": "/videos/ar/GT01.webm",
+      "mode": "cutout",
+      "frames": 240,
+      "dimensions": [
+        960,
+        540
+      ],
+      "files": {
+        "alphaVideoUrl": {
+          "url": "/videos/ar/hq2/GT01.webm",
+          "sha256": "0845fc91cc9ca28a334bec2e993110235ba966b5f8d3bb71facdd406fa769c36"
+        },
+        "alphaColorUrl": {
+          "url": "/videos/ar/fallback/hq2/GT01-color.mp4",
+          "sha256": "dda65478595a928f08f5aa75afa06f2ac4ad9bf48306a34d48d78cd82e96b13b"
+        },
+        "alphaMaskUrl": {
+          "url": "/videos/ar/fallback/hq2/GT01-alpha.mp4",
+          "sha256": "084f84004ad7a47ec802b918a3d0d02dd81f73f3354093ac7ff935aa443d7d9e"
+        },
+        "packedVideoUrl": {
+          "url": "/videos/ar/packed/hq2/GT01.mp4",
+          "sha256": "c852092e90aec5f5b29fd43c8e9b6066c3765dfb01ab65207449643bd7f3eb01"
+        },
+        "previewVideoUrl": {
+          "url": "/videos/ar/original/hq2/GT01.mp4",
+          "sha256": "25e8b9aae84546b5eafef9d9356ba15b4ecd6d1f7061941626d904f953fde334"
+        }
+      },
+      "sourceCheck": {
+        "id": "GT01",
+        "checkVersion": 2,
+        "frames": 240,
+        "mode": "cutout",
+        "sourceContrastCoreCoverage": 0.9999999566432887,
+        "worstCoreFrame": {
+          "coverage": 0.9999895943892947,
+          "frame": 43
+        },
+        "meanSourceColorError": 0.005324933196148796,
+        "unexpectedSceneTransparentPixels": 0,
+        "assetSHA256": "0845fc91cc9ca28a334bec2e993110235ba966b5f8d3bb71facdd406fa769c36",
+        "pass": true
+      },
+      "packedCheck": {
+        "id": "GT01",
+        "frames": 240,
+        "matteSSIM": 0.998439,
+        "webmSHA256": "0845fc91cc9ca28a334bec2e993110235ba966b5f8d3bb71facdd406fa769c36",
+        "packedSHA256": "c852092e90aec5f5b29fd43c8e9b6066c3765dfb01ab65207449643bd7f3eb01",
+        "width": 1920,
+        "height": 540,
+        "nb_read_frames": "240"
+      },
+      "browserCheck": {
+        "id": "GT01",
+        "pass": true,
+        "alphaMAE": 0.00014637799564270104,
+        "colorMAE": 0.004430818567662624,
+        "mode": "cutout",
+        "dimensions": [
+          1920,
+          540
+        ]
+      }
+    },
+    {
+      "id": "GT02",
+      "canonicalUrl": "/videos/ar/GT02.webm",
+      "mode": "cutout",
+      "frames": 240,
+      "dimensions": [
+        960,
+        960
+      ],
+      "files": {
+        "alphaVideoUrl": {
+          "url": "/videos/ar/hq2/GT02.webm",
+          "sha256": "6f7b9d90721059189ddfe07537f9befa4772d8c747146f9c9b2e18ecd68368a2"
+        },
+        "alphaColorUrl": {
+          "url": "/videos/ar/fallback/hq2/GT02-color.mp4",
+          "sha256": "5902e22a633e2640f005d111df7983c1d17d22c986b4802ea57001558b8dd604"
+        },
+        "alphaMaskUrl": {
+          "url": "/videos/ar/fallback/hq2/GT02-alpha.mp4",
+          "sha256": "7c59603a0af1fdbceeadd6fb7eb89f88090ddbce1c893e54afba4d424aff3420"
+        },
+        "packedVideoUrl": {
+          "url": "/videos/ar/packed/hq2/GT02.mp4",
+          "sha256": "1f464bc14920fe3c57be2fd23398035704328a29ab485bc3063eed6157132244"
+        },
+        "previewVideoUrl": {
+          "url": "/videos/ar/original/hq2/GT02.mp4",
+          "sha256": "98f85d98522d0fcc4825572f041e4fa84ca946a91a2a0410feb30cd9a3a27e13"
+        }
+      },
+      "sourceCheck": {
+        "id": "GT02",
+        "checkVersion": 2,
+        "frames": 240,
+        "mode": "cutout",
+        "sourceContrastCoreCoverage": 0.9999999716283322,
+        "worstCoreFrame": {
+          "coverage": 0.9999965708681533,
+          "frame": 99
+        },
+        "meanSourceColorError": 0.007636038375865208,
+        "unexpectedSceneTransparentPixels": 0,
+        "assetSHA256": "6f7b9d90721059189ddfe07537f9befa4772d8c747146f9c9b2e18ecd68368a2",
+        "pass": true
+      },
+      "packedCheck": {
+        "id": "GT02",
+        "frames": 240,
+        "matteSSIM": 0.998868,
+        "webmSHA256": "6f7b9d90721059189ddfe07537f9befa4772d8c747146f9c9b2e18ecd68368a2",
+        "packedSHA256": "1f464bc14920fe3c57be2fd23398035704328a29ab485bc3063eed6157132244",
+        "width": 1920,
+        "height": 960,
+        "nb_read_frames": "240"
+      },
+      "browserCheck": {
+        "id": "GT02",
+        "pass": true,
+        "alphaMAE": 0.0009092243668300746,
+        "colorMAE": 0.019148025936221853,
+        "mode": "cutout",
+        "dimensions": [
+          1920,
+          960
+        ]
+      }
+    },
+    {
+      "id": "GT03",
+      "canonicalUrl": "/videos/ar/GT03.webm",
+      "mode": "cutout",
+      "frames": 240,
+      "dimensions": [
+        960,
+        540
+      ],
+      "files": {
+        "alphaVideoUrl": {
+          "url": "/videos/ar/hq2/GT03.webm",
+          "sha256": "bb6a42d627d71e90699f05e1173a3a7b36890961f2cafbbbb6e7fba2f792cd6d"
+        },
+        "alphaColorUrl": {
+          "url": "/videos/ar/fallback/hq2/GT03-color.mp4",
+          "sha256": "022e0098ed00dac3ef1dc454d58eca34741786e671fa7a6247b4a2e01cb8b8a0"
+        },
+        "alphaMaskUrl": {
+          "url": "/videos/ar/fallback/hq2/GT03-alpha.mp4",
+          "sha256": "9f498f58c1c21a0efd0cf0a64e80d4f2590d2c2c1bfdf6011138592ee8abff82"
+        },
+        "packedVideoUrl": {
+          "url": "/videos/ar/packed/hq2/GT03.mp4",
+          "sha256": "d769cee63546fc2f7b500120b0ecde33c61cd431d8ce4408d4f4679de5c84c95"
+        },
+        "previewVideoUrl": {
+          "url": "/videos/ar/original/hq2/GT03.mp4",
+          "sha256": "a39a33f4d81a5e2d3c62fca456814853be050d64c66fb144553afab9d129e8bc"
+        }
+      },
+      "sourceCheck": {
+        "id": "GT03",
+        "checkVersion": 2,
+        "frames": 240,
+        "mode": "cutout",
+        "sourceContrastCoreCoverage": 0.9999978156177751,
+        "worstCoreFrame": {
+          "coverage": 0.9997882141155292,
+          "frame": 24
+        },
+        "meanSourceColorError": 0.007663236483227881,
+        "unexpectedSceneTransparentPixels": 0,
+        "assetSHA256": "bb6a42d627d71e90699f05e1173a3a7b36890961f2cafbbbb6e7fba2f792cd6d",
+        "pass": true
+      },
+      "packedCheck": {
+        "id": "GT03",
+        "frames": 240,
+        "matteSSIM": 0.998575,
+        "webmSHA256": "bb6a42d627d71e90699f05e1173a3a7b36890961f2cafbbbb6e7fba2f792cd6d",
+        "packedSHA256": "d769cee63546fc2f7b500120b0ecde33c61cd431d8ce4408d4f4679de5c84c95",
+        "width": 1920,
+        "height": 540,
+        "nb_read_frames": "240"
+      },
+      "browserCheck": {
+        "id": "GT03",
+        "pass": true,
+        "alphaMAE": 0.00012632548679193857,
+        "colorMAE": 0.005076601674399237,
+        "mode": "cutout",
+        "dimensions": [
+          1920,
+          540
+        ]
+      }
+    },
+    {
+      "id": "GT04",
+      "canonicalUrl": "/videos/ar/GT04.webm",
+      "mode": "cutout",
+      "frames": 240,
+      "dimensions": [
+        960,
+        540
+      ],
+      "files": {
+        "alphaVideoUrl": {
+          "url": "/videos/ar/hq2/GT04.webm",
+          "sha256": "4d7037a0854f8608b2d1e3a2df191a83111e10f4db3bb23aa7d4a697cf8ed863"
+        },
+        "alphaColorUrl": {
+          "url": "/videos/ar/fallback/hq2/GT04-color.mp4",
+          "sha256": "52d9fbec6b444892561937327da413a3f4109619b05675290f102699f76036fa"
+        },
+        "alphaMaskUrl": {
+          "url": "/videos/ar/fallback/hq2/GT04-alpha.mp4",
+          "sha256": "b3772c5a009de7e6140ee970f5c39c80103268230c3fb6c0991e30039db0130e"
+        },
+        "packedVideoUrl": {
+          "url": "/videos/ar/packed/hq2/GT04.mp4",
+          "sha256": "e79b30081d4a90dc8a12168782c111f9bb7d10b226369afd988c2ff777ce2b7d"
+        },
+        "previewVideoUrl": {
+          "url": "/videos/ar/original/hq2/GT04.mp4",
+          "sha256": "387d7f8a38e800b7853ed84a0482cd4db23b9583a4bc984b5ef4de416e87df9b"
+        }
+      },
+      "sourceCheck": {
+        "id": "GT04",
+        "checkVersion": 2,
+        "frames": 240,
+        "mode": "cutout",
+        "sourceContrastCoreCoverage": 0.9999998348658335,
+        "worstCoreFrame": {
+          "coverage": 0.9999865903208937,
+          "frame": 149
+        },
+        "meanSourceColorError": 0.008861540526506503,
+        "unexpectedSceneTransparentPixels": 0,
+        "assetSHA256": "4d7037a0854f8608b2d1e3a2df191a83111e10f4db3bb23aa7d4a697cf8ed863",
+        "pass": true
+      },
+      "packedCheck": {
+        "id": "GT04",
+        "frames": 240,
+        "matteSSIM": 0.997017,
+        "webmSHA256": "4d7037a0854f8608b2d1e3a2df191a83111e10f4db3bb23aa7d4a697cf8ed863",
+        "packedSHA256": "e79b30081d4a90dc8a12168782c111f9bb7d10b226369afd988c2ff777ce2b7d",
+        "width": 1920,
+        "height": 540,
+        "nb_read_frames": "240"
+      },
+      "browserCheck": {
+        "id": "GT04",
+        "pass": true,
+        "alphaMAE": 0.0002233966503267989,
+        "colorMAE": 0.005821053637404716,
+        "mode": "cutout",
+        "dimensions": [
+          1920,
+          540
+        ]
+      }
+    },
+    {
+      "id": "GT05",
+      "canonicalUrl": "/videos/ar/GT05.webm",
+      "mode": "cutout",
+      "frames": 240,
+      "dimensions": [
+        960,
+        540
+      ],
+      "files": {
+        "alphaVideoUrl": {
+          "url": "/videos/ar/hq2/GT05.webm",
+          "sha256": "12b82f5294c2afba301020cfb3f74bd70b24e3d50a9af49ded9ba9bcef0c4fcd"
+        },
+        "alphaColorUrl": {
+          "url": "/videos/ar/fallback/hq2/GT05-color.mp4",
+          "sha256": "94edfa3c03729c2223fc780635f3d1714ae567213ce9c1ef89cf698f5ab5d6ba"
+        },
+        "alphaMaskUrl": {
+          "url": "/videos/ar/fallback/hq2/GT05-alpha.mp4",
+          "sha256": "df5330cbc591459045e491e384de4dc6075f413235d3b8157a58b9f361e991eb"
+        },
+        "packedVideoUrl": {
+          "url": "/videos/ar/packed/hq2/GT05.mp4",
+          "sha256": "e0a6d7e70550fdb3fc64e2715b61eae0f3786ac33b2b3e7af6edcd0f7776890e"
+        },
+        "previewVideoUrl": {
+          "url": "/videos/ar/original/hq2/GT05.mp4",
+          "sha256": "fd6d0958440e01321c6c2beb8c49e0505d19aa961caf378f29aaa2aa1aee3e36"
+        }
+      },
+      "sourceCheck": {
+        "id": "GT05",
+        "checkVersion": 2,
+        "frames": 240,
+        "mode": "cutout",
+        "sourceContrastCoreCoverage": 0.9999961532339068,
+        "worstCoreFrame": {
+          "coverage": 0.9999014195583596,
+          "frame": 2
+        },
+        "meanSourceColorError": 0.009149312830537675,
+        "unexpectedSceneTransparentPixels": 0,
+        "assetSHA256": "12b82f5294c2afba301020cfb3f74bd70b24e3d50a9af49ded9ba9bcef0c4fcd",
+        "pass": true
+      },
+      "packedCheck": {
+        "id": "GT05",
+        "frames": 240,
+        "matteSSIM": 0.989563,
+        "webmSHA256": "12b82f5294c2afba301020cfb3f74bd70b24e3d50a9af49ded9ba9bcef0c4fcd",
+        "packedSHA256": "e0a6d7e70550fdb3fc64e2715b61eae0f3786ac33b2b3e7af6edcd0f7776890e",
+        "width": 1920,
+        "height": 540,
+        "nb_read_frames": "240"
+      },
+      "browserCheck": {
+        "id": "GT05",
+        "pass": true,
+        "alphaMAE": 0.0012258359289895845,
+        "colorMAE": 0.006440171435057775,
+        "mode": "cutout",
+        "dimensions": [
+          1920,
+          540
+        ]
+      }
+    },
+    {
+      "id": "GT06",
+      "canonicalUrl": "/videos/ar/GT06.webm",
+      "mode": "cutout",
+      "frames": 240,
+      "dimensions": [
+        960,
+        540
+      ],
+      "files": {
+        "alphaVideoUrl": {
+          "url": "/videos/ar/hq2/GT06.webm",
+          "sha256": "719d8415a5d5b25117ed0bece86d2e234030fc9f7f523e74613c86881459a3c4"
+        },
+        "alphaColorUrl": {
+          "url": "/videos/ar/fallback/hq2/GT06-color.mp4",
+          "sha256": "44f2cff92fc83612c29ae3c68845f2ee7db7828ae1676e7163db4dd92e9025df"
+        },
+        "alphaMaskUrl": {
+          "url": "/videos/ar/fallback/hq2/GT06-alpha.mp4",
+          "sha256": "94a3ecde7dd21f6266798eb4ffdf0aace864446d8af1fa148c422bf898594c9e"
+        },
+        "packedVideoUrl": {
+          "url": "/videos/ar/packed/hq2/GT06.mp4",
+          "sha256": "fb485b19182570a85adbdd353cebffbab4f8df0403f35e274640946ef53cc0cf"
+        },
+        "previewVideoUrl": {
+          "url": "/videos/ar/original/hq2/GT06.mp4",
+          "sha256": "04c71564ad6e692c4940961b9b1452e58c8a715acba78bb029120c09b3454d5c"
+        }
+      },
+      "sourceCheck": {
+        "id": "GT06",
+        "checkVersion": 2,
+        "frames": 240,
+        "mode": "cutout",
+        "sourceContrastCoreCoverage": 0.9999999741960522,
+        "worstCoreFrame": {
+          "coverage": 0.9999938070525286,
+          "frame": 69
+        },
+        "meanSourceColorError": 0.008817942851819083,
+        "unexpectedSceneTransparentPixels": 0,
+        "assetSHA256": "719d8415a5d5b25117ed0bece86d2e234030fc9f7f523e74613c86881459a3c4",
+        "pass": true
+      },
+      "packedCheck": {
+        "id": "GT06",
+        "frames": 240,
+        "matteSSIM": 0.998139,
+        "webmSHA256": "719d8415a5d5b25117ed0bece86d2e234030fc9f7f523e74613c86881459a3c4",
+        "packedSHA256": "fb485b19182570a85adbdd353cebffbab4f8df0403f35e274640946ef53cc0cf",
+        "width": 1920,
+        "height": 540,
+        "nb_read_frames": "240"
+      },
+      "browserCheck": {
+        "id": "GT06",
+        "pass": true,
+        "alphaMAE": 0.0001511650667211324,
+        "colorMAE": 0.006658423651628918,
+        "mode": "cutout",
+        "dimensions": [
+          1920,
+          540
+        ]
+      }
+    },
+    {
+      "id": "GT07",
+      "canonicalUrl": "/videos/ar/GT07.webm",
+      "mode": "cutout",
+      "frames": 240,
+      "dimensions": [
+        960,
+        540
+      ],
+      "files": {
+        "alphaVideoUrl": {
+          "url": "/videos/ar/hq2/GT07.webm",
+          "sha256": "ba66128df172bd72ab87944adc399a2f96fc86be1f78e7be77a06a9522103575"
+        },
+        "alphaColorUrl": {
+          "url": "/videos/ar/fallback/hq2/GT07-color.mp4",
+          "sha256": "078a25db5caf46397e0e25fe0383876a3d05f33b77e70146a410b1000916e78a"
+        },
+        "alphaMaskUrl": {
+          "url": "/videos/ar/fallback/hq2/GT07-alpha.mp4",
+          "sha256": "02862781f409b1123559835e940ff4e46f9ca352a087a0426d77e295dd609286"
+        },
+        "packedVideoUrl": {
+          "url": "/videos/ar/packed/hq2/GT07.mp4",
+          "sha256": "19968fa5d669cc6d2e195ebc4b75c31c4316c1a82258832aa72994a639a9a677"
+        },
+        "previewVideoUrl": {
+          "url": "/videos/ar/original/hq2/GT07.mp4",
+          "sha256": "3db0fc6349e21239ec2a628c7048e2d9b8fa5128470e3ffea32af5422b974e0f"
+        }
+      },
+      "sourceCheck": {
+        "id": "GT07",
+        "checkVersion": 2,
+        "frames": 240,
+        "mode": "cutout",
+        "sourceContrastCoreCoverage": 0.999999729117767,
+        "worstCoreFrame": {
+          "coverage": 0.9999882003115118,
+          "frame": 99
+        },
+        "meanSourceColorError": 0.009838750035290784,
+        "unexpectedSceneTransparentPixels": 0,
+        "assetSHA256": "ba66128df172bd72ab87944adc399a2f96fc86be1f78e7be77a06a9522103575",
+        "pass": true
+      },
+      "packedCheck": {
+        "id": "GT07",
+        "frames": 240,
+        "matteSSIM": 0.998711,
+        "webmSHA256": "ba66128df172bd72ab87944adc399a2f96fc86be1f78e7be77a06a9522103575",
+        "packedSHA256": "19968fa5d669cc6d2e195ebc4b75c31c4316c1a82258832aa72994a639a9a677",
+        "width": 1920,
+        "height": 540,
+        "nb_read_frames": "240"
+      },
+      "browserCheck": {
+        "id": "GT07",
+        "pass": true,
+        "alphaMAE": 0.00012433087384259217,
+        "colorMAE": 0.007361725344150035,
+        "mode": "cutout",
+        "dimensions": [
+          1920,
+          540
+        ]
+      }
+    },
+    {
+      "id": "GT08",
+      "canonicalUrl": "/videos/ar/GT08.webm",
+      "mode": "cutout",
+      "frames": 240,
+      "dimensions": [
+        960,
+        540
+      ],
+      "files": {
+        "alphaVideoUrl": {
+          "url": "/videos/ar/hq2/GT08.webm",
+          "sha256": "c5421ee1f52113a3c1c2b0a0b7ef64b9c9f91f767522671292c2b27395b5204e"
+        },
+        "alphaColorUrl": {
+          "url": "/videos/ar/fallback/hq2/GT08-color.mp4",
+          "sha256": "d8f5c27a4023b42de1a655e639071a5f9bc3734fd3268f144852b0592c329f0e"
+        },
+        "alphaMaskUrl": {
+          "url": "/videos/ar/fallback/hq2/GT08-alpha.mp4",
+          "sha256": "95401265a426f5dc2f34e37ad54639f3b23e4c559d3979f34a59a2aa8de68540"
+        },
+        "packedVideoUrl": {
+          "url": "/videos/ar/packed/hq2/GT08.mp4",
+          "sha256": "c9deb4289e391145491fdaafc7db67c209ca2d39629efcc0cba9f8aca2e08c12"
+        },
+        "previewVideoUrl": {
+          "url": "/videos/ar/original/hq2/GT08.mp4",
+          "sha256": "b138f47b6a1eaf1caa52a5a3e64d89c15300ae8ccc492639f99ea52bd9f71593"
+        }
+      },
+      "sourceCheck": {
+        "id": "GT08",
+        "checkVersion": 2,
+        "frames": 240,
+        "mode": "cutout",
+        "sourceContrastCoreCoverage": 0.9999941903343438,
+        "worstCoreFrame": {
+          "coverage": 0.999198717948718,
+          "frame": 1
+        },
+        "meanSourceColorError": 0.007977148381046038,
+        "unexpectedSceneTransparentPixels": 0,
+        "assetSHA256": "c5421ee1f52113a3c1c2b0a0b7ef64b9c9f91f767522671292c2b27395b5204e",
+        "pass": true
+      },
+      "packedCheck": {
+        "id": "GT08",
+        "frames": 240,
+        "matteSSIM": 0.998336,
+        "webmSHA256": "c5421ee1f52113a3c1c2b0a0b7ef64b9c9f91f767522671292c2b27395b5204e",
+        "packedSHA256": "c9deb4289e391145491fdaafc7db67c209ca2d39629efcc0cba9f8aca2e08c12",
+        "width": 1920,
+        "height": 540,
+        "nb_read_frames": "240"
+      },
+      "browserCheck": {
+        "id": "GT08",
+        "pass": true,
+        "alphaMAE": 0.00016440929670479248,
+        "colorMAE": 0.004975250923795691,
+        "mode": "cutout",
+        "dimensions": [
+          1920,
+          540
+        ]
+      }
+    },
+    {
+      "id": "GT09",
+      "canonicalUrl": "/videos/ar/GT09.webm",
+      "mode": "cutout",
+      "frames": 240,
+      "dimensions": [
+        960,
+        540
+      ],
+      "files": {
+        "alphaVideoUrl": {
+          "url": "/videos/ar/hq2/GT09.webm",
+          "sha256": "a45f1505d91ae2f4de196a05cb1b66bcb60a2b9d7363fdfbb63a18cedf645dcc"
+        },
+        "alphaColorUrl": {
+          "url": "/videos/ar/fallback/hq2/GT09-color.mp4",
+          "sha256": "9ed458c9ce27af82026e4ab9132f126f1688bd90edde7d3b6b4ddb006c7a51c0"
+        },
+        "alphaMaskUrl": {
+          "url": "/videos/ar/fallback/hq2/GT09-alpha.mp4",
+          "sha256": "30bf16b550587e03190a9bd347e629810377c0235e46b9ed4b75924ad4bd3911"
+        },
+        "packedVideoUrl": {
+          "url": "/videos/ar/packed/hq2/GT09.mp4",
+          "sha256": "ef569caab5a0ace1c092b650761918cb859f22419cd3d0244c834b4d705093f6"
+        },
+        "previewVideoUrl": {
+          "url": "/videos/ar/original/hq2/GT09.mp4",
+          "sha256": "415f9e6faa70d6926ce0a7c6fa027bceecf15e1895aa23b9a58a3f79112d0300"
+        }
+      },
+      "sourceCheck": {
+        "id": "GT09",
+        "checkVersion": 2,
+        "frames": 240,
+        "mode": "cutout",
+        "sourceContrastCoreCoverage": 0.9999992902645407,
+        "worstCoreFrame": {
+          "coverage": 0.9999855509077642,
+          "frame": 135
+        },
+        "meanSourceColorError": 0.010569073569862595,
+        "unexpectedSceneTransparentPixels": 0,
+        "assetSHA256": "a45f1505d91ae2f4de196a05cb1b66bcb60a2b9d7363fdfbb63a18cedf645dcc",
+        "pass": true
+      },
+      "packedCheck": {
+        "id": "GT09",
+        "frames": 240,
+        "matteSSIM": 0.99655,
+        "webmSHA256": "a45f1505d91ae2f4de196a05cb1b66bcb60a2b9d7363fdfbb63a18cedf645dcc",
+        "packedSHA256": "ef569caab5a0ace1c092b650761918cb859f22419cd3d0244c834b4d705093f6",
+        "width": 1920,
+        "height": 540,
+        "nb_read_frames": "240"
+      },
+      "browserCheck": {
+        "id": "GT09",
+        "pass": true,
+        "alphaMAE": 0.00032472298815363964,
+        "colorMAE": 0.007685626952701703,
+        "mode": "cutout",
+        "dimensions": [
+          1920,
+          540
+        ]
+      }
+    },
+    {
+      "id": "GT10",
+      "canonicalUrl": "/videos/ar/GT10.webm",
+      "mode": "cutout",
+      "frames": 240,
+      "dimensions": [
+        960,
+        540
+      ],
+      "files": {
+        "alphaVideoUrl": {
+          "url": "/videos/ar/hq2/GT10.webm",
+          "sha256": "6f35f0afb2f6aed995cd19ea430f937e847eaf6158bc414559b5bc2140a9dcd0"
+        },
+        "alphaColorUrl": {
+          "url": "/videos/ar/fallback/hq2/GT10-color.mp4",
+          "sha256": "3e1f64a153735683d60541754f289c931b0536c25c58cbb0053f17144138f3a0"
+        },
+        "alphaMaskUrl": {
+          "url": "/videos/ar/fallback/hq2/GT10-alpha.mp4",
+          "sha256": "23b9e2d7c70f7e64c23509c258eb3aca77eab0a64efc715fd066a7d94f678ad0"
+        },
+        "packedVideoUrl": {
+          "url": "/videos/ar/packed/hq2/GT10.mp4",
+          "sha256": "dffd73d302b02cf213a84875f4c47f513abf54d8ffe4ecb8c664716a04cd6da5"
+        },
+        "previewVideoUrl": {
+          "url": "/videos/ar/original/hq2/GT10.mp4",
+          "sha256": "7d162e57a6227cbb14c2fa302f114269072a312c76612a05654fe162e6550929"
+        }
+      },
+      "sourceCheck": {
+        "id": "GT10",
+        "checkVersion": 2,
+        "frames": 240,
+        "mode": "cutout",
+        "sourceContrastCoreCoverage": 0.9999993959010726,
+        "worstCoreFrame": {
+          "coverage": 0.9999750694937861,
+          "frame": 9
+        },
+        "meanSourceColorError": 0.00847941980655842,
+        "unexpectedSceneTransparentPixels": 0,
+        "assetSHA256": "6f35f0afb2f6aed995cd19ea430f937e847eaf6158bc414559b5bc2140a9dcd0",
+        "pass": true
+      },
+      "packedCheck": {
+        "id": "GT10",
+        "frames": 240,
+        "matteSSIM": 0.997724,
+        "webmSHA256": "6f35f0afb2f6aed995cd19ea430f937e847eaf6158bc414559b5bc2140a9dcd0",
+        "packedSHA256": "dffd73d302b02cf213a84875f4c47f513abf54d8ffe4ecb8c664716a04cd6da5",
+        "width": 1920,
+        "height": 540,
+        "nb_read_frames": "240"
+      },
+      "browserCheck": {
+        "id": "GT10",
+        "pass": true,
+        "alphaMAE": 0.00022746566074346747,
+        "colorMAE": 0.0065879300683984055,
+        "mode": "cutout",
+        "dimensions": [
+          1920,
+          540
+        ]
+      }
+    },
+    {
+      "id": "DV01",
+      "canonicalUrl": "/videos/ar/DV01.webm",
+      "mode": "cutout",
+      "frames": 240,
+      "dimensions": [
+        960,
+        540
+      ],
+      "files": {
+        "alphaVideoUrl": {
+          "url": "/videos/ar/hq2/DV01.webm",
+          "sha256": "2318332ae8dc8df426be4bf6f055cbb2f87b9ea365d8728c284d95a0dd34903a"
+        },
+        "alphaColorUrl": {
+          "url": "/videos/ar/fallback/hq2/DV01-color.mp4",
+          "sha256": "e07cce8a7b318ef1f7166f0cf72de21603ae9320c9300e99cdf61380d241b8a3"
+        },
+        "alphaMaskUrl": {
+          "url": "/videos/ar/fallback/hq2/DV01-alpha.mp4",
+          "sha256": "8dfd6ce9b3ebe5a8aac3f2fd8c27177413fa7eee00892ad96f7cb712a4e5f1d0"
+        },
+        "packedVideoUrl": {
+          "url": "/videos/ar/packed/hq2/DV01.mp4",
+          "sha256": "67693a63342ee12102583cfae9e9b48b91fedcda2b45be99ceda31a11521cd17"
+        },
+        "previewVideoUrl": {
+          "url": "/videos/ar/original/hq2/DV01.mp4",
+          "sha256": "9001580deae1da5562fb7fe946461e505218af307fc8eac1aa6356b3feed2222"
+        }
+      },
+      "sourceCheck": {
+        "id": "DV01",
+        "checkVersion": 2,
+        "frames": 240,
+        "mode": "cutout",
+        "sourceContrastCoreCoverage": 0.9999989333534908,
+        "worstCoreFrame": {
+          "coverage": 0.9999829730235937,
+          "frame": 51
+        },
+        "meanSourceColorError": 0.009115615228751513,
+        "unexpectedSceneTransparentPixels": 0,
+        "assetSHA256": "2318332ae8dc8df426be4bf6f055cbb2f87b9ea365d8728c284d95a0dd34903a",
+        "pass": true
+      },
+      "packedCheck": {
+        "id": "DV01",
+        "frames": 240,
+        "matteSSIM": 0.996384,
+        "webmSHA256": "2318332ae8dc8df426be4bf6f055cbb2f87b9ea365d8728c284d95a0dd34903a",
+        "packedSHA256": "67693a63342ee12102583cfae9e9b48b91fedcda2b45be99ceda31a11521cd17",
+        "width": 1920,
+        "height": 540,
+        "nb_read_frames": "240"
+      },
+      "browserCheck": {
+        "id": "DV01",
+        "pass": true,
+        "alphaMAE": 0.0003392437704248759,
+        "colorMAE": 0.006527304867384822,
+        "mode": "cutout",
+        "dimensions": [
+          1920,
+          540
+        ]
+      }
+    },
+    {
+      "id": "DV02",
+      "canonicalUrl": "/videos/ar/DV02.webm",
+      "mode": "cutout",
+      "frames": 240,
+      "dimensions": [
+        960,
+        540
+      ],
+      "files": {
+        "alphaVideoUrl": {
+          "url": "/videos/ar/hq2/DV02.webm",
+          "sha256": "aaa6c8e2dda4f74a55f7b372289be07ea78b9fe13e73e3177cd032c69caa9955"
+        },
+        "alphaColorUrl": {
+          "url": "/videos/ar/fallback/hq2/DV02-color.mp4",
+          "sha256": "9e5bc5caa1529716893f92bfdc64a8b5e7a675f295da9ba83fe75bf5219b9fbf"
+        },
+        "alphaMaskUrl": {
+          "url": "/videos/ar/fallback/hq2/DV02-alpha.mp4",
+          "sha256": "e88228a5fb039865373950826f5ecbecbd103a4e1af5df5b79db569b6c50b983"
+        },
+        "packedVideoUrl": {
+          "url": "/videos/ar/packed/hq2/DV02.mp4",
+          "sha256": "55c5c8b2a5f2c7d8bf4a6058a1362afb27322b756269c30d79a92762ada95730"
+        },
+        "previewVideoUrl": {
+          "url": "/videos/ar/original/hq2/DV02.mp4",
+          "sha256": "f4c9d9608697230e66073da21e220d55aad170de0fcc75e0fc4744565330d1b8"
+        }
+      },
+      "sourceCheck": {
+        "id": "DV02",
+        "checkVersion": 2,
+        "frames": 240,
+        "mode": "cutout",
+        "sourceContrastCoreCoverage": 0.999999677704327,
+        "worstCoreFrame": {
+          "coverage": 0.999986560404263,
+          "frame": 43
+        },
+        "meanSourceColorError": 0.009056901326640075,
+        "unexpectedSceneTransparentPixels": 0,
+        "assetSHA256": "aaa6c8e2dda4f74a55f7b372289be07ea78b9fe13e73e3177cd032c69caa9955",
+        "pass": true
+      },
+      "packedCheck": {
+        "id": "DV02",
+        "frames": 240,
+        "matteSSIM": 0.997674,
+        "webmSHA256": "aaa6c8e2dda4f74a55f7b372289be07ea78b9fe13e73e3177cd032c69caa9955",
+        "packedSHA256": "55c5c8b2a5f2c7d8bf4a6058a1362afb27322b756269c30d79a92762ada95730",
+        "width": 1920,
+        "height": 540,
+        "nb_read_frames": "240"
+      },
+      "browserCheck": {
+        "id": "DV02",
+        "pass": true,
+        "alphaMAE": 0.00020291862404684026,
+        "colorMAE": 0.007412634317032022,
+        "mode": "cutout",
+        "dimensions": [
+          1920,
+          540
+        ]
+      }
+    },
+    {
+      "id": "DV03",
+      "canonicalUrl": "/videos/ar/DV03.webm",
+      "mode": "cutout",
+      "frames": 240,
+      "dimensions": [
+        960,
+        540
+      ],
+      "files": {
+        "alphaVideoUrl": {
+          "url": "/videos/ar/hq2/DV03.webm",
+          "sha256": "eebb8c50a65e1d69e9a9ebe49d25657ac340c919c6c4b6c3b49f2aa9bc4a1f4f"
+        },
+        "alphaColorUrl": {
+          "url": "/videos/ar/fallback/hq2/DV03-color.mp4",
+          "sha256": "0f4fd4d33bfcd588e1a6302de03ed10f7d669dd37b9dddc41b25f0ee4dbf0c57"
+        },
+        "alphaMaskUrl": {
+          "url": "/videos/ar/fallback/hq2/DV03-alpha.mp4",
+          "sha256": "67813c30205bca3a321bdcfd59b4a86dabfcd04b55ed84541fe77b36db5da7ab"
+        },
+        "packedVideoUrl": {
+          "url": "/videos/ar/packed/hq2/DV03.mp4",
+          "sha256": "8c9002da289a001544045f1e89d2fe39f7ad593a40c20e03b2f029b964827545"
+        },
+        "previewVideoUrl": {
+          "url": "/videos/ar/original/hq2/DV03.mp4",
+          "sha256": "9a852b9ff42ece5cd7da7fd5c402bd52be482d2136138b154c2b3398f91f8646"
+        }
+      },
+      "sourceCheck": {
+        "id": "DV03",
+        "checkVersion": 2,
+        "frames": 240,
+        "mode": "cutout",
+        "sourceContrastCoreCoverage": 0.9999998674530406,
+        "worstCoreFrame": {
+          "coverage": 0.9999892512414816,
+          "frame": 59
+        },
+        "meanSourceColorError": 0.010243450824363898,
+        "unexpectedSceneTransparentPixels": 0,
+        "assetSHA256": "eebb8c50a65e1d69e9a9ebe49d25657ac340c919c6c4b6c3b49f2aa9bc4a1f4f",
+        "pass": true
+      },
+      "packedCheck": {
+        "id": "DV03",
+        "frames": 240,
+        "matteSSIM": 0.997602,
+        "webmSHA256": "eebb8c50a65e1d69e9a9ebe49d25657ac340c919c6c4b6c3b49f2aa9bc4a1f4f",
+        "packedSHA256": "8c9002da289a001544045f1e89d2fe39f7ad593a40c20e03b2f029b964827545",
+        "width": 1920,
+        "height": 540,
+        "nb_read_frames": "240"
+      },
+      "browserCheck": {
+        "id": "DV03",
+        "pass": true,
+        "alphaMAE": 0.00016738791870914976,
+        "colorMAE": 0.007272655212725989,
+        "mode": "cutout",
+        "dimensions": [
+          1920,
+          540
+        ]
+      }
+    },
+    {
+      "id": "DV04",
+      "canonicalUrl": "/videos/ar/DV04.webm",
+      "mode": "cutout",
+      "frames": 240,
+      "dimensions": [
+        960,
+        540
+      ],
+      "files": {
+        "alphaVideoUrl": {
+          "url": "/videos/ar/hq2/DV04.webm",
+          "sha256": "67e8374c8b91d94af80320b4e867cd8be8dee80355479ed96d8883daa681d820"
+        },
+        "alphaColorUrl": {
+          "url": "/videos/ar/fallback/hq2/DV04-color.mp4",
+          "sha256": "26809472948aea4d3e4dff2c493eebdfe615151b62590fca99f76edaad9717d2"
+        },
+        "alphaMaskUrl": {
+          "url": "/videos/ar/fallback/hq2/DV04-alpha.mp4",
+          "sha256": "b8e33bcf3f89be4f2133e1c6b42848005f813481c7a9a903866c59d6b29ddb0d"
+        },
+        "packedVideoUrl": {
+          "url": "/videos/ar/packed/hq2/DV04.mp4",
+          "sha256": "680e98a614d555a506138acd013ee887bfe6fb938431b3b05fb5f65422752bb7"
+        },
+        "previewVideoUrl": {
+          "url": "/videos/ar/original/hq2/DV04.mp4",
+          "sha256": "f44688605c105bd7e747b49661585e51a5319d210887e642b520bbd05902ebae"
+        }
+      },
+      "sourceCheck": {
+        "id": "DV04",
+        "checkVersion": 2,
+        "frames": 240,
+        "mode": "cutout",
+        "sourceContrastCoreCoverage": 0.9999998564307536,
+        "worstCoreFrame": {
+          "coverage": 0.9999655433808835,
+          "frame": 91
+        },
+        "meanSourceColorError": 0.008729390000230553,
+        "unexpectedSceneTransparentPixels": 0,
+        "assetSHA256": "67e8374c8b91d94af80320b4e867cd8be8dee80355479ed96d8883daa681d820",
+        "pass": true
+      },
+      "packedCheck": {
+        "id": "DV04",
+        "frames": 240,
+        "matteSSIM": 0.998164,
+        "webmSHA256": "67e8374c8b91d94af80320b4e867cd8be8dee80355479ed96d8883daa681d820",
+        "packedSHA256": "680e98a614d555a506138acd013ee887bfe6fb938431b3b05fb5f65422752bb7",
+        "width": 1920,
+        "height": 540,
+        "nb_read_frames": "240"
+      },
+      "browserCheck": {
+        "id": "DV04",
+        "pass": true,
+        "alphaMAE": 0.00016286679602396458,
+        "colorMAE": 0.005158020842116833,
+        "mode": "cutout",
+        "dimensions": [
+          1920,
+          540
+        ]
+      }
+    },
+    {
+      "id": "DV05",
+      "canonicalUrl": "/videos/ar/DV05.webm",
+      "mode": "cutout",
+      "frames": 240,
+      "dimensions": [
+        960,
+        540
+      ],
+      "files": {
+        "alphaVideoUrl": {
+          "url": "/videos/ar/hq2/DV05.webm",
+          "sha256": "87df1ee71381c2a67c4b59713ce8bab0d21b35f65c988b5152db99a75276682e"
+        },
+        "alphaColorUrl": {
+          "url": "/videos/ar/fallback/hq2/DV05-color.mp4",
+          "sha256": "814e62fea55fd19fa8e7c8130b998315094e47e7e9648747efdfc421ec88f2dd"
+        },
+        "alphaMaskUrl": {
+          "url": "/videos/ar/fallback/hq2/DV05-alpha.mp4",
+          "sha256": "a59e1cc7ac9554efb110e3e4ef9d78cb6246fd7081eb4853fb26931ed093b8c3"
+        },
+        "packedVideoUrl": {
+          "url": "/videos/ar/packed/hq2/DV05.mp4",
+          "sha256": "e940967172f8db882f177ae6e5c584f4309276d1741ecb20e6be20e09e3c0455"
+        },
+        "previewVideoUrl": {
+          "url": "/videos/ar/original/hq2/DV05.mp4",
+          "sha256": "e9d18d27d2f355ae9ffc558ee02e22cb708b1c17b8d3fcd0d5a10a2b3bf51089"
+        }
+      },
+      "sourceCheck": {
+        "id": "DV05",
+        "checkVersion": 2,
+        "frames": 240,
+        "mode": "cutout",
+        "sourceContrastCoreCoverage": 0.9999993336700482,
+        "worstCoreFrame": {
+          "coverage": 0.9999830265860241,
+          "frame": 117
+        },
+        "meanSourceColorError": 0.013610002687291615,
+        "unexpectedSceneTransparentPixels": 0,
+        "assetSHA256": "87df1ee71381c2a67c4b59713ce8bab0d21b35f65c988b5152db99a75276682e",
+        "pass": true
+      },
+      "packedCheck": {
+        "id": "DV05",
+        "frames": 240,
+        "matteSSIM": 0.99581,
+        "webmSHA256": "87df1ee71381c2a67c4b59713ce8bab0d21b35f65c988b5152db99a75276682e",
+        "packedSHA256": "e940967172f8db882f177ae6e5c584f4309276d1741ecb20e6be20e09e3c0455",
+        "width": 1920,
+        "height": 540,
+        "nb_read_frames": "240"
+      },
+      "browserCheck": {
+        "id": "DV05",
+        "pass": true,
+        "alphaMAE": 0.0003765563299973331,
+        "colorMAE": 0.009609894435963892,
+        "mode": "cutout",
+        "dimensions": [
+          1920,
+          540
+        ]
+      }
+    },
+    {
+      "id": "DV06",
+      "canonicalUrl": "/videos/ar/DV06.webm",
+      "mode": "cutout",
+      "frames": 240,
+      "dimensions": [
+        960,
+        540
+      ],
+      "files": {
+        "alphaVideoUrl": {
+          "url": "/videos/ar/hq2/DV06.webm",
+          "sha256": "96c656f7b22644b5e4361defe40cf43e79fea7787fb4f01472d5e09b055cba63"
+        },
+        "alphaColorUrl": {
+          "url": "/videos/ar/fallback/hq2/DV06-color.mp4",
+          "sha256": "3ba1a9ac147c94f1a8125a14b0a9d1e7de90029f2570c1b7eb318876eef9adec"
+        },
+        "alphaMaskUrl": {
+          "url": "/videos/ar/fallback/hq2/DV06-alpha.mp4",
+          "sha256": "6bcc4666e922db720995605ad6614da3208e47c770d3c12f76366e3c919270a3"
+        },
+        "packedVideoUrl": {
+          "url": "/videos/ar/packed/hq2/DV06.mp4",
+          "sha256": "b577eeb6ad389fd21000bdd5113d64f835adb31b04bdcd320a4d0d7e7a7a13d6"
+        },
+        "previewVideoUrl": {
+          "url": "/videos/ar/original/hq2/DV06.mp4",
+          "sha256": "c6ff5d9c2a490d60fa7c89eb2e0de43e4271ea32ae42bb18fa4663c934d2dd30"
+        }
+      },
+      "sourceCheck": {
+        "id": "DV06",
+        "checkVersion": 2,
+        "frames": 240,
+        "mode": "cutout",
+        "sourceContrastCoreCoverage": 0.9999981741789107,
+        "worstCoreFrame": {
+          "coverage": 0.9999738486885117,
+          "frame": 181
+        },
+        "meanSourceColorError": 0.010328615379962136,
+        "unexpectedSceneTransparentPixels": 0,
+        "assetSHA256": "96c656f7b22644b5e4361defe40cf43e79fea7787fb4f01472d5e09b055cba63",
+        "pass": true
+      },
+      "packedCheck": {
+        "id": "DV06",
+        "frames": 240,
+        "matteSSIM": 0.997645,
+        "webmSHA256": "96c656f7b22644b5e4361defe40cf43e79fea7787fb4f01472d5e09b055cba63",
+        "packedSHA256": "b577eeb6ad389fd21000bdd5113d64f835adb31b04bdcd320a4d0d7e7a7a13d6",
+        "width": 1920,
+        "height": 540,
+        "nb_read_frames": "240"
+      },
+      "browserCheck": {
+        "id": "DV06",
+        "pass": true,
+        "alphaMAE": 0.0002302581188725522,
+        "colorMAE": 0.007835391957205852,
+        "mode": "cutout",
+        "dimensions": [
+          1920,
+          540
+        ]
+      }
+    },
+    {
+      "id": "DV07",
+      "canonicalUrl": "/videos/ar/DV07.webm",
+      "mode": "cutout",
+      "frames": 240,
+      "dimensions": [
+        960,
+        540
+      ],
+      "files": {
+        "alphaVideoUrl": {
+          "url": "/videos/ar/hq2/DV07.webm",
+          "sha256": "70f3094de7c619a37abc0948843ce59462b544f4049482a625df797daa751109"
+        },
+        "alphaColorUrl": {
+          "url": "/videos/ar/fallback/hq2/DV07-color.mp4",
+          "sha256": "ef5b70614f69d644f21137be836dd9287b75a066e0a75c6fc58f510b5d9538af"
+        },
+        "alphaMaskUrl": {
+          "url": "/videos/ar/fallback/hq2/DV07-alpha.mp4",
+          "sha256": "7172028ea1b907b7ec108d74e8d783e696e6179388f6110294834d8aa155b1d8"
+        },
+        "packedVideoUrl": {
+          "url": "/videos/ar/packed/hq2/DV07.mp4",
+          "sha256": "76b9d35eac0b42b0be1a6a1f13d18d40cfe3e3f774d11dc7b67261a6d02a1998"
+        },
+        "previewVideoUrl": {
+          "url": "/videos/ar/original/hq2/DV07.mp4",
+          "sha256": "ebc74300cbee1ca9066db9f14752bcc2c690c281707cb2cb3d505ab3deb313d4"
+        }
+      },
+      "sourceCheck": {
+        "id": "DV07",
+        "checkVersion": 2,
+        "frames": 240,
+        "mode": "cutout",
+        "sourceContrastCoreCoverage": 0.9999994097161983,
+        "worstCoreFrame": {
+          "coverage": 0.9999784012613664,
+          "frame": 55
+        },
+        "meanSourceColorError": 0.010424041062095985,
+        "unexpectedSceneTransparentPixels": 0,
+        "assetSHA256": "70f3094de7c619a37abc0948843ce59462b544f4049482a625df797daa751109",
+        "pass": true
+      },
+      "packedCheck": {
+        "id": "DV07",
+        "frames": 240,
+        "matteSSIM": 0.998238,
+        "webmSHA256": "70f3094de7c619a37abc0948843ce59462b544f4049482a625df797daa751109",
+        "packedSHA256": "76b9d35eac0b42b0be1a6a1f13d18d40cfe3e3f774d11dc7b67261a6d02a1998",
+        "width": 1920,
+        "height": 540,
+        "nb_read_frames": "240"
+      },
+      "browserCheck": {
+        "id": "DV07",
+        "pass": true,
+        "alphaMAE": 0.00022185414964597243,
+        "colorMAE": 0.008349033501484977,
+        "mode": "cutout",
+        "dimensions": [
+          1920,
+          540
+        ]
+      }
+    },
+    {
+      "id": "DV08",
+      "canonicalUrl": "/videos/ar/DV08.webm",
+      "mode": "cutout",
+      "frames": 240,
+      "dimensions": [
+        960,
+        540
+      ],
+      "files": {
+        "alphaVideoUrl": {
+          "url": "/videos/ar/hq2/DV08.webm",
+          "sha256": "6cdeb07c7b2f5d0bf243f66b38c373e847c8aa694bf26d7f0b742c92a3f84aee"
+        },
+        "alphaColorUrl": {
+          "url": "/videos/ar/fallback/hq2/DV08-color.mp4",
+          "sha256": "bcb91c7431c599de3a2dc12c5a08e9d525592d74eef4bf4f05d75516a60f7d00"
+        },
+        "alphaMaskUrl": {
+          "url": "/videos/ar/fallback/hq2/DV08-alpha.mp4",
+          "sha256": "fc487f10858a3c1326f555820bd37ff2307acfce162e25bbf24dfc3bcaf3290e"
+        },
+        "packedVideoUrl": {
+          "url": "/videos/ar/packed/hq2/DV08.mp4",
+          "sha256": "767c84258a7bff407f888ea162a61f446c6c385ad2848e68fed39522ac0175ef"
+        },
+        "previewVideoUrl": {
+          "url": "/videos/ar/original/hq2/DV08.mp4",
+          "sha256": "f707ee0096e18357764db919712a0225920999a4e62ad1d4792388cc29e7d66c"
+        }
+      },
+      "sourceCheck": {
+        "id": "DV08",
+        "checkVersion": 2,
+        "frames": 240,
+        "mode": "cutout",
+        "sourceContrastCoreCoverage": 0.9999998156174754,
+        "worstCoreFrame": {
+          "coverage": 0.9999961929707011,
+          "frame": 143
+        },
+        "meanSourceColorError": 0.009150708320960387,
+        "unexpectedSceneTransparentPixels": 0,
+        "assetSHA256": "6cdeb07c7b2f5d0bf243f66b38c373e847c8aa694bf26d7f0b742c92a3f84aee",
+        "pass": true
+      },
+      "packedCheck": {
+        "id": "DV08",
+        "frames": 240,
+        "matteSSIM": 0.997963,
+        "webmSHA256": "6cdeb07c7b2f5d0bf243f66b38c373e847c8aa694bf26d7f0b742c92a3f84aee",
+        "packedSHA256": "767c84258a7bff407f888ea162a61f446c6c385ad2848e68fed39522ac0175ef",
+        "width": 1920,
+        "height": 540,
+        "nb_read_frames": "240"
+      },
+      "browserCheck": {
+        "id": "DV08",
+        "pass": true,
+        "alphaMAE": 0.0002137959133306093,
+        "colorMAE": 0.006602074874654925,
+        "mode": "cutout",
+        "dimensions": [
+          1920,
+          540
+        ]
+      }
+    },
+    {
+      "id": "DV09",
+      "canonicalUrl": "/videos/ar/DV09.webm",
+      "mode": "cutout",
+      "frames": 240,
+      "dimensions": [
+        960,
+        540
+      ],
+      "files": {
+        "alphaVideoUrl": {
+          "url": "/videos/ar/hq2/DV09.webm",
+          "sha256": "d8e3203553045ba8ebf517dd000dfba5b99e7abc47ed1580af51359ecc5e09ad"
+        },
+        "alphaColorUrl": {
+          "url": "/videos/ar/fallback/hq2/DV09-color.mp4",
+          "sha256": "d1f355d90754a6b5da0edf20aa985d165842c39caa6f7a6f8d0d024e1f6bbacf"
+        },
+        "alphaMaskUrl": {
+          "url": "/videos/ar/fallback/hq2/DV09-alpha.mp4",
+          "sha256": "9c6e94119dcedd105dea1f024a763c8a690f7facdb2c5b9e466ea3c88486417d"
+        },
+        "packedVideoUrl": {
+          "url": "/videos/ar/packed/hq2/DV09.mp4",
+          "sha256": "dcfab981bb534a49cfa068842a494fd5882ac874b365967860c82ae8314fe53b"
+        },
+        "previewVideoUrl": {
+          "url": "/videos/ar/original/hq2/DV09.mp4",
+          "sha256": "36aa054aebda635daa9ee09c5354bb365a9093a5d76eff6fff93d87da26657e0"
+        }
+      },
+      "sourceCheck": {
+        "id": "DV09",
+        "checkVersion": 2,
+        "frames": 240,
+        "mode": "cutout",
+        "sourceContrastCoreCoverage": 0.9999987861208818,
+        "worstCoreFrame": {
+          "coverage": 0.9999823028687049,
+          "frame": 107
+        },
+        "meanSourceColorError": 0.008772769047608708,
+        "unexpectedSceneTransparentPixels": 0,
+        "assetSHA256": "d8e3203553045ba8ebf517dd000dfba5b99e7abc47ed1580af51359ecc5e09ad",
+        "pass": true
+      },
+      "packedCheck": {
+        "id": "DV09",
+        "frames": 240,
+        "matteSSIM": 0.996367,
+        "webmSHA256": "d8e3203553045ba8ebf517dd000dfba5b99e7abc47ed1580af51359ecc5e09ad",
+        "packedSHA256": "dcfab981bb534a49cfa068842a494fd5882ac874b365967860c82ae8314fe53b",
+        "width": 1920,
+        "height": 540,
+        "nb_read_frames": "240"
+      },
+      "browserCheck": {
+        "id": "DV09",
+        "pass": true,
+        "alphaMAE": 0.00026496438419119467,
+        "colorMAE": 0.0066012998167826395,
+        "mode": "cutout",
+        "dimensions": [
+          1920,
+          540
+        ]
+      }
+    },
+    {
+      "id": "DV10",
+      "canonicalUrl": "/videos/ar/DV10.webm",
+      "mode": "cutout",
+      "frames": 240,
+      "dimensions": [
+        960,
+        540
+      ],
+      "files": {
+        "alphaVideoUrl": {
+          "url": "/videos/ar/hq2/DV10.webm",
+          "sha256": "858edb93b25b4870b5959fce3be1b5be36d0fd197ee1973e70e4608e3976b6af"
+        },
+        "alphaColorUrl": {
+          "url": "/videos/ar/fallback/hq2/DV10-color.mp4",
+          "sha256": "010ae3f1931b420d19a0eef623c41b3020364c9d3c2db10e0ca0aa4ab5661736"
+        },
+        "alphaMaskUrl": {
+          "url": "/videos/ar/fallback/hq2/DV10-alpha.mp4",
+          "sha256": "1218167c25f55fb7c6c232b8035464c972c52ed1a95bc8a41d9fbc10e2adca86"
+        },
+        "packedVideoUrl": {
+          "url": "/videos/ar/packed/hq2/DV10.mp4",
+          "sha256": "4de53fc8ee156c7f3b5ba474d812ef4910caee631a32a3a06720f8afe7d7b424"
+        },
+        "previewVideoUrl": {
+          "url": "/videos/ar/original/hq2/DV10.mp4",
+          "sha256": "d6e7e25d90e3784e7b717c4a337f9e796b70d55b0b0ec914f73e0c246ed1b918"
+        }
+      },
+      "sourceCheck": {
+        "id": "DV10",
+        "checkVersion": 2,
+        "frames": 240,
+        "mode": "cutout",
+        "sourceContrastCoreCoverage": 0.9999992940627078,
+        "worstCoreFrame": {
+          "coverage": 0.999987319702013,
+          "frame": 3
+        },
+        "meanSourceColorError": 0.008588005054702174,
+        "unexpectedSceneTransparentPixels": 0,
+        "assetSHA256": "858edb93b25b4870b5959fce3be1b5be36d0fd197ee1973e70e4608e3976b6af",
+        "pass": true
+      },
+      "packedCheck": {
+        "id": "DV10",
+        "frames": 240,
+        "matteSSIM": 0.995482,
+        "webmSHA256": "858edb93b25b4870b5959fce3be1b5be36d0fd197ee1973e70e4608e3976b6af",
+        "packedSHA256": "4de53fc8ee156c7f3b5ba474d812ef4910caee631a32a3a06720f8afe7d7b424",
+        "width": 1920,
+        "height": 540,
+        "nb_read_frames": "240"
+      },
+      "browserCheck": {
+        "id": "DV10",
+        "pass": true,
+        "alphaMAE": 0.0004140018637663991,
+        "colorMAE": 0.006085026179955511,
+        "mode": "cutout",
+        "dimensions": [
+          1920,
+          540
+        ]
+      }
+    },
+    {
+      "id": "HTTN01",
+      "canonicalUrl": "/videos/ar/HTTN01.webm",
+      "mode": "cutout",
+      "frames": 240,
+      "dimensions": [
+        960,
+        540
+      ],
+      "files": {
+        "alphaVideoUrl": {
+          "url": "/videos/ar/hq2/HTTN01.webm",
+          "sha256": "2d6965d36810e48019e7181b447a5dd12e53aae78e7d54db36f9519327ba4746"
+        },
+        "alphaColorUrl": {
+          "url": "/videos/ar/fallback/hq2/HTTN01-color.mp4",
+          "sha256": "95ba61ecb9ceaf7698cf3ccdeadab6f0cc792f34704dfdf54dee1e6f1653467f"
+        },
+        "alphaMaskUrl": {
+          "url": "/videos/ar/fallback/hq2/HTTN01-alpha.mp4",
+          "sha256": "a720ba582937b62d3a347c4a69a5aeb11c64a5c73c44092747330346397f3601"
+        },
+        "packedVideoUrl": {
+          "url": "/videos/ar/packed/hq2/HTTN01.mp4",
+          "sha256": "8829f62ca1f9a0c7e4299d980e2bea21881bc48ff6a8575b8b52e3cda3f60d9c"
+        },
+        "previewVideoUrl": {
+          "url": "/videos/ar/original/hq2/HTTN01.mp4",
+          "sha256": "b98a18e5d2ebbd1aac57bffb1aa36e233eab60de1739387f288a4064ce85e338"
+        }
+      },
+      "sourceCheck": {
+        "id": "HTTN01",
+        "checkVersion": 2,
+        "frames": 240,
+        "mode": "cutout",
+        "sourceContrastCoreCoverage": null,
+        "worstCoreFrame": null,
+        "meanSourceColorError": 0.004007670260864364,
+        "unexpectedSceneTransparentPixels": 0,
+        "assetSHA256": "2d6965d36810e48019e7181b447a5dd12e53aae78e7d54db36f9519327ba4746",
+        "pass": true
+      },
+      "packedCheck": {
+        "id": "HTTN01",
+        "frames": 240,
+        "matteSSIM": 0.989961,
+        "webmSHA256": "2d6965d36810e48019e7181b447a5dd12e53aae78e7d54db36f9519327ba4746",
+        "packedSHA256": "8829f62ca1f9a0c7e4299d980e2bea21881bc48ff6a8575b8b52e3cda3f60d9c",
+        "width": 1920,
+        "height": 540,
+        "nb_read_frames": "240"
+      },
+      "browserCheck": {
+        "id": "HTTN01",
+        "pass": true,
+        "alphaMAE": 0.0022417853860283573,
+        "colorMAE": 0.006027951752354113,
+        "mode": "cutout",
+        "dimensions": [
+          1920,
+          540
+        ]
+      }
+    },
+    {
+      "id": "HTTN02",
+      "canonicalUrl": "/videos/ar/HTTN02.webm",
+      "mode": "scene",
+      "frames": 240,
+      "dimensions": [
+        960,
+        540
+      ],
+      "files": {
+        "alphaVideoUrl": {
+          "url": "/videos/ar/hq2/HTTN02.webm",
+          "sha256": "426cab8f902d1e26fc28c3f8bb160c2bf4d9fbe55b7485ae742c9dfb4e61c19e"
+        },
+        "alphaColorUrl": {
+          "url": "/videos/ar/fallback/hq2/HTTN02-color.mp4",
+          "sha256": "6c0241bafd6d99bd18486a8519e53c733a1f80b8eec8ac15c7101b2bef4bc4ff"
+        },
+        "alphaMaskUrl": {
+          "url": "/videos/ar/fallback/hq2/HTTN02-alpha.mp4",
+          "sha256": "aebf0a71a23dd2e1b2262134578f2066b6d3fbfb28e961bc12dda2f75438af47"
+        },
+        "packedVideoUrl": {
+          "url": "/videos/ar/packed/hq2/HTTN02.mp4",
+          "sha256": "8b120aca03c656891baf20aa517e088580217c066c0c419fa3b7ed892c4b9e99"
+        },
+        "previewVideoUrl": {
+          "url": "/videos/ar/original/hq2/HTTN02.mp4",
+          "sha256": "0273f65d4a4cebb694d1297f5f3e13ea60df0b190fca432498c2fb0fdf4c911f"
+        }
+      },
+      "sourceCheck": {
+        "id": "HTTN02",
+        "checkVersion": 2,
+        "frames": 240,
+        "mode": "scene",
+        "sourceContrastCoreCoverage": null,
+        "worstCoreFrame": null,
+        "meanSourceColorError": 0.0077409697321572666,
+        "unexpectedSceneTransparentPixels": 0,
+        "assetSHA256": "426cab8f902d1e26fc28c3f8bb160c2bf4d9fbe55b7485ae742c9dfb4e61c19e",
+        "pass": true
+      },
+      "packedCheck": {
+        "id": "HTTN02",
+        "frames": 240,
+        "matteSSIM": 1.0,
+        "webmSHA256": "426cab8f902d1e26fc28c3f8bb160c2bf4d9fbe55b7485ae742c9dfb4e61c19e",
+        "packedSHA256": "8b120aca03c656891baf20aa517e088580217c066c0c419fa3b7ed892c4b9e99",
+        "width": 1920,
+        "height": 540,
+        "nb_read_frames": "240"
+      },
+      "browserCheck": {
+        "id": "HTTN02",
+        "pass": true,
+        "alphaMAE": 0,
+        "colorMAE": 0.005526164304701934,
+        "mode": "scene",
+        "dimensions": [
+          1920,
+          540
+        ]
+      }
+    },
+    {
+      "id": "HTTN03",
+      "canonicalUrl": "/videos/ar/HTTN03.webm",
+      "mode": "scene",
+      "frames": 240,
+      "dimensions": [
+        960,
+        540
+      ],
+      "files": {
+        "alphaVideoUrl": {
+          "url": "/videos/ar/hq2/HTTN03.webm",
+          "sha256": "0411a8010afc699965a3d38021e0ff59e37aef6cbac148d21b9c0b88ed6901ca"
+        },
+        "alphaColorUrl": {
+          "url": "/videos/ar/fallback/hq2/HTTN03-color.mp4",
+          "sha256": "b75e52feef5658073bcc16bac63dda029f3dcb9301fb31e2d2361886f65dfe72"
+        },
+        "alphaMaskUrl": {
+          "url": "/videos/ar/fallback/hq2/HTTN03-alpha.mp4",
+          "sha256": "aebf0a71a23dd2e1b2262134578f2066b6d3fbfb28e961bc12dda2f75438af47"
+        },
+        "packedVideoUrl": {
+          "url": "/videos/ar/packed/hq2/HTTN03.mp4",
+          "sha256": "f0b055a59f1797b38f644ffbfaf82392e2436220bf3fe1e60cb7ea37007db617"
+        },
+        "previewVideoUrl": {
+          "url": "/videos/ar/original/hq2/HTTN03.mp4",
+          "sha256": "ceb89e8425a15a7f4f1736e0c630e83dfa409612fe77c85b3c5b454942276c29"
+        }
+      },
+      "sourceCheck": {
+        "id": "HTTN03",
+        "checkVersion": 2,
+        "frames": 240,
+        "mode": "scene",
+        "sourceContrastCoreCoverage": null,
+        "worstCoreFrame": null,
+        "meanSourceColorError": 0.004583563343890369,
+        "unexpectedSceneTransparentPixels": 0,
+        "assetSHA256": "0411a8010afc699965a3d38021e0ff59e37aef6cbac148d21b9c0b88ed6901ca",
+        "pass": true
+      },
+      "packedCheck": {
+        "id": "HTTN03",
+        "frames": 240,
+        "matteSSIM": 1.0,
+        "webmSHA256": "0411a8010afc699965a3d38021e0ff59e37aef6cbac148d21b9c0b88ed6901ca",
+        "packedSHA256": "f0b055a59f1797b38f644ffbfaf82392e2436220bf3fe1e60cb7ea37007db617",
+        "width": 1920,
+        "height": 540,
+        "nb_read_frames": "240"
+      },
+      "browserCheck": {
+        "id": "HTTN03",
+        "pass": true,
+        "alphaMAE": 0,
+        "colorMAE": 0.00320087831556071,
+        "mode": "scene",
+        "dimensions": [
+          1920,
+          540
+        ]
+      }
+    },
+    {
+      "id": "HTTN04",
+      "canonicalUrl": "/videos/ar/HTTN04.webm",
+      "mode": "scene",
+      "frames": 240,
+      "dimensions": [
+        960,
+        540
+      ],
+      "files": {
+        "alphaVideoUrl": {
+          "url": "/videos/ar/hq2/HTTN04.webm",
+          "sha256": "aafa4e8d1c8a00a963b6a79a1a9ea66e018837d52288a3e583c51fa97e09b99e"
+        },
+        "alphaColorUrl": {
+          "url": "/videos/ar/fallback/hq2/HTTN04-color.mp4",
+          "sha256": "ca4db8042fd59363352cf7522489b199d865a7219a519c75d816c671ad66d7b0"
+        },
+        "alphaMaskUrl": {
+          "url": "/videos/ar/fallback/hq2/HTTN04-alpha.mp4",
+          "sha256": "aebf0a71a23dd2e1b2262134578f2066b6d3fbfb28e961bc12dda2f75438af47"
+        },
+        "packedVideoUrl": {
+          "url": "/videos/ar/packed/hq2/HTTN04.mp4",
+          "sha256": "6fa18ee4c985c4de04cb78af73d74d9fb71a2fcec4d2a994184a68422c9871ce"
+        },
+        "previewVideoUrl": {
+          "url": "/videos/ar/original/hq2/HTTN04.mp4",
+          "sha256": "74a0865dccb3ba009f0df00ed21c1483d3a4e9be866cf9e167049f392638290c"
+        }
+      },
+      "sourceCheck": {
+        "id": "HTTN04",
+        "checkVersion": 2,
+        "frames": 240,
+        "mode": "scene",
+        "sourceContrastCoreCoverage": null,
+        "worstCoreFrame": null,
+        "meanSourceColorError": 0.007160881258153124,
+        "unexpectedSceneTransparentPixels": 0,
+        "assetSHA256": "aafa4e8d1c8a00a963b6a79a1a9ea66e018837d52288a3e583c51fa97e09b99e",
+        "pass": true
+      },
+      "packedCheck": {
+        "id": "HTTN04",
+        "frames": 240,
+        "matteSSIM": 1.0,
+        "webmSHA256": "aafa4e8d1c8a00a963b6a79a1a9ea66e018837d52288a3e583c51fa97e09b99e",
+        "packedSHA256": "6fa18ee4c985c4de04cb78af73d74d9fb71a2fcec4d2a994184a68422c9871ce",
+        "width": 1920,
+        "height": 540,
+        "nb_read_frames": "240"
+      },
+      "browserCheck": {
+        "id": "HTTN04",
+        "pass": true,
+        "alphaMAE": 0,
+        "colorMAE": 0.003365589357730969,
+        "mode": "scene",
+        "dimensions": [
+          1920,
+          540
+        ]
+      }
+    },
+    {
+      "id": "HTTN05",
+      "canonicalUrl": "/videos/ar/HTTN05.webm",
+      "mode": "scene",
+      "frames": 240,
+      "dimensions": [
+        960,
+        540
+      ],
+      "files": {
+        "alphaVideoUrl": {
+          "url": "/videos/ar/hq2/HTTN05.webm",
+          "sha256": "3b9a26abe6b6b6b232d5febbe42cfc6f455636e876318771971c0766c14fe092"
+        },
+        "alphaColorUrl": {
+          "url": "/videos/ar/fallback/hq2/HTTN05-color.mp4",
+          "sha256": "8f88185f5f07ae3a9554da2bc0fd6eb760974597444ddcda56f4070ac1fc139d"
+        },
+        "alphaMaskUrl": {
+          "url": "/videos/ar/fallback/hq2/HTTN05-alpha.mp4",
+          "sha256": "aebf0a71a23dd2e1b2262134578f2066b6d3fbfb28e961bc12dda2f75438af47"
+        },
+        "packedVideoUrl": {
+          "url": "/videos/ar/packed/hq2/HTTN05.mp4",
+          "sha256": "34949bf0cf060296b228387924860907a5048cb5633fb103b95a98bd28a5e91b"
+        },
+        "previewVideoUrl": {
+          "url": "/videos/ar/original/hq2/HTTN05.mp4",
+          "sha256": "f5f1f44d78d3b3c1b79f16b38999ec41973cd2f55be7229ace3646edd85045d5"
+        }
+      },
+      "sourceCheck": {
+        "id": "HTTN05",
+        "checkVersion": 2,
+        "frames": 240,
+        "mode": "scene",
+        "sourceContrastCoreCoverage": null,
+        "worstCoreFrame": null,
+        "meanSourceColorError": 0.007233033327785846,
+        "unexpectedSceneTransparentPixels": 0,
+        "assetSHA256": "3b9a26abe6b6b6b232d5febbe42cfc6f455636e876318771971c0766c14fe092",
+        "pass": true
+      },
+      "packedCheck": {
+        "id": "HTTN05",
+        "frames": 240,
+        "matteSSIM": 1.0,
+        "webmSHA256": "3b9a26abe6b6b6b232d5febbe42cfc6f455636e876318771971c0766c14fe092",
+        "packedSHA256": "34949bf0cf060296b228387924860907a5048cb5633fb103b95a98bd28a5e91b",
+        "width": 1920,
+        "height": 540,
+        "nb_read_frames": "240"
+      },
+      "browserCheck": {
+        "id": "HTTN05",
+        "pass": true,
+        "alphaMAE": 0,
+        "colorMAE": 0.004776897921431797,
+        "mode": "scene",
+        "dimensions": [
+          1920,
+          540
+        ]
+      }
+    },
+    {
+      "id": "HTTN06",
+      "canonicalUrl": "/videos/ar/HTTN06.webm",
+      "mode": "scene",
+      "frames": 240,
+      "dimensions": [
+        960,
+        540
+      ],
+      "files": {
+        "alphaVideoUrl": {
+          "url": "/videos/ar/hq2/HTTN06.webm",
+          "sha256": "5a064487a6beba04b637f0f00f8db5e26c60866c3dce1857d65daef788ff2e9e"
+        },
+        "alphaColorUrl": {
+          "url": "/videos/ar/fallback/hq2/HTTN06-color.mp4",
+          "sha256": "1017dbbdfcbcc450aa90726d9cadf1e781bc94d3e578b4fcb2c025341172c54f"
+        },
+        "alphaMaskUrl": {
+          "url": "/videos/ar/fallback/hq2/HTTN06-alpha.mp4",
+          "sha256": "aebf0a71a23dd2e1b2262134578f2066b6d3fbfb28e961bc12dda2f75438af47"
+        },
+        "packedVideoUrl": {
+          "url": "/videos/ar/packed/hq2/HTTN06.mp4",
+          "sha256": "7b79271a8d49cd79d86a7701da44733cf1daf10f13b2928dd615b421d5bf1d36"
+        },
+        "previewVideoUrl": {
+          "url": "/videos/ar/original/hq2/HTTN06.mp4",
+          "sha256": "d5eb016b83f469ae32625ace69d58b234db87bd132c9bf0b5cb1af42da5ef85b"
+        }
+      },
+      "sourceCheck": {
+        "id": "HTTN06",
+        "checkVersion": 2,
+        "frames": 240,
+        "mode": "scene",
+        "sourceContrastCoreCoverage": null,
+        "worstCoreFrame": null,
+        "meanSourceColorError": 0.005096516052408617,
+        "unexpectedSceneTransparentPixels": 0,
+        "assetSHA256": "5a064487a6beba04b637f0f00f8db5e26c60866c3dce1857d65daef788ff2e9e",
+        "pass": true
+      },
+      "packedCheck": {
+        "id": "HTTN06",
+        "frames": 240,
+        "matteSSIM": 1.0,
+        "webmSHA256": "5a064487a6beba04b637f0f00f8db5e26c60866c3dce1857d65daef788ff2e9e",
+        "packedSHA256": "7b79271a8d49cd79d86a7701da44733cf1daf10f13b2928dd615b421d5bf1d36",
+        "width": 1920,
+        "height": 540,
+        "nb_read_frames": "240"
+      },
+      "browserCheck": {
+        "id": "HTTN06",
+        "pass": true,
+        "alphaMAE": 0,
+        "colorMAE": 0.0036489045331652213,
+        "mode": "scene",
+        "dimensions": [
+          1920,
+          540
+        ]
+      }
+    },
+    {
+      "id": "HTTN07",
+      "canonicalUrl": "/videos/ar/HTTN07.webm",
+      "mode": "glow",
+      "frames": 240,
+      "dimensions": [
+        960,
+        540
+      ],
+      "files": {
+        "alphaVideoUrl": {
+          "url": "/videos/ar/hq2/HTTN07.webm",
+          "sha256": "e04f49e0e56e9d3f82f8d0f2a415d5740872a690d9b2fefe7550f0cc899f5196"
+        },
+        "alphaColorUrl": {
+          "url": "/videos/ar/fallback/hq2/HTTN07-color.mp4",
+          "sha256": "6fbbc31aec6128e95ae66fb1a29994b5ad5f4ea25b8e9122fc7beb731ad9c8d1"
+        },
+        "alphaMaskUrl": {
+          "url": "/videos/ar/fallback/hq2/HTTN07-alpha.mp4",
+          "sha256": "239c98803ae03d6eee241b979ff3737166e6c8d5277d044009fc401558c0957e"
+        },
+        "packedVideoUrl": {
+          "url": "/videos/ar/packed/hq2/HTTN07.mp4",
+          "sha256": "0509d35e66da8a07c3282ad6e1a9e94bd39e42b8fafb63e45ff4833802612d41"
+        },
+        "previewVideoUrl": {
+          "url": "/videos/ar/original/hq2/HTTN07.mp4",
+          "sha256": "1ffd8a2f524dcf38d2ebc43141b834db94a28f5304c74ceb2dd0e4bc3f1f1911"
+        }
+      },
+      "sourceCheck": {
+        "id": "HTTN07",
+        "checkVersion": 2,
+        "frames": 240,
+        "mode": "glow",
+        "sourceContrastCoreCoverage": null,
+        "worstCoreFrame": null,
+        "meanSourceColorError": 0.003229979899137598,
+        "unexpectedSceneTransparentPixels": 0,
+        "assetSHA256": "e04f49e0e56e9d3f82f8d0f2a415d5740872a690d9b2fefe7550f0cc899f5196",
+        "pass": true
+      },
+      "packedCheck": {
+        "id": "HTTN07",
+        "frames": 240,
+        "matteSSIM": 0.985998,
+        "webmSHA256": "e04f49e0e56e9d3f82f8d0f2a415d5740872a690d9b2fefe7550f0cc899f5196",
+        "packedSHA256": "0509d35e66da8a07c3282ad6e1a9e94bd39e42b8fafb63e45ff4833802612d41",
+        "width": 1920,
+        "height": 540,
+        "nb_read_frames": "240"
+      },
+      "browserCheck": {
+        "id": "HTTN07",
+        "pass": true,
+        "alphaMAE": 0.0027312634037975052,
+        "colorMAE": 0,
+        "mode": "glow",
+        "dimensions": [
+          1920,
+          540
+        ]
+      }
+    },
+    {
+      "id": "HTTN08",
+      "canonicalUrl": "/videos/ar/HTTN08.webm",
+      "mode": "scene",
+      "frames": 240,
+      "dimensions": [
+        960,
+        540
+      ],
+      "files": {
+        "alphaVideoUrl": {
+          "url": "/videos/ar/hq2/HTTN08.webm",
+          "sha256": "345980785bcb8f135ef3a959d9b7ec923a20797ad89fcbcfae39622921087753"
+        },
+        "alphaColorUrl": {
+          "url": "/videos/ar/fallback/hq2/HTTN08-color.mp4",
+          "sha256": "9290b01ffdab6471c69cf2b47e2e3ebfe067b8c57341f44227f0e458899a7aef"
+        },
+        "alphaMaskUrl": {
+          "url": "/videos/ar/fallback/hq2/HTTN08-alpha.mp4",
+          "sha256": "aebf0a71a23dd2e1b2262134578f2066b6d3fbfb28e961bc12dda2f75438af47"
+        },
+        "packedVideoUrl": {
+          "url": "/videos/ar/packed/hq2/HTTN08.mp4",
+          "sha256": "046f8407ec9f72c63dbf8ade7419bce01d241c7666a90dad65deb2dcd8a3524c"
+        },
+        "previewVideoUrl": {
+          "url": "/videos/ar/original/hq2/HTTN08.mp4",
+          "sha256": "191c1763b2408f5630a477449edd17eece83d460e5900ac7d9c922083d4db54c"
+        }
+      },
+      "sourceCheck": {
+        "id": "HTTN08",
+        "checkVersion": 2,
+        "frames": 240,
+        "mode": "scene",
+        "sourceContrastCoreCoverage": null,
+        "worstCoreFrame": null,
+        "meanSourceColorError": 0.00705282442709594,
+        "unexpectedSceneTransparentPixels": 0,
+        "assetSHA256": "345980785bcb8f135ef3a959d9b7ec923a20797ad89fcbcfae39622921087753",
+        "pass": true
+      },
+      "packedCheck": {
+        "id": "HTTN08",
+        "frames": 240,
+        "matteSSIM": 1.0,
+        "webmSHA256": "345980785bcb8f135ef3a959d9b7ec923a20797ad89fcbcfae39622921087753",
+        "packedSHA256": "046f8407ec9f72c63dbf8ade7419bce01d241c7666a90dad65deb2dcd8a3524c",
+        "width": 1920,
+        "height": 540,
+        "nb_read_frames": "240"
+      },
+      "browserCheck": {
+        "id": "HTTN08",
+        "pass": true,
+        "alphaMAE": 0,
+        "colorMAE": 0.004218544777446264,
+        "mode": "scene",
+        "dimensions": [
+          1920,
+          540
+        ]
+      }
+    },
+    {
+      "id": "HTTN09",
+      "canonicalUrl": "/videos/ar/HTTN09.webm",
+      "mode": "scene",
+      "frames": 240,
+      "dimensions": [
+        960,
+        540
+      ],
+      "files": {
+        "alphaVideoUrl": {
+          "url": "/videos/ar/hq2/HTTN09.webm",
+          "sha256": "5e6e3b7d8cb549dfdd9c92c8ce42606f826d647e6653d5b6ed41e3ccd595f608"
+        },
+        "alphaColorUrl": {
+          "url": "/videos/ar/fallback/hq2/HTTN09-color.mp4",
+          "sha256": "9b0ca7f34e7c87e799c798df48bfd8b3aefa98a49bc9d1cb33278eb8fb17ba7d"
+        },
+        "alphaMaskUrl": {
+          "url": "/videos/ar/fallback/hq2/HTTN09-alpha.mp4",
+          "sha256": "aebf0a71a23dd2e1b2262134578f2066b6d3fbfb28e961bc12dda2f75438af47"
+        },
+        "packedVideoUrl": {
+          "url": "/videos/ar/packed/hq2/HTTN09.mp4",
+          "sha256": "e7654aaac6f5ece20a205c6cf8213c2498d6a68371701122c0ddd1c8f6d035a1"
+        },
+        "previewVideoUrl": {
+          "url": "/videos/ar/original/hq2/HTTN09.mp4",
+          "sha256": "ca702d3ed12a56f1af880f747a83a2f54d71834e13115fc70daa2e27a1471728"
+        }
+      },
+      "sourceCheck": {
+        "id": "HTTN09",
+        "checkVersion": 2,
+        "frames": 240,
+        "mode": "scene",
+        "sourceContrastCoreCoverage": null,
+        "worstCoreFrame": null,
+        "meanSourceColorError": 0.006502007906429032,
+        "unexpectedSceneTransparentPixels": 0,
+        "assetSHA256": "5e6e3b7d8cb549dfdd9c92c8ce42606f826d647e6653d5b6ed41e3ccd595f608",
+        "pass": true
+      },
+      "packedCheck": {
+        "id": "HTTN09",
+        "frames": 240,
+        "matteSSIM": 1.0,
+        "webmSHA256": "5e6e3b7d8cb549dfdd9c92c8ce42606f826d647e6653d5b6ed41e3ccd595f608",
+        "packedSHA256": "e7654aaac6f5ece20a205c6cf8213c2498d6a68371701122c0ddd1c8f6d035a1",
+        "width": 1920,
+        "height": 540,
+        "nb_read_frames": "240"
+      },
+      "browserCheck": {
+        "id": "HTTN09",
+        "pass": true,
+        "alphaMAE": 0,
+        "colorMAE": 0.004475021736622461,
+        "mode": "scene",
+        "dimensions": [
+          1920,
+          540
+        ]
+      }
+    },
+    {
+      "id": "HTTN10",
+      "canonicalUrl": "/videos/ar/HTTN10.webm",
+      "mode": "scene",
+      "frames": 240,
+      "dimensions": [
+        960,
+        540
+      ],
+      "files": {
+        "alphaVideoUrl": {
+          "url": "/videos/ar/hq2/HTTN10.webm",
+          "sha256": "5beba316656f097bbe50b6207c4ddea41e01bef015124c203988e8add984831f"
+        },
+        "alphaColorUrl": {
+          "url": "/videos/ar/fallback/hq2/HTTN10-color.mp4",
+          "sha256": "c58603f698ee4fbefac53edd2404984d11090cfa1f879f4ead0d2b53e0bd10b8"
+        },
+        "alphaMaskUrl": {
+          "url": "/videos/ar/fallback/hq2/HTTN10-alpha.mp4",
+          "sha256": "aebf0a71a23dd2e1b2262134578f2066b6d3fbfb28e961bc12dda2f75438af47"
+        },
+        "packedVideoUrl": {
+          "url": "/videos/ar/packed/hq2/HTTN10.mp4",
+          "sha256": "765caec24335ece0f48129b6aba1c60447ffe6d7fb72ba784e2f78d478b5166d"
+        },
+        "previewVideoUrl": {
+          "url": "/videos/ar/original/hq2/HTTN10.mp4",
+          "sha256": "7304874466ee58a174562def47315e68d0705f13b1baa9d5ae6f753eb8f221e1"
+        }
+      },
+      "sourceCheck": {
+        "id": "HTTN10",
+        "checkVersion": 2,
+        "frames": 240,
+        "mode": "scene",
+        "sourceContrastCoreCoverage": null,
+        "worstCoreFrame": null,
+        "meanSourceColorError": 0.006111532940722585,
+        "unexpectedSceneTransparentPixels": 0,
+        "assetSHA256": "5beba316656f097bbe50b6207c4ddea41e01bef015124c203988e8add984831f",
+        "pass": true
+      },
+      "packedCheck": {
+        "id": "HTTN10",
+        "frames": 240,
+        "matteSSIM": 1.0,
+        "webmSHA256": "5beba316656f097bbe50b6207c4ddea41e01bef015124c203988e8add984831f",
+        "packedSHA256": "765caec24335ece0f48129b6aba1c60447ffe6d7fb72ba784e2f78d478b5166d",
+        "width": 1920,
+        "height": 540,
+        "nb_read_frames": "240"
+      },
+      "browserCheck": {
+        "id": "HTTN10",
+        "pass": true,
+        "alphaMAE": 5.318967864923747e-08,
+        "colorMAE": 0.0037474068782842873,
+        "mode": "scene",
+        "dimensions": [
+          1920,
+          540
+        ]
+      }
+    },
+    {
+      "id": "HTTN11",
+      "canonicalUrl": "/videos/ar/HTTN11.webm",
+      "mode": "scene",
+      "frames": 240,
+      "dimensions": [
+        960,
+        540
+      ],
+      "files": {
+        "alphaVideoUrl": {
+          "url": "/videos/ar/hq2/HTTN11.webm",
+          "sha256": "fb0592f3c0c9f428ddffebe21fbf71e05e1298f8f32db34bf4e53bbf78c13485"
+        },
+        "alphaColorUrl": {
+          "url": "/videos/ar/fallback/hq2/HTTN11-color.mp4",
+          "sha256": "f055f3337db695cd900da4378f39e0885c573543578a1b1ae2c357edacd92b54"
+        },
+        "alphaMaskUrl": {
+          "url": "/videos/ar/fallback/hq2/HTTN11-alpha.mp4",
+          "sha256": "aebf0a71a23dd2e1b2262134578f2066b6d3fbfb28e961bc12dda2f75438af47"
+        },
+        "packedVideoUrl": {
+          "url": "/videos/ar/packed/hq2/HTTN11.mp4",
+          "sha256": "c5d6863fe26610a41407b2dd55fcce17d0417b877ded68c7e2bf4238b7532637"
+        },
+        "previewVideoUrl": {
+          "url": "/videos/ar/original/hq2/HTTN11.mp4",
+          "sha256": "0e7eabd16ee22179eef070a2ad707dc4d99425feb87cb2ff17f2cd351c401f97"
+        }
+      },
+      "sourceCheck": {
+        "id": "HTTN11",
+        "checkVersion": 2,
+        "frames": 240,
+        "mode": "scene",
+        "sourceContrastCoreCoverage": null,
+        "worstCoreFrame": null,
+        "meanSourceColorError": 0.007984896589808764,
+        "unexpectedSceneTransparentPixels": 0,
+        "assetSHA256": "fb0592f3c0c9f428ddffebe21fbf71e05e1298f8f32db34bf4e53bbf78c13485",
+        "pass": true
+      },
+      "packedCheck": {
+        "id": "HTTN11",
+        "frames": 240,
+        "matteSSIM": 1.0,
+        "webmSHA256": "fb0592f3c0c9f428ddffebe21fbf71e05e1298f8f32db34bf4e53bbf78c13485",
+        "packedSHA256": "c5d6863fe26610a41407b2dd55fcce17d0417b877ded68c7e2bf4238b7532637",
+        "width": 1920,
+        "height": 540,
+        "nb_read_frames": "240"
+      },
+      "browserCheck": {
+        "id": "HTTN11",
+        "pass": true,
+        "alphaMAE": 0,
+        "colorMAE": 0.005946178805938058,
+        "mode": "scene",
+        "dimensions": [
+          1920,
+          540
+        ]
+      }
+    },
+    {
+      "id": "HTTN12",
+      "canonicalUrl": "/videos/ar/HTTN12.webm",
+      "mode": "scene",
+      "frames": 240,
+      "dimensions": [
+        960,
+        540
+      ],
+      "files": {
+        "alphaVideoUrl": {
+          "url": "/videos/ar/hq2/HTTN12.webm",
+          "sha256": "586273307ba61d76d6e1a05867405e06cf880a401d549bd63f7ee9182770b0d4"
+        },
+        "alphaColorUrl": {
+          "url": "/videos/ar/fallback/hq2/HTTN12-color.mp4",
+          "sha256": "1b20193b3769caba589e85e06c89097f3a59e9a2551a7c531c0c1d9834aeea31"
+        },
+        "alphaMaskUrl": {
+          "url": "/videos/ar/fallback/hq2/HTTN12-alpha.mp4",
+          "sha256": "aebf0a71a23dd2e1b2262134578f2066b6d3fbfb28e961bc12dda2f75438af47"
+        },
+        "packedVideoUrl": {
+          "url": "/videos/ar/packed/hq2/HTTN12.mp4",
+          "sha256": "7b7eb7f6faaf6ba86673ccc21c953392024c96f03371b168f7020f10414d8145"
+        },
+        "previewVideoUrl": {
+          "url": "/videos/ar/original/hq2/HTTN12.mp4",
+          "sha256": "35bd95f15121443da43c801a89e7bcb15fa0f09270d4660d8f078da32d0f4e72"
+        }
+      },
+      "sourceCheck": {
+        "id": "HTTN12",
+        "checkVersion": 2,
+        "frames": 240,
+        "mode": "scene",
+        "sourceContrastCoreCoverage": null,
+        "worstCoreFrame": null,
+        "meanSourceColorError": 0.008596488462068641,
+        "unexpectedSceneTransparentPixels": 0,
+        "assetSHA256": "586273307ba61d76d6e1a05867405e06cf880a401d549bd63f7ee9182770b0d4",
+        "pass": true
+      },
+      "packedCheck": {
+        "id": "HTTN12",
+        "frames": 240,
+        "matteSSIM": 1.0,
+        "webmSHA256": "586273307ba61d76d6e1a05867405e06cf880a401d549bd63f7ee9182770b0d4",
+        "packedSHA256": "7b7eb7f6faaf6ba86673ccc21c953392024c96f03371b168f7020f10414d8145",
+        "width": 1920,
+        "height": 540,
+        "nb_read_frames": "240"
+      },
+      "browserCheck": {
+        "id": "HTTN12",
+        "pass": true,
+        "alphaMAE": 0,
+        "colorMAE": 0.005554265601231512,
+        "mode": "scene",
+        "dimensions": [
+          1920,
+          540
+        ]
+      }
+    },
+    {
+      "id": "HTTN13",
+      "canonicalUrl": "/videos/ar/HTTN13.webm",
+      "mode": "glow",
+      "frames": 240,
+      "dimensions": [
+        960,
+        540
+      ],
+      "files": {
+        "alphaVideoUrl": {
+          "url": "/videos/ar/hq2/HTTN13.webm",
+          "sha256": "2cbbf372dc678f06298be73043eae6a71efedd2b68e7c6d13732e0a597cf5366"
+        },
+        "alphaColorUrl": {
+          "url": "/videos/ar/fallback/hq2/HTTN13-color.mp4",
+          "sha256": "2392433bd697915ab28ed4ceddf231ad8c0aecc1d2782f5bd7095778d4fa4c74"
+        },
+        "alphaMaskUrl": {
+          "url": "/videos/ar/fallback/hq2/HTTN13-alpha.mp4",
+          "sha256": "310f7e86e4d37f3d0c70820938356aa097e8bbe7a1f00703dc65bf81e4acdc8e"
+        },
+        "packedVideoUrl": {
+          "url": "/videos/ar/packed/hq2/HTTN13.mp4",
+          "sha256": "76b6a47704625e5d9a9c0afc0aeb39bdbe60cb47160296ca53e403f401f0cdcd"
+        },
+        "previewVideoUrl": {
+          "url": "/videos/ar/original/hq2/HTTN13.mp4",
+          "sha256": "54c9acba800633f61887c7c8a78ab9c0c5a95b2d046abf8920f8b7e1b87a1d60"
+        }
+      },
+      "sourceCheck": {
+        "id": "HTTN13",
+        "checkVersion": 2,
+        "frames": 240,
+        "mode": "glow",
+        "sourceContrastCoreCoverage": null,
+        "worstCoreFrame": null,
+        "meanSourceColorError": 0.004233014452116985,
+        "unexpectedSceneTransparentPixels": 0,
+        "assetSHA256": "2cbbf372dc678f06298be73043eae6a71efedd2b68e7c6d13732e0a597cf5366",
+        "pass": true
+      },
+      "packedCheck": {
+        "id": "HTTN13",
+        "frames": 240,
+        "matteSSIM": 0.977856,
+        "webmSHA256": "2cbbf372dc678f06298be73043eae6a71efedd2b68e7c6d13732e0a597cf5366",
+        "packedSHA256": "76b6a47704625e5d9a9c0afc0aeb39bdbe60cb47160296ca53e403f401f0cdcd",
+        "width": 1920,
+        "height": 540,
+        "nb_read_frames": "240"
+      },
+      "browserCheck": {
+        "id": "HTTN13",
+        "pass": true,
+        "alphaMAE": 0.004467507489103722,
+        "colorMAE": 0.005920799692425989,
+        "mode": "glow",
+        "dimensions": [
+          1920,
+          540
+        ]
+      }
+    },
+    {
+      "id": "HTTN14",
+      "canonicalUrl": "/videos/ar/HTTN14.webm",
+      "mode": "scene",
+      "frames": 240,
+      "dimensions": [
+        960,
+        540
+      ],
+      "files": {
+        "alphaVideoUrl": {
+          "url": "/videos/ar/hq2/HTTN14.webm",
+          "sha256": "58ba771a1d978c1ce402e81917c53b009767eee12c4cad07000ba49d57df6f8e"
+        },
+        "alphaColorUrl": {
+          "url": "/videos/ar/fallback/hq2/HTTN14-color.mp4",
+          "sha256": "e8a2ea70cdf978935acd4b6e47de1beb447c391c79774facb2657bf2d0c826d2"
+        },
+        "alphaMaskUrl": {
+          "url": "/videos/ar/fallback/hq2/HTTN14-alpha.mp4",
+          "sha256": "aebf0a71a23dd2e1b2262134578f2066b6d3fbfb28e961bc12dda2f75438af47"
+        },
+        "packedVideoUrl": {
+          "url": "/videos/ar/packed/hq2/HTTN14.mp4",
+          "sha256": "f64de3be487f5fedfc8e78524eea1eacd828584f31b1b78e8866015e44e20941"
+        },
+        "previewVideoUrl": {
+          "url": "/videos/ar/original/hq2/HTTN14.mp4",
+          "sha256": "4ea43f1420a6612ff130494e2570959dfe979febd40638b4186d11334dde0251"
+        }
+      },
+      "sourceCheck": {
+        "id": "HTTN14",
+        "checkVersion": 2,
+        "frames": 240,
+        "mode": "scene",
+        "sourceContrastCoreCoverage": null,
+        "worstCoreFrame": null,
+        "meanSourceColorError": 0.0055765258739812786,
+        "unexpectedSceneTransparentPixels": 0,
+        "assetSHA256": "58ba771a1d978c1ce402e81917c53b009767eee12c4cad07000ba49d57df6f8e",
+        "pass": true
+      },
+      "packedCheck": {
+        "id": "HTTN14",
+        "frames": 240,
+        "matteSSIM": 1.0,
+        "webmSHA256": "58ba771a1d978c1ce402e81917c53b009767eee12c4cad07000ba49d57df6f8e",
+        "packedSHA256": "f64de3be487f5fedfc8e78524eea1eacd828584f31b1b78e8866015e44e20941",
+        "width": 1920,
+        "height": 540,
+        "nb_read_frames": "240"
+      },
+      "browserCheck": {
+        "id": "HTTN14",
+        "pass": true,
+        "alphaMAE": 0,
+        "colorMAE": 0.0043100957020658906,
+        "mode": "scene",
+        "dimensions": [
+          1920,
+          540
+        ]
+      }
+    },
+    {
+      "id": "HTTN15",
+      "canonicalUrl": "/videos/ar/HTTN15.webm",
+      "mode": "glow",
+      "frames": 240,
+      "dimensions": [
+        960,
+        540
+      ],
+      "files": {
+        "alphaVideoUrl": {
+          "url": "/videos/ar/hq2/HTTN15.webm",
+          "sha256": "04a692f241a068cea0058032baaf59256d5a8fae525a017ce1643317da20b11b"
+        },
+        "alphaColorUrl": {
+          "url": "/videos/ar/fallback/hq2/HTTN15-color.mp4",
+          "sha256": "9deec24d226ddb99004192a90f5cf22bce66a59473f67b8142a724f0464df6af"
+        },
+        "alphaMaskUrl": {
+          "url": "/videos/ar/fallback/hq2/HTTN15-alpha.mp4",
+          "sha256": "26d9c58d94f38feb824d7249dbab5ca04e0a4c98d5cf3e3e54371aeed5db5781"
+        },
+        "packedVideoUrl": {
+          "url": "/videos/ar/packed/hq2/HTTN15.mp4",
+          "sha256": "360e824476fe69aa06b8340e7b67351344d4919290e0f58268566e8c64660d99"
+        },
+        "previewVideoUrl": {
+          "url": "/videos/ar/original/hq2/HTTN15.mp4",
+          "sha256": "e5530b93a9be0826d21264c39e0bda4161143e23de2e08edd24fb39235812fbb"
+        }
+      },
+      "sourceCheck": {
+        "id": "HTTN15",
+        "checkVersion": 2,
+        "frames": 240,
+        "mode": "glow",
+        "sourceContrastCoreCoverage": null,
+        "worstCoreFrame": null,
+        "meanSourceColorError": 0.0010013517195345753,
+        "unexpectedSceneTransparentPixels": 0,
+        "assetSHA256": "04a692f241a068cea0058032baaf59256d5a8fae525a017ce1643317da20b11b",
+        "pass": true
+      },
+      "packedCheck": {
+        "id": "HTTN15",
+        "frames": 240,
+        "matteSSIM": 0.99205,
+        "webmSHA256": "04a692f241a068cea0058032baaf59256d5a8fae525a017ce1643317da20b11b",
+        "packedSHA256": "360e824476fe69aa06b8340e7b67351344d4919290e0f58268566e8c64660d99",
+        "width": 1920,
+        "height": 540,
+        "nb_read_frames": "240"
+      },
+      "browserCheck": {
+        "id": "HTTN15",
+        "pass": true,
+        "alphaMAE": 0.00035307308687371447,
+        "colorMAE": 0.005213379469434821,
+        "mode": "glow",
+        "dimensions": [
+          1920,
+          540
+        ]
+      }
+    },
+    {
+      "id": "RIKO",
+      "canonicalUrl": "/videos/ar/RIKO.webm",
+      "mode": "cutout",
+      "frames": 228,
+      "dimensions": [
+        406,
+        720
+      ],
+      "files": {
+        "alphaVideoUrl": {
+          "url": "/videos/ar/hq2/RIKO.webm",
+          "sha256": "b4c10633ee531bec6fb8e8d92a7c2a0b15313fd40a1e7987ef9f084b04cafdce"
+        },
+        "alphaColorUrl": {
+          "url": "/videos/ar/fallback/hq2/RIKO-color.mp4",
+          "sha256": "4a401d39dcf9b0c949557f8f83a9a8353ff1c44497054f6314212476b2ec4ec5"
+        },
+        "alphaMaskUrl": {
+          "url": "/videos/ar/fallback/hq2/RIKO-alpha.mp4",
+          "sha256": "da95e2c296cb9d9e49a35348ac9d2495537197eca40c076d84e7769fcff075b9"
+        },
+        "packedVideoUrl": {
+          "url": "/videos/ar/packed/hq2/RIKO.mp4",
+          "sha256": "4aba4af7a69524be22a7f45e8831ae41ea39532cf3d21fe9ab871c14edc4952c"
+        },
+        "previewVideoUrl": {
+          "url": "/videos/ar/original/hq2/RIKO.mp4",
+          "sha256": "cdd182addb3c386dc610d30a54de080f2fac4b7dd56dc1ac75b3c1390ba07d93"
+        }
+      },
+      "sourceCheck": null,
+      "packedCheck": {
+        "id": "RIKO",
+        "frames": 228,
+        "matteSSIM": 0.991404,
+        "webmSHA256": "b4c10633ee531bec6fb8e8d92a7c2a0b15313fd40a1e7987ef9f084b04cafdce",
+        "packedSHA256": "4aba4af7a69524be22a7f45e8831ae41ea39532cf3d21fe9ab871c14edc4952c",
+        "width": 812,
+        "height": 720,
+        "nb_read_frames": "228"
+      },
+      "browserCheck": {
+        "id": "RIKO",
+        "pass": true,
+        "alphaMAE": 0.0006924498314951525,
+        "colorMAE": 0.013524393563844318,
+        "mode": "cutout",
+        "dimensions": [
+          812,
+          720
+        ]
+      }
+    },
+    {
+      "id": "RECAP_GT",
+      "canonicalUrl": "/videos/ar/RECAP_GT.webm",
+      "mode": "mixed",
+      "frames": 280,
+      "dimensions": [
+        960,
+        540
+      ],
+      "files": {
+        "alphaVideoUrl": {
+          "url": "/videos/ar/hq2/RECAP_GT.webm",
+          "sha256": "88f5d711f00aba569e00be731fe72eb3284bf73d2efcf15800a8e79c3d8ef026"
+        },
+        "alphaColorUrl": {
+          "url": "/videos/ar/fallback/hq2/RECAP_GT-color.mp4",
+          "sha256": "7cde802f31e673c1c385b4948a1cef1c74af3810e1331fb033bb8ce5e96e3989"
+        },
+        "alphaMaskUrl": {
+          "url": "/videos/ar/fallback/hq2/RECAP_GT-alpha.mp4",
+          "sha256": "60bcd64468d4e2ae4b7a8fc77bd10df4e75dad1bd2c0504c6a8d3b62d42f8198"
+        },
+        "packedVideoUrl": {
+          "url": "/videos/ar/packed/hq2/RECAP_GT.mp4",
+          "sha256": "f1a2c3867b7f7c8142c41e5781f08e1a78118addc7b6114b8de2d2b86a2162ca"
+        },
+        "previewVideoUrl": {
+          "url": "/videos/ar/original/hq2/RECAP_GT.mp4",
+          "sha256": "6710ca26cbfcc644fbcf24ba8a45118c59d85b60f56a57588e0a0037fef45a20"
+        }
+      },
+      "sourceCheck": null,
+      "packedCheck": {
+        "id": "RECAP_GT",
+        "frames": 280,
+        "matteSSIM": 0.997214,
+        "webmSHA256": "88f5d711f00aba569e00be731fe72eb3284bf73d2efcf15800a8e79c3d8ef026",
+        "packedSHA256": "f1a2c3867b7f7c8142c41e5781f08e1a78118addc7b6114b8de2d2b86a2162ca",
+        "width": 1920,
+        "height": 540,
+        "nb_read_frames": "280"
+      },
+      "browserCheck": {
+        "id": "RECAP_GT",
+        "pass": true,
+        "alphaMAE": 0.00017839818218954188,
+        "colorMAE": 0.005658832241239916,
+        "mode": "mixed",
+        "dimensions": [
+          1920,
+          540
+        ]
+      }
+    },
+    {
+      "id": "RECAP_DV_MAMMALS",
+      "canonicalUrl": "/videos/ar/RECAP_DV_MAMMALS.webm",
+      "mode": "mixed",
+      "frames": 56,
+      "dimensions": [
+        960,
+        540
+      ],
+      "files": {
+        "alphaVideoUrl": {
+          "url": "/videos/ar/hq2/RECAP_DV_MAMMALS.webm",
+          "sha256": "8be5f8843141a4eb0e84d8ffa16559538d29b7be943504223f4400e5135a2a6b"
+        },
+        "alphaColorUrl": {
+          "url": "/videos/ar/fallback/hq2/RECAP_DV_MAMMALS-color.mp4",
+          "sha256": "f3e3c9ffba958186a38c7a4ddd4ac88baca49c4d723f23b6dc0418525a935c9b"
+        },
+        "alphaMaskUrl": {
+          "url": "/videos/ar/fallback/hq2/RECAP_DV_MAMMALS-alpha.mp4",
+          "sha256": "296013a19222a11747ddc9ae4b8949d5f4ae033a82f5630ca554c5f45de2e2a9"
+        },
+        "packedVideoUrl": {
+          "url": "/videos/ar/packed/hq2/RECAP_DV_MAMMALS.mp4",
+          "sha256": "1ac44dafb8020c8398367cd28c618eab8a67c9ab23277606df5aac5069186b4a"
+        },
+        "previewVideoUrl": {
+          "url": "/videos/ar/original/hq2/RECAP_DV_MAMMALS.mp4",
+          "sha256": "4b49777112e7f817d17e6576b279e4c4699345191ca17d8cb63b22dae7c2c049"
+        }
+      },
+      "sourceCheck": null,
+      "packedCheck": {
+        "id": "RECAP_DV_MAMMALS",
+        "frames": 56,
+        "matteSSIM": 0.997437,
+        "webmSHA256": "8be5f8843141a4eb0e84d8ffa16559538d29b7be943504223f4400e5135a2a6b",
+        "packedSHA256": "1ac44dafb8020c8398367cd28c618eab8a67c9ab23277606df5aac5069186b4a",
+        "width": 1920,
+        "height": 540,
+        "nb_read_frames": "56"
+      },
+      "browserCheck": {
+        "id": "RECAP_DV_MAMMALS",
+        "pass": true,
+        "alphaMAE": 0.0001227883731617643,
+        "colorMAE": 0.00767323093209661,
+        "mode": "mixed",
+        "dimensions": [
+          1920,
+          540
+        ]
+      }
+    },
+    {
+      "id": "RECAP_DV_BIRDS",
+      "canonicalUrl": "/videos/ar/RECAP_DV_BIRDS.webm",
+      "mode": "mixed",
+      "frames": 56,
+      "dimensions": [
+        960,
+        540
+      ],
+      "files": {
+        "alphaVideoUrl": {
+          "url": "/videos/ar/hq2/RECAP_DV_BIRDS.webm",
+          "sha256": "68afebabc503366993d5b95becfa9fd456e46a5d3a555bee3e17308810c0de11"
+        },
+        "alphaColorUrl": {
+          "url": "/videos/ar/fallback/hq2/RECAP_DV_BIRDS-color.mp4",
+          "sha256": "06516705bae2dc01d844a397fa1291ee161aaef54e60d5465a5cadad28e27400"
+        },
+        "alphaMaskUrl": {
+          "url": "/videos/ar/fallback/hq2/RECAP_DV_BIRDS-alpha.mp4",
+          "sha256": "97cb49460651a705e50c85f21df5900b1ac0d4a342bc836a079985cb31c75260"
+        },
+        "packedVideoUrl": {
+          "url": "/videos/ar/packed/hq2/RECAP_DV_BIRDS.mp4",
+          "sha256": "9f34fcd5c4081f2ccbd27009a5461e0e0a359c431194e001473b1160b5af4ff5"
+        },
+        "previewVideoUrl": {
+          "url": "/videos/ar/original/hq2/RECAP_DV_BIRDS.mp4",
+          "sha256": "eb2e98f60779a3a73c8a6817e24b23b7add1eeddff4fc5850012898d24464456"
+        }
+      },
+      "sourceCheck": null,
+      "packedCheck": {
+        "id": "RECAP_DV_BIRDS",
+        "frames": 56,
+        "matteSSIM": 0.996876,
+        "webmSHA256": "68afebabc503366993d5b95becfa9fd456e46a5d3a555bee3e17308810c0de11",
+        "packedSHA256": "9f34fcd5c4081f2ccbd27009a5461e0e0a359c431194e001473b1160b5af4ff5",
+        "width": 1920,
+        "height": 540,
+        "nb_read_frames": "56"
+      },
+      "browserCheck": {
+        "id": "RECAP_DV_BIRDS",
+        "pass": true,
+        "alphaMAE": 0.0002218009599673216,
+        "colorMAE": 0.006234862501745548,
+        "mode": "mixed",
+        "dimensions": [
+          1920,
+          540
+        ]
+      }
+    },
+    {
+      "id": "RECAP_DV_REPTILES",
+      "canonicalUrl": "/videos/ar/RECAP_DV_REPTILES.webm",
+      "mode": "mixed",
+      "frames": 56,
+      "dimensions": [
+        960,
+        540
+      ],
+      "files": {
+        "alphaVideoUrl": {
+          "url": "/videos/ar/hq2/RECAP_DV_REPTILES.webm",
+          "sha256": "9119fdce75e8bf32bbff21293c56b7ea7b0528ea3e5c82ce0cd4bf7538eb269e"
+        },
+        "alphaColorUrl": {
+          "url": "/videos/ar/fallback/hq2/RECAP_DV_REPTILES-color.mp4",
+          "sha256": "725e06f35403553356a7be957f3b53e71e01b7b10292cd3defd2e84f4968ada5"
+        },
+        "alphaMaskUrl": {
+          "url": "/videos/ar/fallback/hq2/RECAP_DV_REPTILES-alpha.mp4",
+          "sha256": "5075daf16fb57437484841f5afc7d33e9fa1cd0da038d88dd3451664458e7deb"
+        },
+        "packedVideoUrl": {
+          "url": "/videos/ar/packed/hq2/RECAP_DV_REPTILES.mp4",
+          "sha256": "6052c21ed3f8773f8579c432efe2954d0638cd5310f80aac194cbac841d58aab"
+        },
+        "previewVideoUrl": {
+          "url": "/videos/ar/original/hq2/RECAP_DV_REPTILES.mp4",
+          "sha256": "9770fa369892a51ef7f256eda2ee5d28f4d4566ec6cac3f6811484bf493e48a2"
+        }
+      },
+      "sourceCheck": null,
+      "packedCheck": {
+        "id": "RECAP_DV_REPTILES",
+        "frames": 56,
+        "matteSSIM": 0.996818,
+        "webmSHA256": "9119fdce75e8bf32bbff21293c56b7ea7b0528ea3e5c82ce0cd4bf7538eb269e",
+        "packedSHA256": "6052c21ed3f8773f8579c432efe2954d0638cd5310f80aac194cbac841d58aab",
+        "width": 1920,
+        "height": 540,
+        "nb_read_frames": "56"
+      },
+      "browserCheck": {
+        "id": "RECAP_DV_REPTILES",
+        "pass": true,
+        "alphaMAE": 0.00018467456427015189,
+        "colorMAE": 0.008004592945175871,
+        "mode": "mixed",
+        "dimensions": [
+          1920,
+          540
+        ]
+      }
+    },
+    {
+      "id": "RECAP_DV_AMPHIBIANS",
+      "canonicalUrl": "/videos/ar/RECAP_DV_AMPHIBIANS.webm",
+      "mode": "mixed",
+      "frames": 56,
+      "dimensions": [
+        960,
+        540
+      ],
+      "files": {
+        "alphaVideoUrl": {
+          "url": "/videos/ar/hq2/RECAP_DV_AMPHIBIANS.webm",
+          "sha256": "8d8c28593b7047df45efde7aa9e72f4dcd4a885e05b1087ca5527aba8b338558"
+        },
+        "alphaColorUrl": {
+          "url": "/videos/ar/fallback/hq2/RECAP_DV_AMPHIBIANS-color.mp4",
+          "sha256": "c2a7c23d6d5b6a7649a9474a22dfd88526b10cb1091d232560e7baaf4a6fed05"
+        },
+        "alphaMaskUrl": {
+          "url": "/videos/ar/fallback/hq2/RECAP_DV_AMPHIBIANS-alpha.mp4",
+          "sha256": "86fc70ec0abf416c702a3e78ba073a40d9d6a6c3e6c7b06168dbbac1e25aad89"
+        },
+        "packedVideoUrl": {
+          "url": "/videos/ar/packed/hq2/RECAP_DV_AMPHIBIANS.mp4",
+          "sha256": "0d34aa5d1e3847cd9fbb110ff064274278e4eb5459ce50e9c7781b7a31bb0388"
+        },
+        "previewVideoUrl": {
+          "url": "/videos/ar/original/hq2/RECAP_DV_AMPHIBIANS.mp4",
+          "sha256": "16d980604555b38dd058b0e88a1aa5ebabc6922fc2a1b17a78ced66af8b4db9a"
+        }
+      },
+      "sourceCheck": null,
+      "packedCheck": {
+        "id": "RECAP_DV_AMPHIBIANS",
+        "frames": 56,
+        "matteSSIM": 0.997614,
+        "webmSHA256": "8d8c28593b7047df45efde7aa9e72f4dcd4a885e05b1087ca5527aba8b338558",
+        "packedSHA256": "0d34aa5d1e3847cd9fbb110ff064274278e4eb5459ce50e9c7781b7a31bb0388",
+        "width": 1920,
+        "height": 540,
+        "nb_read_frames": "56"
+      },
+      "browserCheck": {
+        "id": "RECAP_DV_AMPHIBIANS",
+        "pass": true,
+        "alphaMAE": 0.00024483209082244744,
+        "colorMAE": 0.006983036217010777,
+        "mode": "mixed",
+        "dimensions": [
+          1920,
+          540
+        ]
+      }
+    },
+    {
+      "id": "RECAP_DV_INSECTS",
+      "canonicalUrl": "/videos/ar/RECAP_DV_INSECTS.webm",
+      "mode": "mixed",
+      "frames": 56,
+      "dimensions": [
+        960,
+        540
+      ],
+      "files": {
+        "alphaVideoUrl": {
+          "url": "/videos/ar/hq2/RECAP_DV_INSECTS.webm",
+          "sha256": "cafe40a560a09c6eaea41a279e2ee81615f74328eda3cf013a01f38935d4dbcc"
+        },
+        "alphaColorUrl": {
+          "url": "/videos/ar/fallback/hq2/RECAP_DV_INSECTS-color.mp4",
+          "sha256": "2ee85c5ec65abc4c816b538ed594c873724b7f13ef14bde7f868440e1b62776d"
+        },
+        "alphaMaskUrl": {
+          "url": "/videos/ar/fallback/hq2/RECAP_DV_INSECTS-alpha.mp4",
+          "sha256": "03822b8bb6708e1db6e58bcc9995f86ccaf64273104c2d05a50f8e8fb2cb9487"
+        },
+        "packedVideoUrl": {
+          "url": "/videos/ar/packed/hq2/RECAP_DV_INSECTS.mp4",
+          "sha256": "ad147a11497d65806cd6f71ce81d4f561602eb5b5cb29e959a4663e3f2592b78"
+        },
+        "previewVideoUrl": {
+          "url": "/videos/ar/original/hq2/RECAP_DV_INSECTS.mp4",
+          "sha256": "a9c582068f9680359d0e2c505315e925b0577f46aa94f8df9f00fa0b1919d0c5"
+        }
+      },
+      "sourceCheck": null,
+      "packedCheck": {
+        "id": "RECAP_DV_INSECTS",
+        "frames": 56,
+        "matteSSIM": 0.994008,
+        "webmSHA256": "cafe40a560a09c6eaea41a279e2ee81615f74328eda3cf013a01f38935d4dbcc",
+        "packedSHA256": "ad147a11497d65806cd6f71ce81d4f561602eb5b5cb29e959a4663e3f2592b78",
+        "width": 1920,
+        "height": 540,
+        "nb_read_frames": "56"
+      },
+      "browserCheck": {
+        "id": "RECAP_DV_INSECTS",
+        "pass": true,
+        "alphaMAE": 0.0005072433704385144,
+        "colorMAE": 0.00582523081750386,
+        "mode": "mixed",
+        "dimensions": [
+          1920,
+          540
+        ]
+      }
+    },
+    {
+      "id": "RECAP_DV",
+      "canonicalUrl": "/videos/ar/RECAP_DV.webm",
+      "mode": "mixed",
+      "frames": 280,
+      "dimensions": [
+        960,
+        540
+      ],
+      "files": {
+        "alphaVideoUrl": {
+          "url": "/videos/ar/hq2/RECAP_DV.webm",
+          "sha256": "1ce50a2f9847c26bce0e5ad0bfe6964276237c08fe043656a312711d94d5d9e6"
+        },
+        "alphaColorUrl": {
+          "url": "/videos/ar/fallback/hq2/RECAP_DV-color.mp4",
+          "sha256": "2cbcf2f065855fa234643c3be74df0c456d771cda1e88d2662121f64030e4371"
+        },
+        "alphaMaskUrl": {
+          "url": "/videos/ar/fallback/hq2/RECAP_DV-alpha.mp4",
+          "sha256": "6be9e1ab8820a97a2d96dffc9dc9c6709b3be2babaf7ebfbcfe7301f7f4b66bc"
+        },
+        "packedVideoUrl": {
+          "url": "/videos/ar/packed/hq2/RECAP_DV.mp4",
+          "sha256": "a10b9f681e147e9a857c671b32a9b58b82c989a6550f72896e8c79f2e63b320c"
+        },
+        "previewVideoUrl": {
+          "url": "/videos/ar/original/hq2/RECAP_DV.mp4",
+          "sha256": "ca2fa16793fc8ee08923961fb5890d3ce44860b51abe67bf0dfb7b9fc16337f1"
+        }
+      },
+      "sourceCheck": null,
+      "packedCheck": {
+        "id": "RECAP_DV",
+        "frames": 280,
+        "matteSSIM": 0.996481,
+        "webmSHA256": "1ce50a2f9847c26bce0e5ad0bfe6964276237c08fe043656a312711d94d5d9e6",
+        "packedSHA256": "a10b9f681e147e9a857c671b32a9b58b82c989a6550f72896e8c79f2e63b320c",
+        "width": 1920,
+        "height": 540,
+        "nb_read_frames": "280"
+      },
+      "browserCheck": {
+        "id": "RECAP_DV",
+        "pass": true,
+        "alphaMAE": 0.00015238842933006485,
+        "colorMAE": 0.004918277033188757,
+        "mode": "mixed",
+        "dimensions": [
+          1920,
+          540
+        ]
+      }
+    },
+    {
+      "id": "RECAP_HTTN_A",
+      "canonicalUrl": "/videos/ar/RECAP_HTTN_A.webm",
+      "mode": "mixed",
+      "frames": 280,
+      "dimensions": [
+        960,
+        540
+      ],
+      "files": {
+        "alphaVideoUrl": {
+          "url": "/videos/ar/hq2/RECAP_HTTN_A.webm",
+          "sha256": "4907b0d5366665b13f2e47a51fcea156578748b4cd0fab1f92f582559bfb079d"
+        },
+        "alphaColorUrl": {
+          "url": "/videos/ar/fallback/hq2/RECAP_HTTN_A-color.mp4",
+          "sha256": "ec37b3be14ed455786f2278c06ef58e5999cd197eb1b81ed9ee104c0ea3d1cf9"
+        },
+        "alphaMaskUrl": {
+          "url": "/videos/ar/fallback/hq2/RECAP_HTTN_A-alpha.mp4",
+          "sha256": "e2cb1a5cffed0d25ab1d6e164dd3ba9f120e0a7b5e73694d3779cf32474f1a60"
+        },
+        "packedVideoUrl": {
+          "url": "/videos/ar/packed/hq2/RECAP_HTTN_A.mp4",
+          "sha256": "df8aa5a1144ee31f4f060f40e1c6b23fcfb1c585ad30bdacbdb3503963150c8f"
+        },
+        "previewVideoUrl": {
+          "url": "/videos/ar/original/hq2/RECAP_HTTN_A.mp4",
+          "sha256": "65fa06de9096fa276974dba84c89f69ef83346b08160afbc0748be3b4cb6e252"
+        }
+      },
+      "sourceCheck": null,
+      "packedCheck": {
+        "id": "RECAP_HTTN_A",
+        "frames": 280,
+        "matteSSIM": 0.997941,
+        "webmSHA256": "4907b0d5366665b13f2e47a51fcea156578748b4cd0fab1f92f582559bfb079d",
+        "packedSHA256": "df8aa5a1144ee31f4f060f40e1c6b23fcfb1c585ad30bdacbdb3503963150c8f",
+        "width": 1920,
+        "height": 540,
+        "nb_read_frames": "280"
+      },
+      "browserCheck": {
+        "id": "RECAP_HTTN_A",
+        "pass": true,
+        "alphaMAE": 0,
+        "colorMAE": 0.004635423973044746,
+        "mode": "mixed",
+        "dimensions": [
+          1920,
+          540
+        ]
+      }
+    },
+    {
+      "id": "RECAP_HTTN_B",
+      "canonicalUrl": "/videos/ar/RECAP_HTTN_B.webm",
+      "mode": "mixed",
+      "frames": 140,
+      "dimensions": [
+        960,
+        540
+      ],
+      "files": {
+        "alphaVideoUrl": {
+          "url": "/videos/ar/hq2/RECAP_HTTN_B.webm",
+          "sha256": "00a58e61e2e8aa599ccca2b26d1480f9cd2e3a3f049e57e607b948016b853f9b"
+        },
+        "alphaColorUrl": {
+          "url": "/videos/ar/fallback/hq2/RECAP_HTTN_B-color.mp4",
+          "sha256": "9e76cd5e2cede728cb04cbf2d983573707d8f4ed0e98f07c03a4c1e1964fc08a"
+        },
+        "alphaMaskUrl": {
+          "url": "/videos/ar/fallback/hq2/RECAP_HTTN_B-alpha.mp4",
+          "sha256": "ede0805dd49c845768017a58b8a8980c639943cb49dc0582f12d4e033a79521e"
+        },
+        "packedVideoUrl": {
+          "url": "/videos/ar/packed/hq2/RECAP_HTTN_B.mp4",
+          "sha256": "b8b2aba4ead6d0c1712e64f5489158508afe625665c863c500be235123cce64d"
+        },
+        "previewVideoUrl": {
+          "url": "/videos/ar/original/hq2/RECAP_HTTN_B.mp4",
+          "sha256": "f7d6fcbcd946c5213d82336e27ca83f727f52c60bb8fbf4b7ec337f05e020cfa"
+        }
+      },
+      "sourceCheck": null,
+      "packedCheck": {
+        "id": "RECAP_HTTN_B",
+        "frames": 140,
+        "matteSSIM": 0.99474,
+        "webmSHA256": "00a58e61e2e8aa599ccca2b26d1480f9cd2e3a3f049e57e607b948016b853f9b",
+        "packedSHA256": "b8b2aba4ead6d0c1712e64f5489158508afe625665c863c500be235123cce64d",
+        "width": 1920,
+        "height": 540,
+        "nb_read_frames": "140"
+      },
+      "browserCheck": {
+        "id": "RECAP_HTTN_B",
+        "pass": true,
+        "alphaMAE": 0,
+        "colorMAE": 0.005008740336312114,
+        "mode": "mixed",
+        "dimensions": [
+          1920,
+          540
+        ]
+      }
+    }
+  ]
+}

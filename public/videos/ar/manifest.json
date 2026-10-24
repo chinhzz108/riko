@@ -8,9 +8,15 @@
       "book-c1-p03"
     ],
     "alpha": true,
-    "alphaVideoUrl": "/videos/ar/GT01.webm",
-    "alphaColorUrl": "/videos/ar/fallback/GT01-color.mp4",
-    "alphaMaskUrl": "/videos/ar/fallback/GT01-alpha.mp4"
+    "alphaVideoUrl": "/videos/ar/hq2/GT01.webm",
+    "alphaColorUrl": "/videos/ar/fallback/hq2/GT01-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/hq2/GT01-alpha.mp4",
+    "packedVideoUrl": "/videos/ar/packed/hq2/GT01.mp4",
+    "previewVideoUrl": "/videos/ar/original/hq2/GT01.mp4",
+    "presentationMode": "cutout",
+    "qualityVersion": "detail-preserved-v2",
+    "alphaBytes": 1192393,
+    "fallbackBytes": 1483072
   },
   {
     "id": "GT02",
@@ -21,11 +27,15 @@
       "book-c1-p04"
     ],
     "alpha": true,
-    "alphaVideoUrl": "/videos/ar/GT02.webm",
-    "alphaColorUrl": "/videos/ar/fallback/GT02-color.mp4",
-    "alphaMaskUrl": "/videos/ar/fallback/GT02-alpha.mp4",
-    "alphaBytes": 1188315,
-    "fallbackBytes": 772208
+    "alphaVideoUrl": "/videos/ar/hq2/GT02.webm",
+    "alphaColorUrl": "/videos/ar/fallback/hq2/GT02-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/hq2/GT02-alpha.mp4",
+    "alphaBytes": 2099523,
+    "fallbackBytes": 2301193,
+    "packedVideoUrl": "/videos/ar/packed/hq2/GT02.mp4",
+    "previewVideoUrl": "/videos/ar/original/hq2/GT02.mp4",
+    "presentationMode": "cutout",
+    "qualityVersion": "detail-preserved-v2"
   },
   {
     "id": "GT03",
@@ -36,9 +46,15 @@
       "book-c1-p05"
     ],
     "alpha": true,
-    "alphaVideoUrl": "/videos/ar/GT03.webm",
-    "alphaColorUrl": "/videos/ar/fallback/GT03-color.mp4",
-    "alphaMaskUrl": "/videos/ar/fallback/GT03-alpha.mp4"
+    "alphaVideoUrl": "/videos/ar/hq2/GT03.webm",
+    "alphaColorUrl": "/videos/ar/fallback/hq2/GT03-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/hq2/GT03-alpha.mp4",
+    "packedVideoUrl": "/videos/ar/packed/hq2/GT03.mp4",
+    "previewVideoUrl": "/videos/ar/original/hq2/GT03.mp4",
+    "presentationMode": "cutout",
+    "qualityVersion": "detail-preserved-v2",
+    "alphaBytes": 1091486,
+    "fallbackBytes": 1336867
   },
   {
     "id": "GT04",
@@ -49,9 +65,15 @@
       "book-c1-p06"
     ],
     "alpha": true,
-    "alphaVideoUrl": "/videos/ar/GT04.webm",
-    "alphaColorUrl": "/videos/ar/fallback/GT04-color.mp4",
-    "alphaMaskUrl": "/videos/ar/fallback/GT04-alpha.mp4"
+    "alphaVideoUrl": "/videos/ar/hq2/GT04.webm",
+    "alphaColorUrl": "/videos/ar/fallback/hq2/GT04-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/hq2/GT04-alpha.mp4",
+    "packedVideoUrl": "/videos/ar/packed/hq2/GT04.mp4",
+    "previewVideoUrl": "/videos/ar/original/hq2/GT04.mp4",
+    "presentationMode": "cutout",
+    "qualityVersion": "detail-preserved-v2",
+    "alphaBytes": 1986677,
+    "fallbackBytes": 2088487
   },
   {
     "id": "GT05",
@@ -62,11 +84,15 @@
       "book-c1-p07"
     ],
     "alpha": true,
-    "alphaVideoUrl": "/videos/ar/GT05.webm",
-    "alphaColorUrl": "/videos/ar/fallback/GT05-color.mp4",
-    "alphaMaskUrl": "/videos/ar/fallback/GT05-alpha.mp4",
-    "alphaBytes": 2117855,
-    "fallbackBytes": 1227959
+    "alphaVideoUrl": "/videos/ar/hq2/GT05.webm",
+    "alphaColorUrl": "/videos/ar/fallback/hq2/GT05-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/hq2/GT05-alpha.mp4",
+    "alphaBytes": 4872397,
+    "fallbackBytes": 4300656,
+    "packedVideoUrl": "/videos/ar/packed/hq2/GT05.mp4",
+    "previewVideoUrl": "/videos/ar/original/hq2/GT05.mp4",
+    "presentationMode": "cutout",
+    "qualityVersion": "detail-preserved-v2"
   },
   {
     "id": "GT06",
@@ -77,9 +103,15 @@
       "book-c1-p08"
     ],
     "alpha": true,
-    "alphaVideoUrl": "/videos/ar/GT06.webm",
-    "alphaColorUrl": "/videos/ar/fallback/GT06-color.mp4",
-    "alphaMaskUrl": "/videos/ar/fallback/GT06-alpha.mp4"
+    "alphaVideoUrl": "/videos/ar/hq2/GT06.webm",
+    "alphaColorUrl": "/videos/ar/fallback/hq2/GT06-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/hq2/GT06-alpha.mp4",
+    "packedVideoUrl": "/videos/ar/packed/hq2/GT06.mp4",
+    "previewVideoUrl": "/videos/ar/original/hq2/GT06.mp4",
+    "presentationMode": "cutout",
+    "qualityVersion": "detail-preserved-v2",
+    "alphaBytes": 2148697,
+    "fallbackBytes": 2543866
   },
   {
     "id": "GT07",
@@ -90,9 +122,15 @@
       "book-c1-p09"
     ],
     "alpha": true,
-    "alphaVideoUrl": "/videos/ar/GT07.webm",
-    "alphaColorUrl": "/videos/ar/fallback/GT07-color.mp4",
-    "alphaMaskUrl": "/videos/ar/fallback/GT07-alpha.mp4"
+    "alphaVideoUrl": "/videos/ar/hq2/GT07.webm",
+    "alphaColorUrl": "/videos/ar/fallback/hq2/GT07-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/hq2/GT07-alpha.mp4",
+    "packedVideoUrl": "/videos/ar/packed/hq2/GT07.mp4",
+    "previewVideoUrl": "/videos/ar/original/hq2/GT07.mp4",
+    "presentationMode": "cutout",
+    "qualityVersion": "detail-preserved-v2",
+    "alphaBytes": 819707,
+    "fallbackBytes": 1412441
   },
   {
     "id": "GT08",
@@ -103,9 +141,15 @@
       "book-c1-p10"
     ],
     "alpha": true,
-    "alphaVideoUrl": "/videos/ar/GT08.webm",
-    "alphaColorUrl": "/videos/ar/fallback/GT08-color.mp4",
-    "alphaMaskUrl": "/videos/ar/fallback/GT08-alpha.mp4"
+    "alphaVideoUrl": "/videos/ar/hq2/GT08.webm",
+    "alphaColorUrl": "/videos/ar/fallback/hq2/GT08-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/hq2/GT08-alpha.mp4",
+    "packedVideoUrl": "/videos/ar/packed/hq2/GT08.mp4",
+    "previewVideoUrl": "/videos/ar/original/hq2/GT08.mp4",
+    "presentationMode": "cutout",
+    "qualityVersion": "detail-preserved-v2",
+    "alphaBytes": 1380024,
+    "fallbackBytes": 2020474
   },
   {
     "id": "GT09",
@@ -116,11 +160,15 @@
       "book-c1-p11"
     ],
     "alpha": true,
-    "alphaVideoUrl": "/videos/ar/GT09.webm",
-    "alphaColorUrl": "/videos/ar/fallback/GT09-color.mp4",
-    "alphaMaskUrl": "/videos/ar/fallback/GT09-alpha.mp4",
-    "alphaBytes": 1090312,
-    "fallbackBytes": 632132
+    "alphaVideoUrl": "/videos/ar/hq2/GT09.webm",
+    "alphaColorUrl": "/videos/ar/fallback/hq2/GT09-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/hq2/GT09-alpha.mp4",
+    "alphaBytes": 2425983,
+    "fallbackBytes": 2372606,
+    "packedVideoUrl": "/videos/ar/packed/hq2/GT09.mp4",
+    "previewVideoUrl": "/videos/ar/original/hq2/GT09.mp4",
+    "presentationMode": "cutout",
+    "qualityVersion": "detail-preserved-v2"
   },
   {
     "id": "GT10",
@@ -131,11 +179,15 @@
       "book-c1-p12"
     ],
     "alpha": true,
-    "alphaVideoUrl": "/videos/ar/GT10.webm",
-    "alphaColorUrl": "/videos/ar/fallback/GT10-color.mp4",
-    "alphaMaskUrl": "/videos/ar/fallback/GT10-alpha.mp4",
-    "alphaBytes": 1452148,
-    "fallbackBytes": 856589
+    "alphaVideoUrl": "/videos/ar/hq2/GT10.webm",
+    "alphaColorUrl": "/videos/ar/fallback/hq2/GT10-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/hq2/GT10-alpha.mp4",
+    "alphaBytes": 2410667,
+    "fallbackBytes": 2665933,
+    "packedVideoUrl": "/videos/ar/packed/hq2/GT10.mp4",
+    "previewVideoUrl": "/videos/ar/original/hq2/GT10.mp4",
+    "presentationMode": "cutout",
+    "qualityVersion": "detail-preserved-v2"
   },
   {
     "id": "DV01",
@@ -146,11 +198,15 @@
       "book-c2-p04"
     ],
     "alpha": true,
-    "alphaVideoUrl": "/videos/ar/DV01.webm",
-    "alphaColorUrl": "/videos/ar/fallback/DV01-color.mp4",
-    "alphaMaskUrl": "/videos/ar/fallback/DV01-alpha.mp4",
-    "alphaBytes": 1420665,
-    "fallbackBytes": 849049
+    "alphaVideoUrl": "/videos/ar/hq2/DV01.webm",
+    "alphaColorUrl": "/videos/ar/fallback/hq2/DV01-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/hq2/DV01-alpha.mp4",
+    "alphaBytes": 2969245,
+    "fallbackBytes": 3262619,
+    "packedVideoUrl": "/videos/ar/packed/hq2/DV01.mp4",
+    "previewVideoUrl": "/videos/ar/original/hq2/DV01.mp4",
+    "presentationMode": "cutout",
+    "qualityVersion": "detail-preserved-v2"
   },
   {
     "id": "DV02",
@@ -161,9 +217,15 @@
       "book-c2-p05"
     ],
     "alpha": true,
-    "alphaVideoUrl": "/videos/ar/DV02.webm",
-    "alphaColorUrl": "/videos/ar/fallback/DV02-color.mp4",
-    "alphaMaskUrl": "/videos/ar/fallback/DV02-alpha.mp4"
+    "alphaVideoUrl": "/videos/ar/hq2/DV02.webm",
+    "alphaColorUrl": "/videos/ar/fallback/hq2/DV02-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/hq2/DV02-alpha.mp4",
+    "packedVideoUrl": "/videos/ar/packed/hq2/DV02.mp4",
+    "previewVideoUrl": "/videos/ar/original/hq2/DV02.mp4",
+    "presentationMode": "cutout",
+    "qualityVersion": "detail-preserved-v2",
+    "alphaBytes": 1621442,
+    "fallbackBytes": 1754395
   },
   {
     "id": "DV03",
@@ -174,9 +236,15 @@
       "book-c2-p07"
     ],
     "alpha": true,
-    "alphaVideoUrl": "/videos/ar/DV03.webm",
-    "alphaColorUrl": "/videos/ar/fallback/DV03-color.mp4",
-    "alphaMaskUrl": "/videos/ar/fallback/DV03-alpha.mp4"
+    "alphaVideoUrl": "/videos/ar/hq2/DV03.webm",
+    "alphaColorUrl": "/videos/ar/fallback/hq2/DV03-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/hq2/DV03-alpha.mp4",
+    "packedVideoUrl": "/videos/ar/packed/hq2/DV03.mp4",
+    "previewVideoUrl": "/videos/ar/original/hq2/DV03.mp4",
+    "presentationMode": "cutout",
+    "qualityVersion": "detail-preserved-v2",
+    "alphaBytes": 1838180,
+    "fallbackBytes": 2240917
   },
   {
     "id": "DV04",
@@ -187,9 +255,15 @@
       "book-c2-p08"
     ],
     "alpha": true,
-    "alphaVideoUrl": "/videos/ar/DV04.webm",
-    "alphaColorUrl": "/videos/ar/fallback/DV04-color.mp4",
-    "alphaMaskUrl": "/videos/ar/fallback/DV04-alpha.mp4"
+    "alphaVideoUrl": "/videos/ar/hq2/DV04.webm",
+    "alphaColorUrl": "/videos/ar/fallback/hq2/DV04-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/hq2/DV04-alpha.mp4",
+    "packedVideoUrl": "/videos/ar/packed/hq2/DV04.mp4",
+    "previewVideoUrl": "/videos/ar/original/hq2/DV04.mp4",
+    "presentationMode": "cutout",
+    "qualityVersion": "detail-preserved-v2",
+    "alphaBytes": 1397187,
+    "fallbackBytes": 1862976
   },
   {
     "id": "DV05",
@@ -200,9 +274,15 @@
       "book-c2-p10"
     ],
     "alpha": true,
-    "alphaVideoUrl": "/videos/ar/DV05.webm",
-    "alphaColorUrl": "/videos/ar/fallback/DV05-color.mp4",
-    "alphaMaskUrl": "/videos/ar/fallback/DV05-alpha.mp4"
+    "alphaVideoUrl": "/videos/ar/hq2/DV05.webm",
+    "alphaColorUrl": "/videos/ar/fallback/hq2/DV05-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/hq2/DV05-alpha.mp4",
+    "packedVideoUrl": "/videos/ar/packed/hq2/DV05.mp4",
+    "previewVideoUrl": "/videos/ar/original/hq2/DV05.mp4",
+    "presentationMode": "cutout",
+    "qualityVersion": "detail-preserved-v2",
+    "alphaBytes": 4042632,
+    "fallbackBytes": 4708080
   },
   {
     "id": "DV06",
@@ -213,11 +293,15 @@
       "book-c2-p11"
     ],
     "alpha": true,
-    "alphaVideoUrl": "/videos/ar/DV06.webm",
-    "alphaColorUrl": "/videos/ar/fallback/DV06-color.mp4",
-    "alphaMaskUrl": "/videos/ar/fallback/DV06-alpha.mp4",
-    "alphaBytes": 1086560,
-    "fallbackBytes": 708220
+    "alphaVideoUrl": "/videos/ar/hq2/DV06.webm",
+    "alphaColorUrl": "/videos/ar/fallback/hq2/DV06-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/hq2/DV06-alpha.mp4",
+    "alphaBytes": 2263093,
+    "fallbackBytes": 2759234,
+    "packedVideoUrl": "/videos/ar/packed/hq2/DV06.mp4",
+    "previewVideoUrl": "/videos/ar/original/hq2/DV06.mp4",
+    "presentationMode": "cutout",
+    "qualityVersion": "detail-preserved-v2"
   },
   {
     "id": "DV07",
@@ -228,9 +312,15 @@
       "book-c2-p13"
     ],
     "alpha": true,
-    "alphaVideoUrl": "/videos/ar/DV07.webm",
-    "alphaColorUrl": "/videos/ar/fallback/DV07-color.mp4",
-    "alphaMaskUrl": "/videos/ar/fallback/DV07-alpha.mp4"
+    "alphaVideoUrl": "/videos/ar/hq2/DV07.webm",
+    "alphaColorUrl": "/videos/ar/fallback/hq2/DV07-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/hq2/DV07-alpha.mp4",
+    "packedVideoUrl": "/videos/ar/packed/hq2/DV07.mp4",
+    "previewVideoUrl": "/videos/ar/original/hq2/DV07.mp4",
+    "presentationMode": "cutout",
+    "qualityVersion": "detail-preserved-v2",
+    "alphaBytes": 1391758,
+    "fallbackBytes": 1550254
   },
   {
     "id": "DV08",
@@ -241,9 +331,15 @@
       "book-c2-p14"
     ],
     "alpha": true,
-    "alphaVideoUrl": "/videos/ar/DV08.webm",
-    "alphaColorUrl": "/videos/ar/fallback/DV08-color.mp4",
-    "alphaMaskUrl": "/videos/ar/fallback/DV08-alpha.mp4"
+    "alphaVideoUrl": "/videos/ar/hq2/DV08.webm",
+    "alphaColorUrl": "/videos/ar/fallback/hq2/DV08-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/hq2/DV08-alpha.mp4",
+    "packedVideoUrl": "/videos/ar/packed/hq2/DV08.mp4",
+    "previewVideoUrl": "/videos/ar/original/hq2/DV08.mp4",
+    "presentationMode": "cutout",
+    "qualityVersion": "detail-preserved-v2",
+    "alphaBytes": 2132882,
+    "fallbackBytes": 2870604
   },
   {
     "id": "DV09",
@@ -254,9 +350,15 @@
       "book-c2-p16"
     ],
     "alpha": true,
-    "alphaVideoUrl": "/videos/ar/DV09.webm",
-    "alphaColorUrl": "/videos/ar/fallback/DV09-color.mp4",
-    "alphaMaskUrl": "/videos/ar/fallback/DV09-alpha.mp4"
+    "alphaVideoUrl": "/videos/ar/hq2/DV09.webm",
+    "alphaColorUrl": "/videos/ar/fallback/hq2/DV09-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/hq2/DV09-alpha.mp4",
+    "packedVideoUrl": "/videos/ar/packed/hq2/DV09.mp4",
+    "previewVideoUrl": "/videos/ar/original/hq2/DV09.mp4",
+    "presentationMode": "cutout",
+    "qualityVersion": "detail-preserved-v2",
+    "alphaBytes": 2811671,
+    "fallbackBytes": 3117761
   },
   {
     "id": "DV10",
@@ -267,9 +369,15 @@
       "book-c2-p17"
     ],
     "alpha": true,
-    "alphaVideoUrl": "/videos/ar/DV10.webm",
-    "alphaColorUrl": "/videos/ar/fallback/DV10-color.mp4",
-    "alphaMaskUrl": "/videos/ar/fallback/DV10-alpha.mp4"
+    "alphaVideoUrl": "/videos/ar/hq2/DV10.webm",
+    "alphaColorUrl": "/videos/ar/fallback/hq2/DV10-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/hq2/DV10-alpha.mp4",
+    "packedVideoUrl": "/videos/ar/packed/hq2/DV10.mp4",
+    "previewVideoUrl": "/videos/ar/original/hq2/DV10.mp4",
+    "presentationMode": "cutout",
+    "qualityVersion": "detail-preserved-v2",
+    "alphaBytes": 3062584,
+    "fallbackBytes": 3235397
   },
   {
     "id": "HTTN01",
@@ -280,11 +388,15 @@
       "book-c3-p03"
     ],
     "alpha": true,
-    "alphaVideoUrl": "/videos/ar/HTTN01.webm",
-    "alphaColorUrl": "/videos/ar/fallback/HTTN01-color.mp4",
-    "alphaMaskUrl": "/videos/ar/fallback/HTTN01-alpha.mp4",
-    "alphaBytes": 383910,
-    "fallbackBytes": 313263
+    "alphaVideoUrl": "/videos/ar/hq2/HTTN01.webm",
+    "alphaColorUrl": "/videos/ar/fallback/hq2/HTTN01-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/hq2/HTTN01-alpha.mp4",
+    "alphaBytes": 1891723,
+    "fallbackBytes": 2281017,
+    "packedVideoUrl": "/videos/ar/packed/hq2/HTTN01.mp4",
+    "previewVideoUrl": "/videos/ar/original/hq2/HTTN01.mp4",
+    "presentationMode": "cutout",
+    "qualityVersion": "detail-preserved-v2"
   },
   {
     "id": "HTTN02",
@@ -295,9 +407,15 @@
       "book-c3-p05"
     ],
     "alpha": true,
-    "alphaVideoUrl": "/videos/ar/HTTN02.webm",
-    "alphaColorUrl": "/videos/ar/fallback/HTTN02-color.mp4",
-    "alphaMaskUrl": "/videos/ar/fallback/HTTN02-alpha.mp4"
+    "alphaVideoUrl": "/videos/ar/hq2/HTTN02.webm",
+    "alphaColorUrl": "/videos/ar/fallback/hq2/HTTN02-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/hq2/HTTN02-alpha.mp4",
+    "packedVideoUrl": "/videos/ar/packed/hq2/HTTN02.mp4",
+    "previewVideoUrl": "/videos/ar/original/hq2/HTTN02.mp4",
+    "presentationMode": "scene",
+    "qualityVersion": "detail-preserved-v2",
+    "alphaBytes": 6484486,
+    "fallbackBytes": 6870111
   },
   {
     "id": "HTTN03",
@@ -309,11 +427,15 @@
       "book-c3-p08"
     ],
     "alpha": true,
-    "alphaVideoUrl": "/videos/ar/HTTN03.webm",
-    "alphaColorUrl": "/videos/ar/fallback/HTTN03-color.mp4",
-    "alphaMaskUrl": "/videos/ar/fallback/HTTN03-alpha.mp4",
-    "alphaBytes": 1269208,
-    "fallbackBytes": 1025002
+    "alphaVideoUrl": "/videos/ar/hq2/HTTN03.webm",
+    "alphaColorUrl": "/videos/ar/fallback/hq2/HTTN03-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/hq2/HTTN03-alpha.mp4",
+    "alphaBytes": 1027133,
+    "fallbackBytes": 2349249,
+    "packedVideoUrl": "/videos/ar/packed/hq2/HTTN03.mp4",
+    "previewVideoUrl": "/videos/ar/original/hq2/HTTN03.mp4",
+    "presentationMode": "scene",
+    "qualityVersion": "detail-preserved-v2"
   },
   {
     "id": "HTTN04",
@@ -324,9 +446,15 @@
       "book-c3-p10"
     ],
     "alpha": true,
-    "alphaVideoUrl": "/videos/ar/HTTN04.webm",
-    "alphaColorUrl": "/videos/ar/fallback/HTTN04-color.mp4",
-    "alphaMaskUrl": "/videos/ar/fallback/HTTN04-alpha.mp4"
+    "alphaVideoUrl": "/videos/ar/hq2/HTTN04.webm",
+    "alphaColorUrl": "/videos/ar/fallback/hq2/HTTN04-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/hq2/HTTN04-alpha.mp4",
+    "packedVideoUrl": "/videos/ar/packed/hq2/HTTN04.mp4",
+    "previewVideoUrl": "/videos/ar/original/hq2/HTTN04.mp4",
+    "presentationMode": "scene",
+    "qualityVersion": "detail-preserved-v2",
+    "alphaBytes": 9141260,
+    "fallbackBytes": 9112884
   },
   {
     "id": "HTTN05",
@@ -337,9 +465,15 @@
       "book-c3-p12"
     ],
     "alpha": true,
-    "alphaVideoUrl": "/videos/ar/HTTN05.webm",
-    "alphaColorUrl": "/videos/ar/fallback/HTTN05-color.mp4",
-    "alphaMaskUrl": "/videos/ar/fallback/HTTN05-alpha.mp4"
+    "alphaVideoUrl": "/videos/ar/hq2/HTTN05.webm",
+    "alphaColorUrl": "/videos/ar/fallback/hq2/HTTN05-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/hq2/HTTN05-alpha.mp4",
+    "packedVideoUrl": "/videos/ar/packed/hq2/HTTN05.mp4",
+    "previewVideoUrl": "/videos/ar/original/hq2/HTTN05.mp4",
+    "presentationMode": "scene",
+    "qualityVersion": "detail-preserved-v2",
+    "alphaBytes": 1649746,
+    "fallbackBytes": 3094732
   },
   {
     "id": "HTTN06",
@@ -350,9 +484,15 @@
       "book-c3-p04"
     ],
     "alpha": true,
-    "alphaVideoUrl": "/videos/ar/HTTN06.webm",
-    "alphaColorUrl": "/videos/ar/fallback/HTTN06-color.mp4",
-    "alphaMaskUrl": "/videos/ar/fallback/HTTN06-alpha.mp4"
+    "alphaVideoUrl": "/videos/ar/hq2/HTTN06.webm",
+    "alphaColorUrl": "/videos/ar/fallback/hq2/HTTN06-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/hq2/HTTN06-alpha.mp4",
+    "packedVideoUrl": "/videos/ar/packed/hq2/HTTN06.mp4",
+    "previewVideoUrl": "/videos/ar/original/hq2/HTTN06.mp4",
+    "presentationMode": "scene",
+    "qualityVersion": "detail-preserved-v2",
+    "alphaBytes": 465217,
+    "fallbackBytes": 1910431
   },
   {
     "id": "HTTN07",
@@ -363,11 +503,15 @@
       "book-c3-p06"
     ],
     "alpha": true,
-    "alphaVideoUrl": "/videos/ar/HTTN07.webm",
-    "alphaColorUrl": "/videos/ar/fallback/HTTN07-color.mp4",
-    "alphaMaskUrl": "/videos/ar/fallback/HTTN07-alpha.mp4",
-    "alphaBytes": 4562678,
-    "fallbackBytes": 3933504
+    "alphaVideoUrl": "/videos/ar/hq2/HTTN07.webm",
+    "alphaColorUrl": "/videos/ar/fallback/hq2/HTTN07-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/hq2/HTTN07-alpha.mp4",
+    "alphaBytes": 10744508,
+    "fallbackBytes": 16981169,
+    "packedVideoUrl": "/videos/ar/packed/hq2/HTTN07.mp4",
+    "previewVideoUrl": "/videos/ar/original/hq2/HTTN07.mp4",
+    "presentationMode": "glow",
+    "qualityVersion": "detail-preserved-v2"
   },
   {
     "id": "HTTN08",
@@ -378,9 +522,15 @@
       "book-c3-p09"
     ],
     "alpha": true,
-    "alphaVideoUrl": "/videos/ar/HTTN08.webm",
-    "alphaColorUrl": "/videos/ar/fallback/HTTN08-color.mp4",
-    "alphaMaskUrl": "/videos/ar/fallback/HTTN08-alpha.mp4"
+    "alphaVideoUrl": "/videos/ar/hq2/HTTN08.webm",
+    "alphaColorUrl": "/videos/ar/fallback/hq2/HTTN08-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/hq2/HTTN08-alpha.mp4",
+    "packedVideoUrl": "/videos/ar/packed/hq2/HTTN08.mp4",
+    "previewVideoUrl": "/videos/ar/original/hq2/HTTN08.mp4",
+    "presentationMode": "scene",
+    "qualityVersion": "detail-preserved-v2",
+    "alphaBytes": 5347007,
+    "fallbackBytes": 7558828
   },
   {
     "id": "HTTN09",
@@ -391,9 +541,15 @@
       "book-c3-p11"
     ],
     "alpha": true,
-    "alphaVideoUrl": "/videos/ar/HTTN09.webm",
-    "alphaColorUrl": "/videos/ar/fallback/HTTN09-color.mp4",
-    "alphaMaskUrl": "/videos/ar/fallback/HTTN09-alpha.mp4"
+    "alphaVideoUrl": "/videos/ar/hq2/HTTN09.webm",
+    "alphaColorUrl": "/videos/ar/fallback/hq2/HTTN09-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/hq2/HTTN09-alpha.mp4",
+    "packedVideoUrl": "/videos/ar/packed/hq2/HTTN09.mp4",
+    "previewVideoUrl": "/videos/ar/original/hq2/HTTN09.mp4",
+    "presentationMode": "scene",
+    "qualityVersion": "detail-preserved-v2",
+    "alphaBytes": 1171383,
+    "fallbackBytes": 2518154
   },
   {
     "id": "HTTN10",
@@ -404,9 +560,15 @@
       "book-c3-p13"
     ],
     "alpha": true,
-    "alphaVideoUrl": "/videos/ar/HTTN10.webm",
-    "alphaColorUrl": "/videos/ar/fallback/HTTN10-color.mp4",
-    "alphaMaskUrl": "/videos/ar/fallback/HTTN10-alpha.mp4"
+    "alphaVideoUrl": "/videos/ar/hq2/HTTN10.webm",
+    "alphaColorUrl": "/videos/ar/fallback/hq2/HTTN10-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/hq2/HTTN10-alpha.mp4",
+    "packedVideoUrl": "/videos/ar/packed/hq2/HTTN10.mp4",
+    "previewVideoUrl": "/videos/ar/original/hq2/HTTN10.mp4",
+    "presentationMode": "scene",
+    "qualityVersion": "detail-preserved-v2",
+    "alphaBytes": 5788355,
+    "fallbackBytes": 8159904
   },
   {
     "id": "HTTN11",
@@ -417,9 +579,15 @@
       "book-c3-p14"
     ],
     "alpha": true,
-    "alphaVideoUrl": "/videos/ar/HTTN11.webm",
-    "alphaColorUrl": "/videos/ar/fallback/HTTN11-color.mp4",
-    "alphaMaskUrl": "/videos/ar/fallback/HTTN11-alpha.mp4"
+    "alphaVideoUrl": "/videos/ar/hq2/HTTN11.webm",
+    "alphaColorUrl": "/videos/ar/fallback/hq2/HTTN11-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/hq2/HTTN11-alpha.mp4",
+    "packedVideoUrl": "/videos/ar/packed/hq2/HTTN11.mp4",
+    "previewVideoUrl": "/videos/ar/original/hq2/HTTN11.mp4",
+    "presentationMode": "scene",
+    "qualityVersion": "detail-preserved-v2",
+    "alphaBytes": 8278836,
+    "fallbackBytes": 8566847
   },
   {
     "id": "HTTN12",
@@ -430,11 +598,15 @@
       "book-c3-p15"
     ],
     "alpha": true,
-    "alphaVideoUrl": "/videos/ar/HTTN12.webm",
-    "alphaColorUrl": "/videos/ar/fallback/HTTN12-color.mp4",
-    "alphaMaskUrl": "/videos/ar/fallback/HTTN12-alpha.mp4",
-    "alphaBytes": 4436125,
-    "fallbackBytes": 2839069
+    "alphaVideoUrl": "/videos/ar/hq2/HTTN12.webm",
+    "alphaColorUrl": "/videos/ar/fallback/hq2/HTTN12-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/hq2/HTTN12-alpha.mp4",
+    "alphaBytes": 9986933,
+    "fallbackBytes": 10552925,
+    "packedVideoUrl": "/videos/ar/packed/hq2/HTTN12.mp4",
+    "previewVideoUrl": "/videos/ar/original/hq2/HTTN12.mp4",
+    "presentationMode": "scene",
+    "qualityVersion": "detail-preserved-v2"
   },
   {
     "id": "HTTN13",
@@ -445,11 +617,15 @@
       "book-c3-p16"
     ],
     "alpha": true,
-    "alphaVideoUrl": "/videos/ar/HTTN13.webm",
-    "alphaColorUrl": "/videos/ar/fallback/HTTN13-color.mp4",
-    "alphaMaskUrl": "/videos/ar/fallback/HTTN13-alpha.mp4",
-    "alphaBytes": 2625721,
-    "fallbackBytes": 1983449
+    "alphaVideoUrl": "/videos/ar/hq2/HTTN13.webm",
+    "alphaColorUrl": "/videos/ar/fallback/hq2/HTTN13-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/hq2/HTTN13-alpha.mp4",
+    "alphaBytes": 6810733,
+    "fallbackBytes": 13222905,
+    "packedVideoUrl": "/videos/ar/packed/hq2/HTTN13.mp4",
+    "previewVideoUrl": "/videos/ar/original/hq2/HTTN13.mp4",
+    "presentationMode": "glow",
+    "qualityVersion": "detail-preserved-v2"
   },
   {
     "id": "HTTN14",
@@ -460,9 +636,15 @@
       "book-c3-p17"
     ],
     "alpha": true,
-    "alphaVideoUrl": "/videos/ar/HTTN14.webm",
-    "alphaColorUrl": "/videos/ar/fallback/HTTN14-color.mp4",
-    "alphaMaskUrl": "/videos/ar/fallback/HTTN14-alpha.mp4"
+    "alphaVideoUrl": "/videos/ar/hq2/HTTN14.webm",
+    "alphaColorUrl": "/videos/ar/fallback/hq2/HTTN14-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/hq2/HTTN14-alpha.mp4",
+    "packedVideoUrl": "/videos/ar/packed/hq2/HTTN14.mp4",
+    "previewVideoUrl": "/videos/ar/original/hq2/HTTN14.mp4",
+    "presentationMode": "scene",
+    "qualityVersion": "detail-preserved-v2",
+    "alphaBytes": 1127392,
+    "fallbackBytes": 1783815
   },
   {
     "id": "HTTN15",
@@ -473,11 +655,15 @@
       "book-c3-p18"
     ],
     "alpha": true,
-    "alphaVideoUrl": "/videos/ar/HTTN15.webm",
-    "alphaColorUrl": "/videos/ar/fallback/HTTN15-color.mp4",
-    "alphaMaskUrl": "/videos/ar/fallback/HTTN15-alpha.mp4",
-    "alphaBytes": 1275247,
-    "fallbackBytes": 866311
+    "alphaVideoUrl": "/videos/ar/hq2/HTTN15.webm",
+    "alphaColorUrl": "/videos/ar/fallback/hq2/HTTN15-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/hq2/HTTN15-alpha.mp4",
+    "alphaBytes": 4938326,
+    "fallbackBytes": 6788473,
+    "packedVideoUrl": "/videos/ar/packed/hq2/HTTN15.mp4",
+    "previewVideoUrl": "/videos/ar/original/hq2/HTTN15.mp4",
+    "presentationMode": "glow",
+    "qualityVersion": "detail-preserved-v2"
   },
   {
     "id": "RIKO",
@@ -497,11 +683,15 @@
       "book-c3-p21"
     ],
     "alpha": true,
-    "alphaVideoUrl": "/videos/ar/RIKO.webm",
-    "alphaColorUrl": "/videos/ar/fallback/RIKO-color.mp4",
-    "alphaMaskUrl": "/videos/ar/fallback/RIKO-alpha.mp4",
-    "alphaBytes": 1064624,
-    "fallbackBytes": 641418
+    "alphaVideoUrl": "/videos/ar/hq2/RIKO.webm",
+    "alphaColorUrl": "/videos/ar/fallback/hq2/RIKO-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/hq2/RIKO-alpha.mp4",
+    "alphaBytes": 1462671,
+    "fallbackBytes": 2052331,
+    "packedVideoUrl": "/videos/ar/packed/hq2/RIKO.mp4",
+    "previewVideoUrl": "/videos/ar/original/hq2/RIKO.mp4",
+    "presentationMode": "cutout",
+    "qualityVersion": "detail-preserved-v2"
   },
   {
     "id": "RECAP_GT",
@@ -524,11 +714,15 @@
       "book-c1-p13"
     ],
     "alpha": true,
-    "alphaVideoUrl": "/videos/ar/RECAP_GT.webm",
-    "alphaColorUrl": "/videos/ar/fallback/RECAP_GT-color.mp4",
-    "alphaMaskUrl": "/videos/ar/fallback/RECAP_GT-alpha.mp4",
-    "alphaBytes": 630582,
-    "fallbackBytes": 370582
+    "alphaVideoUrl": "/videos/ar/hq2/RECAP_GT.webm",
+    "alphaColorUrl": "/videos/ar/fallback/hq2/RECAP_GT-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/hq2/RECAP_GT-alpha.mp4",
+    "alphaBytes": 2514962,
+    "fallbackBytes": 2741994,
+    "packedVideoUrl": "/videos/ar/packed/hq2/RECAP_GT.mp4",
+    "previewVideoUrl": "/videos/ar/original/hq2/RECAP_GT.mp4",
+    "presentationMode": "mixed",
+    "qualityVersion": "detail-preserved-v2"
   },
   {
     "id": "RECAP_DV_MAMMALS",
@@ -543,11 +737,15 @@
       "book-c2-p03"
     ],
     "alpha": true,
-    "alphaVideoUrl": "/videos/ar/RECAP_DV_MAMMALS.webm",
-    "alphaColorUrl": "/videos/ar/fallback/RECAP_DV_MAMMALS-color.mp4",
-    "alphaMaskUrl": "/videos/ar/fallback/RECAP_DV_MAMMALS-alpha.mp4",
-    "alphaBytes": 113998,
-    "fallbackBytes": 72664
+    "alphaVideoUrl": "/videos/ar/hq2/RECAP_DV_MAMMALS.webm",
+    "alphaColorUrl": "/videos/ar/fallback/hq2/RECAP_DV_MAMMALS-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/hq2/RECAP_DV_MAMMALS-alpha.mp4",
+    "alphaBytes": 460165,
+    "fallbackBytes": 533496,
+    "packedVideoUrl": "/videos/ar/packed/hq2/RECAP_DV_MAMMALS.mp4",
+    "previewVideoUrl": "/videos/ar/original/hq2/RECAP_DV_MAMMALS.mp4",
+    "presentationMode": "mixed",
+    "qualityVersion": "detail-preserved-v2"
   },
   {
     "id": "RECAP_DV_BIRDS",
@@ -562,11 +760,15 @@
       "book-c2-p06"
     ],
     "alpha": true,
-    "alphaVideoUrl": "/videos/ar/RECAP_DV_BIRDS.webm",
-    "alphaColorUrl": "/videos/ar/fallback/RECAP_DV_BIRDS-color.mp4",
-    "alphaMaskUrl": "/videos/ar/fallback/RECAP_DV_BIRDS-alpha.mp4",
-    "alphaBytes": 168156,
-    "fallbackBytes": 100038
+    "alphaVideoUrl": "/videos/ar/hq2/RECAP_DV_BIRDS.webm",
+    "alphaColorUrl": "/videos/ar/fallback/hq2/RECAP_DV_BIRDS-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/hq2/RECAP_DV_BIRDS-alpha.mp4",
+    "alphaBytes": 648703,
+    "fallbackBytes": 739275,
+    "packedVideoUrl": "/videos/ar/packed/hq2/RECAP_DV_BIRDS.mp4",
+    "previewVideoUrl": "/videos/ar/original/hq2/RECAP_DV_BIRDS.mp4",
+    "presentationMode": "mixed",
+    "qualityVersion": "detail-preserved-v2"
   },
   {
     "id": "RECAP_DV_REPTILES",
@@ -581,11 +783,15 @@
       "book-c2-p09"
     ],
     "alpha": true,
-    "alphaVideoUrl": "/videos/ar/RECAP_DV_REPTILES.webm",
-    "alphaColorUrl": "/videos/ar/fallback/RECAP_DV_REPTILES-color.mp4",
-    "alphaMaskUrl": "/videos/ar/fallback/RECAP_DV_REPTILES-alpha.mp4",
-    "alphaBytes": 95320,
-    "fallbackBytes": 68782
+    "alphaVideoUrl": "/videos/ar/hq2/RECAP_DV_REPTILES.webm",
+    "alphaColorUrl": "/videos/ar/fallback/hq2/RECAP_DV_REPTILES-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/hq2/RECAP_DV_REPTILES-alpha.mp4",
+    "alphaBytes": 546993,
+    "fallbackBytes": 693624,
+    "packedVideoUrl": "/videos/ar/packed/hq2/RECAP_DV_REPTILES.mp4",
+    "previewVideoUrl": "/videos/ar/original/hq2/RECAP_DV_REPTILES.mp4",
+    "presentationMode": "mixed",
+    "qualityVersion": "detail-preserved-v2"
   },
   {
     "id": "RECAP_DV_AMPHIBIANS",
@@ -600,11 +806,15 @@
       "book-c2-p12"
     ],
     "alpha": true,
-    "alphaVideoUrl": "/videos/ar/RECAP_DV_AMPHIBIANS.webm",
-    "alphaColorUrl": "/videos/ar/fallback/RECAP_DV_AMPHIBIANS-color.mp4",
-    "alphaMaskUrl": "/videos/ar/fallback/RECAP_DV_AMPHIBIANS-alpha.mp4",
-    "alphaBytes": 112554,
-    "fallbackBytes": 82935
+    "alphaVideoUrl": "/videos/ar/hq2/RECAP_DV_AMPHIBIANS.webm",
+    "alphaColorUrl": "/videos/ar/fallback/hq2/RECAP_DV_AMPHIBIANS-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/hq2/RECAP_DV_AMPHIBIANS-alpha.mp4",
+    "alphaBytes": 516124,
+    "fallbackBytes": 640011,
+    "packedVideoUrl": "/videos/ar/packed/hq2/RECAP_DV_AMPHIBIANS.mp4",
+    "previewVideoUrl": "/videos/ar/original/hq2/RECAP_DV_AMPHIBIANS.mp4",
+    "presentationMode": "mixed",
+    "qualityVersion": "detail-preserved-v2"
   },
   {
     "id": "RECAP_DV_INSECTS",
@@ -619,11 +829,15 @@
       "book-c2-p15"
     ],
     "alpha": true,
-    "alphaVideoUrl": "/videos/ar/RECAP_DV_INSECTS.webm",
-    "alphaColorUrl": "/videos/ar/fallback/RECAP_DV_INSECTS-color.mp4",
-    "alphaMaskUrl": "/videos/ar/fallback/RECAP_DV_INSECTS-alpha.mp4",
-    "alphaBytes": 173394,
-    "fallbackBytes": 113622
+    "alphaVideoUrl": "/videos/ar/hq2/RECAP_DV_INSECTS.webm",
+    "alphaColorUrl": "/videos/ar/fallback/hq2/RECAP_DV_INSECTS-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/hq2/RECAP_DV_INSECTS-alpha.mp4",
+    "alphaBytes": 833292,
+    "fallbackBytes": 924524,
+    "packedVideoUrl": "/videos/ar/packed/hq2/RECAP_DV_INSECTS.mp4",
+    "previewVideoUrl": "/videos/ar/original/hq2/RECAP_DV_INSECTS.mp4",
+    "presentationMode": "mixed",
+    "qualityVersion": "detail-preserved-v2"
   },
   {
     "id": "RECAP_DV",
@@ -646,11 +860,15 @@
       "book-c2-p18"
     ],
     "alpha": true,
-    "alphaVideoUrl": "/videos/ar/RECAP_DV.webm",
-    "alphaColorUrl": "/videos/ar/fallback/RECAP_DV-color.mp4",
-    "alphaMaskUrl": "/videos/ar/fallback/RECAP_DV-alpha.mp4",
-    "alphaBytes": 687774,
-    "fallbackBytes": 437508
+    "alphaVideoUrl": "/videos/ar/hq2/RECAP_DV.webm",
+    "alphaColorUrl": "/videos/ar/fallback/hq2/RECAP_DV-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/hq2/RECAP_DV-alpha.mp4",
+    "alphaBytes": 3093660,
+    "fallbackBytes": 3581732,
+    "packedVideoUrl": "/videos/ar/packed/hq2/RECAP_DV.mp4",
+    "previewVideoUrl": "/videos/ar/original/hq2/RECAP_DV.mp4",
+    "presentationMode": "mixed",
+    "qualityVersion": "detail-preserved-v2"
   },
   {
     "id": "RECAP_HTTN_A",
@@ -673,11 +891,15 @@
       "book-c3-p19"
     ],
     "alpha": true,
-    "alphaVideoUrl": "/videos/ar/RECAP_HTTN_A.webm",
-    "alphaColorUrl": "/videos/ar/fallback/RECAP_HTTN_A-color.mp4",
-    "alphaMaskUrl": "/videos/ar/fallback/RECAP_HTTN_A-alpha.mp4",
-    "alphaBytes": 617179,
-    "fallbackBytes": 522795
+    "alphaVideoUrl": "/videos/ar/hq2/RECAP_HTTN_A.webm",
+    "alphaColorUrl": "/videos/ar/fallback/hq2/RECAP_HTTN_A-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/hq2/RECAP_HTTN_A-alpha.mp4",
+    "alphaBytes": 2997079,
+    "fallbackBytes": 4566999,
+    "packedVideoUrl": "/videos/ar/packed/hq2/RECAP_HTTN_A.mp4",
+    "previewVideoUrl": "/videos/ar/original/hq2/RECAP_HTTN_A.mp4",
+    "presentationMode": "mixed",
+    "qualityVersion": "detail-preserved-v2"
   },
   {
     "id": "RECAP_HTTN_B",
@@ -695,10 +917,14 @@
       "book-c3-p20"
     ],
     "alpha": true,
-    "alphaVideoUrl": "/videos/ar/RECAP_HTTN_B.webm",
-    "alphaColorUrl": "/videos/ar/fallback/RECAP_HTTN_B-color.mp4",
-    "alphaMaskUrl": "/videos/ar/fallback/RECAP_HTTN_B-alpha.mp4",
-    "alphaBytes": 631827,
-    "fallbackBytes": 436684
+    "alphaVideoUrl": "/videos/ar/hq2/RECAP_HTTN_B.webm",
+    "alphaColorUrl": "/videos/ar/fallback/hq2/RECAP_HTTN_B-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/hq2/RECAP_HTTN_B-alpha.mp4",
+    "alphaBytes": 3458449,
+    "fallbackBytes": 4383387,
+    "packedVideoUrl": "/videos/ar/packed/hq2/RECAP_HTTN_B.mp4",
+    "previewVideoUrl": "/videos/ar/original/hq2/RECAP_HTTN_B.mp4",
+    "presentationMode": "mixed",
+    "qualityVersion": "detail-preserved-v2"
   }
 ]

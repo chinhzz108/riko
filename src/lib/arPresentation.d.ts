@@ -3,6 +3,7 @@ export type VideoPresentation = {
   grounded: boolean
   mode: string
   packedVideoUrl?: string
+  previewVideoUrl?: string
 }
 
 export type PresentationLayout = {

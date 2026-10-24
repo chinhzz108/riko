@@ -102,6 +102,9 @@ jobs:
       - name: Verify AR gesture math and smooth tracking
         run: node scripts/ar/verify_motion.mjs
 
+      - name: Verify AR detail preservation and certified media
+        run: node scripts/ar/verify_detail_assets.mjs
+
       - name: Verify Cloudflare token and Pages access
         if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
         env:

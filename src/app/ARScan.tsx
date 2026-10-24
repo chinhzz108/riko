@@ -74,6 +74,7 @@ type VideoAsset = {
   alphaVideoUrl?: string
   alphaColorUrl?: string
   alphaMaskUrl?: string
+  previewVideoUrl?: string
 }
 type MindARAnchor = {
   group: Group
@@ -696,7 +697,13 @@ export default function ARScan() {
       media.material.transparent = Boolean(asset.alpha)
       media.currentVideo = media.video
       await playTexture(media.video, media.texture, source)
-      if (asset.alpha && hasSplitAlpha && !videoPreservesAlpha(media.video)) {
+      if (
+        asset.alpha &&
+        hasSplitAlpha &&
+        media.profile.mode !== "scene" &&
+        media.profile.mode !== "mixed" &&
+        !videoPreservesAlpha(media.video)
+      ) {
         console.warn(
           "Browser decoded the AR WebM without transparency; switching to the color/matte fallback.",
         )
@@ -1223,8 +1230,10 @@ export default function ARScan() {
             layout.shadowDepth * record.fitScale,
             1,
           )
-          media.material.opacity = reveal
-          media.shadowMaterial.opacity = reveal * 0.65
+          // Subject opacity belongs to its matte; reacquisition must not fade
+          // solid paint, fur, petals or glass across the entire video.
+          media.material.opacity = 1
+          media.shadowMaterial.opacity = 0.65
         }
         if (isActive && media.nativeOverlayActive && !media.fallbackActive) {
           record.root.updateWorldMatrix(true, false)
@@ -1696,9 +1705,13 @@ export default function ARScan() {
           ? "Đưa trọn trang vào khung hình · QR là dự phòng"
           : "Đưa trọn trang vào khung hình · giữ yên 1–2 giây"
   const qrVideoSrc =
-    selectedAsset?.alpha && isSafariOrIOS()
+    selectedAsset?.previewVideoUrl ||
+    (videoPresentations as Record<string, VideoPresentation>)[
+      selection?.slot.arVideoUrl?.split("/").pop()?.replace(/\.webm$/, "") || ""
+    ]?.previewVideoUrl ||
+    (selectedAsset?.alpha && isSafariOrIOS()
       ? selectedAsset.alphaColorUrl || selection?.slot.arVideoUrl || ""
-      : selectedAsset?.alphaVideoUrl || selection?.slot.arVideoUrl || ""
+      : selectedAsset?.alphaVideoUrl || selection?.slot.arVideoUrl || "")
 
   return (
     <main
