@@ -1,0 +1,113 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>AR playback lifecycle QA</title></head><body><div id="root"></div>
+<script type="module">
+// Only tracker/model recognition is simulated. Camera stream, QR decoder,
+// React component, Three.js, native alpha and packed MP4 rendering are real.
+import React from 'react'
+import {createRoot} from 'react-dom/client'
+import {BrowserRouter} from 'react-router'
+import * as THREE from 'three'
+import QRCode from 'qrcode'
+import ARScan from '/src/app/ARScan.tsx'
+import pages from '/src/data/arPageTargets.json'
+import slotsData from '/src/data/bookVideoSlots.json'
+import targetData from '/src/data/arTargets.json'
+import '/src/index.css'
+const params=new URLSearchParams(location.search)
+if(params.has('packed'))Object.defineProperty(navigator,'userAgent',{value:'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 Version/18.0 Mobile/15E148 Safari/604.1'})
+const state={page:params.get('page')||'book-c2-p17',mode:params.get('mode')||'page',shown:true,shake:false,trackerFrames:0,modelCalls:0,qrJobs:0,qrWorkers:0,starts:0,stops:0}
+const nativeWorker=Worker
+window.Worker=class extends nativeWorker{
+ constructor(...args){super(...args);this.live=String(args[0]).includes('arQr');if(this.live)state.qrWorkers++}
+ postMessage(...args){if(args[0]?.pixels)state.qrJobs++;return super.postMessage(...args)}
+ terminate(){if(this.live){this.live=false;state.qrWorkers--}return super.terminate()}
+}
+const canvas=document.createElement('canvas');canvas.width=640;canvas.height=480
+const context=canvas.getContext('2d');const stream=canvas.captureStream(24)
+Object.defineProperty(navigator.mediaDevices,'getUserMedia',{configurable:true,value:async()=>stream})
+let sourceImage=null,move=0
+async function prepare(){
+ const image=new Image()
+ image.src=state.mode==='qr'?await QRCode.toDataURL(`https://rikokid.me/watch/${state.page}`,{width:420,margin:4}):`/tmp/ar-targets/pages/${state.page}.jpg`
+ await image.decode();sourceImage=image;paintCamera()
+}
+function paintCamera(){
+ context.fillStyle='#baa78e';context.fillRect(0,0,640,480)
+ if(!state.shown||!sourceImage)return
+ if(state.mode==='popup'){context.fillStyle='#dce9cf';context.fillRect(70,70,500,340);context.fillStyle='#173e72';context.font='32px system-ui';context.fillText('POP-UP TEST',190,250);return}
+ const h=400,w=h*sourceImage.width/sourceImage.height,dx=state.shake?Math.sin(++move)*18:0
+ context.drawImage(sourceImage,(640-w)/2+dx,40,w,h)
+}
+setInterval(()=>{if(state.shake)paintCamera();stream.getVideoTracks()[0].requestFrame?.()},42)
+await prepare()
+class FakeMindAR{
+ constructor({container}){
+  this.container=container;this.anchors=[];this.scene=new THREE.Scene();this.camera=new THREE.PerspectiveCamera(45,4/3,.1,100)
+  this.renderer=new THREE.WebGLRenderer({alpha:true,antialias:false});container.append(this.renderer.domElement)
+  this.renderer.domElement.style.cssText='position:absolute;inset:0;width:100%;height:100%;pointer-events:none'
+  const self=this
+  this.controller={processingVideo:false,onUpdate:event=>{
+    if(event.type==='updateMatrix')for(const anchor of self.anchors){
+      const visible=state.shown&&state.mode==='page'&&pages.targets[anchor.index]?.slotId===state.page
+      if(visible!==anchor.visible){anchor.visible=visible;anchor.group.visible=visible;visible?anchor.onTargetFound?.():anchor.onTargetLost?.()}
+    }
+   },
+   processVideo(){
+    if(this.processingVideo)throw new Error('Duplicate tracker loop')
+    this.processingVideo=true;state.starts++
+    const frame=()=>{if(!this.processingVideo)return;state.trackerFrames++
+      this.onUpdate?.({type:'updateMatrix'});this.onUpdate?.({type:'processDone'});requestAnimationFrame(frame)}
+    requestAnimationFrame(frame)
+   },stopProcessVideo(){if(this.processingVideo)state.stops++;this.processingVideo=false}}
+ }
+ addAnchor(index){const anchor={index,visible:false,group:new THREE.Group(),onTargetFound:null,onTargetLost:null};this.anchors.push(anchor);return anchor}
+ async start(){
+  this.video=document.createElement('video');this.video.muted=true;this.video.playsInline=true
+  this.video.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0'
+  this.container.prepend(this.video);this.video.srcObject=await navigator.mediaDevices.getUserMedia({video:true});await this.video.play()
+  this.controller.processVideo(this.video)
+ }
+ stop(){this.controller.stopProcessVideo();this.video?.pause()}
+}
+const classes=[...slotsData.slots.map(s=>s.pageClass||`page_${s.id.replace(/-/g,'_')}`),...targetData.targets.map(t=>t.popupLabel)]
+const loadTracker=async()=>{
+ if(!params.has('real'))return {MindARThree:FakeMindAR}
+ const module=await import('mind-ar/dist/mindar-image-three.prod.js')
+ class RealMindARQA extends module.MindARThree {
+  async start(){
+   await super.start();state.starts++
+   const update=this.controller.onUpdate,process=this.controller.processVideo.bind(this.controller),stop=this.controller.stopProcessVideo.bind(this.controller)
+   this.controller.onUpdate=event=>{if(event.type==='processDone')state.trackerFrames++;update(event)}
+   this.controller.processVideo=input=>{state.starts++;process(input)}
+   this.controller.stopProcessVideo=()=>{if(this.controller.processingVideo)state.stops++;stop()}
+  }
+ }
+ return {MindARThree:RealMindARQA}
+}
+const runtime={loadTracker,detect:async()=>{
+ state.modelCalls++
+ if(state.mode!=='popup'||!state.shown)return []
+ const slot=slotsData.slots.find(s=>s.id===state.page),target=targetData.targets.find(t=>t.id===slot.arTargetId)
+ return target?[{classId:classes.indexOf(target.popupLabel),score:.99,box:{x:80,y:70,width:320,height:280}}]:[]
+}}
+createRoot(document.getElementById('root')).render(React.createElement(BrowserRouter,null,React.createElement(ARScan,{runtime})))
+const panel=document.createElement('aside');panel.style.cssText='position:fixed;left:8px;top:100px;z-index:1000;width:210px;padding:8px;background:#071320e8;color:white;font:11px system-ui;border-radius:10px'
+panel.innerHTML=`<strong>QA · không chạy model nặng</strong><br><label>Trang <select id="qa-page" style="color:black;width:100%">${['book-c2-p17','book-c1-p01','book-c3-p12','book-c1-p03'].map(id=>`<option value="${id}">${id}</option>`).join('')}</select></label><label>Nguồn <select id="qa-source" style="color:black"><option value="page">Ảnh trang mô phỏng</option><option value="popup">Pop-up mô phỏng</option><option value="qr">QR thật</option></select></label><br><button id="qa-shake">Rung camera</button> <button id="qa-cover">Che / hiện sách</button><pre id="qa-state" style="white-space:pre-wrap;word-break:break-all"></pre>`
+document.body.append(panel)
+if(params.has('real'))panel.querySelector('strong').textContent='QA · MindAR thật · không nạp LiteRT'
+panel.querySelector('#qa-page').value=state.page
+panel.querySelector('#qa-source').value=state.mode
+panel.querySelector('#qa-page').onchange=e=>{state.page=e.target.value;void prepare()}
+panel.querySelector('#qa-source').onchange=e=>{state.mode=e.target.value;void prepare()}
+panel.querySelector('#qa-shake').onclick=()=>{state.shake=!state.shake;paintCamera()}
+panel.querySelector('#qa-cover').onclick=()=>{state.shown=!state.shown;paintCamera()}
+setInterval(()=>{
+ const v=[...document.querySelectorAll('video')].find(v=>v.src.includes('/videos/ar/')&&!v.paused)
+ const surface=document.querySelector('[data-ar-video-surface]')
+ const quality=v?.getVideoPlaybackQuality?.()
+ const values={...state,phase:document.querySelector('[data-ar-stage]')?.dataset.arPhase,source:document.querySelector('[data-ar-stage]')?.dataset.arSource,cameraLive:stream.getVideoTracks()[0].readyState,
+  media:v?{url:new URL(v.src).pathname,time:v.currentTime,width:v.videoWidth,height:v.videoHeight,dropped:quality?.droppedVideoFrames,total:quality?.totalVideoFrames}:null,
+  transform:surface?.style.transform,renders:document.querySelector('canvas[data-ar-renders]')?.dataset.arRenders}
+ panel.querySelector('#qa-state').textContent=JSON.stringify(values,null,2)
+ panel.querySelector('#qa-state').dataset.values=JSON.stringify(values)
+},200)
+</script></body></html>

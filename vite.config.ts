@@ -40,7 +40,12 @@ react(),
       watch: {
         ignored: [
           '**/.figma/**',
-],
+          '**/tmp/**',
+          '**/MAM_BOOK_AR/**',
+          '**/AR_VIDEO_ASSETS/**',
+          '**/Riko3d/**',
+          '**/output/**',
+        ],
       },
     },
     preview: {

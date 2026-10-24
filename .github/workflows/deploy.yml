@@ -102,6 +102,9 @@ jobs:
       - name: Verify AR gesture math and smooth tracking
         run: node scripts/ar/verify_motion.mjs
 
+      - name: Verify one-shot AR playback and automatic close-to-scan
+        run: node scripts/ar/verify_playback_session.mjs
+
       - name: Verify AR detail preservation and certified media
         run: node scripts/ar/verify_detail_assets.mjs
 

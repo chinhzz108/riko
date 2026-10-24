@@ -1,4 +1,4 @@
-@import 'tailwindcss';
+@import 'tailwindcss' source('./');
 @import './styles/theme.css';
 @layer base {
   body { @apply bg-background text-foreground font-sans antialiased; }

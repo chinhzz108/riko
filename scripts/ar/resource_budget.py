@@ -7,6 +7,8 @@ import os
 
 for name in ["OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS", "NUMEXPR_NUM_THREADS"]:
     os.environ[name] = "1"
+os.environ.setdefault("NODE_OPTIONS", "--max-old-space-size=768")
+os.environ.setdefault("RAYON_NUM_THREADS", "2")
 
 if os.name == "nt":
     import ctypes

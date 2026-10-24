@@ -1,5 +1,9 @@
 # AR movement and frame pacing — 24 October 2026
 
+The continuous book tracking described below is historical. The current
+close-to-scan workflow holds video in the viewport and pauses recognition while
+playing; see [playback and automatic scanning QA](ar-playback-lock-qa.md).
+
 ## Changes
 
 - Drag one pointer to reposition the video relative to its tracked book page.
