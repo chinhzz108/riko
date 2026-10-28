@@ -59,6 +59,7 @@ import {
   Pencil,
   Smartphone,
   LockKeyhole,
+  UserRound,
 } from "lucide-react"
 import { motion, AnimatePresence, useInView } from "motion/react"
 import {
@@ -84,6 +85,8 @@ import type {
   OrderRecord,
   QuizQuestion,
   QuizRecord,
+  QuizProfile,
+  QuizUser,
   VideoRecord,
 } from "../lib/appwrite"
 import rikoWelcome from "../assets/riko/welcome.webp"
@@ -99,6 +102,7 @@ import rikoActivity from "../assets/riko/activity.png"
 import rikoExplaining from "../assets/riko/explaining.png"
 import bookVideoManifest from "../data/bookVideoSlots.json"
 import arVideoPresentations from "../data/arVideoPresentation.json"
+import { bookProducts, getBookProduct } from "../data/bookProducts"
 const ARScan = lazy(() => import("./ARScan"))
 
 const createOrder: typeof import("../lib/appwrite").createOrder = (...args) =>
@@ -132,6 +136,21 @@ const requestPasswordRecovery: typeof import("../lib/appwrite").requestPasswordR
 const completePasswordRecovery: typeof import("../lib/appwrite").completePasswordRecovery = (
   ...args
 ) => import("../lib/appwrite").then((appwrite) => appwrite.completePasswordRecovery(...args))
+const getQuizUser: typeof import("../lib/appwrite").getQuizUser = (...args) =>
+  import("../lib/appwrite").then((appwrite) => appwrite.getQuizUser(...args))
+const registerQuizUser: typeof import("../lib/appwrite").registerQuizUser = (
+  ...args
+) => import("../lib/appwrite").then((appwrite) => appwrite.registerQuizUser(...args))
+const loginQuizUser: typeof import("../lib/appwrite").loginQuizUser = (...args) =>
+  import("../lib/appwrite").then((appwrite) => appwrite.loginQuizUser(...args))
+const updateQuizProfile: typeof import("../lib/appwrite").updateQuizProfile = (
+  ...args
+) => import("../lib/appwrite").then((appwrite) => appwrite.updateQuizProfile(...args))
+const saveQuizResultToAccount: typeof import("../lib/appwrite").saveQuizResult = (
+  ...args
+) => import("../lib/appwrite").then((appwrite) => appwrite.saveQuizResult(...args))
+const logoutQuizUser: typeof import("../lib/appwrite").logoutQuizUser = (...args) =>
+  import("../lib/appwrite").then((appwrite) => appwrite.logoutQuizUser(...args))
 const logoutAdmin: typeof import("../lib/appwrite").logoutAdmin = (...args) =>
   import("../lib/appwrite").then((appwrite) => appwrite.logoutAdmin(...args))
 const updateOrderStatus: typeof import("../lib/appwrite").updateOrderStatus = (
@@ -150,6 +169,29 @@ function ARScanRoute() {
 
 const money = (value: number) => value.toLocaleString("vi-VN") + "đ"
 const bookTitle = "Riko & khu rừng kỳ diệu"
+const guestQuizScores = (): Record<string, number> => {
+  try {
+    const scores = JSON.parse(localStorage.getItem("rikokid-quiz-scores") || "{}")
+    return scores && typeof scores === "object" ? scores : {}
+  } catch {
+    return {}
+  }
+}
+async function mergeGuestQuizScores(user: QuizUser) {
+  const localScores = guestQuizScores()
+  const bestScores = { ...user.quizProfile.bestScores }
+  let changed = false
+  for (const [key, score] of Object.entries(localScores)) {
+    const best = Math.max(0, Number(score) || 0)
+    if (best > (bestScores[key] || 0)) {
+      bestScores[key] = best
+      changed = true
+    }
+  }
+  return changed
+    ? updateQuizProfile({ ...user.quizProfile, bestScores })
+    : user
+}
 type VideoItem = VideoRecord
 type QRVideoSlot = {
   id: string
@@ -280,6 +322,8 @@ const questions = [
 type Context = {
   quantity: number
   setQuantity: (n: number) => void
+  cartProductId: string
+  setCartProductId: (id: string) => void
   notify: (s: string) => void
   videos: VideoItem[]
   setVideos: (v: VideoItem[]) => void
@@ -287,6 +331,21 @@ type Context = {
   setQuizzes: (v: QuizRecord[]) => void
   score: number
   setScore: (n: number) => void
+  lastQuizKey: string
+  setLastQuizKey: (key: string) => void
+  quizUser: QuizUser | null
+  quizAuthReady: boolean
+  loginQuiz: (email: string, password: string) => Promise<void>
+  registerQuiz: (input: {
+    guardianName: string
+    email: string
+    password: string
+    childNickname: string
+    interests: string[]
+  }) => Promise<void>
+  updateQuizAccountProfile: (profile: QuizProfile) => Promise<void>
+  logoutQuiz: () => Promise<void>
+  saveQuizProgress: (key: string, score: number) => Promise<void>
   adminUser: { $id: string; name: string; email: string } | null
   authReady: boolean
   ensureAdminSession: () => Promise<{ $id: string; name: string; email: string } | null>
@@ -574,7 +633,6 @@ function Header() {
   const links = [
     ["Trang chủ", "/"],
     ["Sách", "/book"],
-    ["Khám phá", "/preview"],
     ["Quiz", "/quizzes"],
     ["Trải nghiệm AR", "/scan"],
     ["Về Riko", "/about"],
@@ -625,9 +683,17 @@ function Header() {
               </span>
             )}
           </Link>
+          <Link
+            to="/tai-khoan"
+            aria-label="Tài khoản quiz"
+            title="Tài khoản phụ huynh"
+            className="rounded-full p-3 text-primary transition hover:bg-primary/5"
+          >
+            <UserRound size={20} />
+          </Link>
           <div className="hidden md:block">
             <Button to="/book" className="!px-5 !py-3">
-              Mua sách <ArrowRight size={15} />
+              Đặt trước <ArrowRight size={15} />
             </Button>
           </div>
           <button
@@ -841,7 +907,7 @@ function StoryQR() {
   )
 }
 function Home() {
-  const { quantity, setQuantity, notify } = useStore()
+  const { quantity, setQuantity, setCartProductId, notify } = useStore()
   const [amount, setAmount] = useState(1)
   const { enabled } = useMotionPreferences()
   return (
@@ -933,7 +999,7 @@ function Home() {
                 to="/book"
                 className="!bg-[#F15A3E] !px-5 !py-4 !text-sm hover:!bg-[#F5801F] sm:!px-7 sm:!text-base"
               >
-                Mua sách ngay <ArrowRight size={18} />
+                Đặt trước sách <ArrowRight size={18} />
               </Button>
               <Button
                 secondary
@@ -1222,37 +1288,40 @@ function Home() {
       >
         <div className="grid items-center gap-10 overflow-hidden rounded-[28px] border border-primary/10 bg-white px-7 py-10 md:grid-cols-2 md:px-12">
           <div className="relative flex min-h-94 items-center justify-center">
-            <div className="absolute inset-5 rotate-12 rounded-[45%] bg-[#3F97D2]/10" />
-            <div className="absolute left-2 top-15 h-60 w-43 rotate-[-16deg] rounded-lg border border-primary/10 bg-background p-5 shadow-sm">
-              <p className="text-xs font-bold text-primary">Chương 1</p>
-              <div className="mt-3 h-1 w-20 rounded bg-primary/15" />
-              <div className="mt-2 h-1 w-24 rounded bg-primary/10" />
-              <Mascot pose="activity" className="mt-5 h-30" />
+            <div className="absolute inset-5 rotate-6 rounded-[45%] bg-[#3F97D2]/10" />
+            {bookProducts.filter((product) => !product.isCombo).map((product, index) => (
+              <img
+                key={product.id}
+                src={product.cover}
+                alt={`Bìa ${product.title}`}
+                loading="lazy"
+                className={`absolute w-[58%] rounded-xl border-4 border-white shadow-xl transition duration-500 hover:z-20 hover:scale-105 ${
+                  index === 0
+                    ? "left-[4%] top-[17%] -rotate-12"
+                    : index === 1
+                      ? "left-[21%] top-[7%] z-10 rotate-2"
+                      : "right-[4%] top-[17%] rotate-12"
+                }`}
+              />
+            ))}
+            <div className="absolute bottom-4 right-4 z-20 rotate-3 rounded-full border-4 border-white bg-[#FBAF37] px-4 py-3 text-center text-xs font-bold text-[#6E493E] shadow-md">
+              3 chủ đề
+              <br />1 combo
             </div>
-            <Cover
-              shared
-              className="relative z-10 h-82 w-58 rotate-[-6deg] transition duration-500 hover:rotate-0 hover:scale-105"
-            />
-            <div className="absolute -right-2 top-4 z-20 rotate-12 rounded-full border-4 border-white bg-[#FBAF37] px-4 py-4 text-center text-xs font-bold text-[#6E493E]">
-              Một cuốn sách
-              <br />3 trải nghiệm!
-            </div>
-            <Sparkles
-              className="absolute bottom-4 right-7 text-[#F5801F]"
-              size={30}
-            />
           </div>
           <div>
             <Eyebrow>CUỐN SÁCH CỦA RIKO</Eyebrow>
             <h2 className="text-3xl leading-tight md:text-[40px]">
-              Trang sách nhỏ.
+              Ba quyển sách nhỏ.
               <br />
-              Cuộc phiêu lưu lớn.
+              Cả thế giới khám phá.
             </h2>
-            <p className="mt-3 text-lg font-bold text-[#363B47]">{bookTitle}</p>
+            <p className="mt-3 text-lg font-bold text-[#363B47]">
+              Phương tiện · Động vật · Hiện tượng thiên nhiên
+            </p>
             <p className="mt-3 text-sm font-medium leading-7 text-[#4A5461]">
-              Theo chân Riko bước vào khu rừng kỳ diệu, khám phá thiên nhiên và
-              tìm thấy sức mạnh của tình bạn.
+              Ba quyển sách đưa bé khám phá phương tiện, thế giới động vật và
+              những hiện tượng thiên nhiên cùng Riko.
             </p>
             <div className="my-4 flex flex-wrap gap-2">
               {["6–12 tuổi", "64 trang màu", "QR & video", "Quiz thú vị"].map(
@@ -1271,15 +1340,21 @@ function Home() {
               128 đánh giá
             </div>
             <div className="my-5 flex items-center gap-3">
-              <b className="text-3xl text-primary">189.000đ</b>
+              <b className="text-3xl text-primary">299.000đ</b>
               <span className="text-sm text-[#4A5461]/60 line-through">
-                229.000đ
+                350.000đ
               </span>
             </div>
             <div className="flex flex-wrap items-center gap-3">
               <Qty value={amount} onChange={setAmount} />
-              <Button to="/checkout" onClick={() => setQuantity(amount)}>
-                Mua ngay <ShoppingBag size={16} />
+              <Button
+                to="/checkout"
+                onClick={() => {
+                  setCartProductId("vehicles")
+                  setQuantity(amount)
+                }}
+              >
+                Đặt trước <ShoppingBag size={16} />
               </Button>
               <Button secondary to="/preview">
                 <BookOpen size={16} /> Xem thử
@@ -1287,6 +1362,7 @@ function Home() {
             </div>
             <button
               onClick={() => {
+                setCartProductId("vehicles")
                 setQuantity(quantity + amount)
                 notify("Đã thêm sách vào giỏ. Riko đang chờ bạn!")
               }}
@@ -1294,6 +1370,12 @@ function Home() {
             >
               Thêm vào giỏ hàng
             </button>
+            <Link
+              to="/book"
+              className="mt-4 block text-sm font-bold text-[#F15A3E] underline underline-offset-4"
+            >
+              Xem 3 bìa sách · Combo đủ 3 quyển 799.000đ
+            </Link>
           </div>
         </div>
       </motion.section>
@@ -1731,93 +1813,144 @@ function ProductShowcase() {
 }
 function Book() {
   const [amount, setAmount] = useState(1)
-  const { quantity, setQuantity, notify } = useStore()
+  const { quantity, setQuantity, cartProductId, setCartProductId, notify } = useStore()
+  const [selectedId, setSelectedId] = useState(cartProductId)
+  const selectedProduct = getBookProduct(selectedId)
+  const singleBooks = bookProducts.filter((product) => !product.isCombo)
+  const selectAndAdd = (checkout: boolean) => {
+    const replacing = quantity > 0 && cartProductId !== selectedProduct.id
+    setCartProductId(selectedProduct.id)
+    setQuantity(checkout || replacing ? amount : quantity + amount)
+    if (!checkout) {
+      notify(
+        replacing
+          ? "Đã đổi lựa chọn trong giỏ hàng."
+          : "Đã thêm sách vào giỏ hàng.",
+      )
+    }
+  }
   return (
     <div className="mx-auto max-w-[1160px] px-6 py-12">
       <p className="mb-8 text-sm text-[#4A5461]">
         <Link to="/">Trang chủ</Link> / Sách Riko
       </p>
-      <div className="grid items-center gap-12 md:grid-cols-2">
-        <div className="rounded-3xl bg-[#FFFEF0] py-10">
-          <Cover shared className="mx-auto h-105 w-74" />
-          <div className="mt-8 flex justify-center gap-3">
-            {["Bìa sách", "Trang bên trong", "Trải nghiệm QR"].map(
-              (label, index) => (
-                <Link
-                  to={index === 2 ? "/watch/1" : "/preview"}
-                  key={label}
-                  className="rounded-xl border border-border bg-white px-3 py-3 text-xs"
-                >
-                  {label}
-                </Link>
-              ),
+      <Eyebrow>BỘ SÁCH KHÁM PHÁ CÙNG RIKO</Eyebrow>
+      <h1 className="max-w-3xl text-4xl leading-tight md:text-5xl">
+        Chọn một cuộc phiêu lưu
+        <span className="text-[#F15A3E]"> hoặc trọn bộ ba</span>
+      </h1>
+      <p className="mb-8 mt-4 max-w-2xl text-base leading-7 text-[#4A5461]">
+        Ba chủ đề trong PDF bìa: Phương tiện, Động vật và Hiện tượng thiên nhiên.
+        Chọn từng quyển giá 299.000đ hoặc lấy combo đủ 3 quyển giá 799.000đ.
+      </p>
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {bookProducts.map((product) => (
+          <button
+            key={product.id}
+            type="button"
+            onClick={() => {
+              setSelectedId(product.id)
+              setCartProductId(product.id)
+            }}
+            aria-pressed={selectedId === product.id}
+            className={`rounded-3xl border bg-white p-4 text-left transition hover:-translate-y-1 hover:shadow-lg ${
+              selectedId === product.id
+                ? "border-primary ring-2 ring-primary/15"
+                : "border-border"
+            }`}
+          >
+            {product.isCombo ? (
+              <div className="grid aspect-[4/3] grid-cols-3 gap-1 overflow-hidden rounded-2xl bg-[#FFFEF0] p-2">
+                {singleBooks.map((book) => (
+                  <img
+                    key={book.id}
+                    src={book.cover}
+                    alt={`Bìa ${book.title}`}
+                    loading="lazy"
+                    className="h-full w-full rounded-lg object-cover"
+                  />
+                ))}
+              </div>
+            ) : (
+              <img
+                src={product.cover}
+                alt={`Bìa ${product.title}`}
+                loading="lazy"
+                className="aspect-[4/3] w-full rounded-2xl object-cover"
+              />
             )}
-          </div>
+            <p className="mt-4 text-xs font-bold uppercase tracking-wider text-[#1D80C4]">
+              {product.chapter}
+            </p>
+            <h2 className="mt-1 min-h-14 text-xl font-bold">{product.title}</h2>
+            <div className="mt-2 flex flex-wrap items-baseline gap-2">
+              <span className="text-2xl font-bold text-primary">
+                {money(product.price)}
+              </span>
+              {product.compareAt && (
+                <span className="text-sm text-[#4A5461]/60 line-through">
+                  {money(product.compareAt)}
+                </span>
+              )}
+            </div>
+            {product.isCombo && (
+              <p className="mt-2 text-xs font-semibold text-[#28823F]">
+                Tiết kiệm 98.000đ so với mua lẻ
+              </p>
+            )}
+            <span className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-primary">
+              {selectedId === product.id ? "Đang chọn" : "Chọn sản phẩm"}
+              {selectedId === product.id && <Check size={16} />}
+            </span>
+          </button>
+        ))}
+      </div>
+      <section className="my-10 grid items-center gap-6 rounded-3xl border border-primary/10 bg-[#FFFEF0] p-5 md:grid-cols-[1fr_1.15fr] md:p-8">
+        <div className="grid grid-cols-3 gap-2">
+          {(selectedProduct.isCombo ? singleBooks : [selectedProduct]).map(
+            (product) => (
+              <img
+                key={product.id}
+                src={product.cover}
+                alt={`Bìa ${product.title}`}
+                className="w-full rounded-xl shadow-sm"
+              />
+            ),
+          )}
         </div>
         <div>
-          <Eyebrow>MỘT CUỘC PHIÊU LƯU ĐẦY ĐIỀU KỲ DIỆU</Eyebrow>
-          <h1 className="text-4xl md:text-5xl">{bookTitle}</h1>
-          <p className="mt-5 text-base text-[#FBAF37]">
-            ★★★★★ <span className="text-[#4A5461]">4.9 · 128 đánh giá</span>
+          <Eyebrow>NHẬN ĐẶT TRƯỚC</Eyebrow>
+          <h2 className="text-3xl font-bold">{selectedProduct.title}</h2>
+          <p className="mt-2 text-sm leading-6 text-[#4A5461]">
+            {selectedProduct.isCombo
+              ? "Một bộ gồm đủ ba quyển: Phương tiện, Động vật và Hiện tượng thiên nhiên."
+              : `Chủ đề ${selectedProduct.title.toLowerCase()} trong bộ sách khám phá cùng Riko.`}
           </p>
-          <p className="my-6 text-3xl font-bold">
-            189.000đ{" "}
-            <span className="ml-3 text-lg font-normal text-[#4A5461] line-through">
-              229.000đ
+          <div className="my-4 flex items-center gap-3">
+            <span className="text-3xl font-bold text-primary">
+              {money(selectedProduct.price)}
             </span>
-          </p>
-          <p className="text-base leading-7 text-[#4A5461]">
-            Một ngôi sao thất lạc, một khu rừng đầy bí mật và một người bạn nhỏ
-            dũng cảm. Theo chân Riko để khám phá thiên nhiên, lòng tốt và sức
-            mạnh của tình bạn.
-          </p>
-          <div className="my-5 flex flex-wrap gap-2">
-            {[
-              "6–12 tuổi",
-              "64 trang màu",
-              "Video qua QR",
-              "Quiz mỗi chương",
-            ].map((t) => (
-              <span
-                key={t}
-                className="rounded-full bg-[#FFFEF0] px-3 py-2 text-xs"
-              >
-                {t}
+            {selectedProduct.compareAt && (
+              <span className="text-sm text-[#4A5461]/60 line-through">
+                {money(selectedProduct.compareAt)}
               </span>
-            ))}
+            )}
           </div>
-          <Qty value={amount} onChange={setAmount} />
-          <div className="mt-5 flex flex-wrap gap-3">
-            <Button to="/checkout" onClick={() => setQuantity(amount)}>
-              Mua ngay <ArrowRight size={16} />
+          <div className="flex flex-wrap items-center gap-4">
+            <Qty value={amount} onChange={setAmount} />
+            <Button to="/checkout" onClick={() => selectAndAdd(true)}>
+              Đặt trước <ArrowRight size={16} />
             </Button>
-            <Button
-              secondary
-              onClick={() => {
-                setQuantity(quantity + amount)
-                notify("Đã thêm sách vào giỏ. Một cuộc phiêu lưu đang chờ!")
-              }}
-            >
+            <Button secondary onClick={() => selectAndAdd(false)}>
               <ShoppingBag size={16} /> Thêm vào giỏ
             </Button>
           </div>
-          <Link
-            to="/preview"
-            className="mt-5 inline-flex items-center gap-2 text-sm underline underline-offset-4"
-          >
-            <BookOpen size={16} /> Đọc thử cuốn sách
-          </Link>
-          <Link
-            to="/scan"
-            className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-primary underline underline-offset-4"
-          >
-            <Camera size={16} /> Quét sách để mở video AR
-          </Link>
-          <p className="mt-6 flex gap-2 text-xs text-[#4A5461]">
-            <ShieldCheck size={16} /> Thanh toán an toàn · Giao hàng toàn quốc
+          <p className="mt-4 text-xs text-[#4A5461]">
+            Đây là yêu cầu đặt trước. Rikokid sẽ liên hệ xác nhận đơn và thời
+            gian giao hàng.
           </p>
         </div>
-      </div>
+      </section>
       <ProductShowcase />
       <div className="py-16">
         <SectionTitle
@@ -2278,7 +2411,15 @@ function Watch() {
   )
 }
 function Quizzes() {
-  const { score, quizzes } = useStore()
+  const { score, quizzes, quizUser } = useStore()
+  const bestScores = quizUser?.quizProfile.bestScores || guestQuizScores()
+  const accountBestPoints = Math.max(
+    score,
+    Object.values(bestScores).reduce(
+      (total, value) => total + Number(value || 0),
+      0,
+    ),
+  )
   const publishedQuizzes = quizzes.filter((quiz) => quiz.published)
   const adventures = publishedQuizzes.length
     ? publishedQuizzes
@@ -2306,27 +2447,38 @@ function Quizzes() {
             Thử thách cùng Riko
           </h1>
           <p className="my-4 text-base leading-7 text-[#4A5461]">
-            Cùng chơi, cùng học và thu thập những ngôi sao của riêng bạn. Mỗi
-            thử thách là một cuộc phiêu lưu mới!
+            {quizUser?.quizProfile.childNickname
+              ? `Chào ${quizUser.quizProfile.childNickname}! ${quizUser.quizProfile.interests.length ? `Riko nhớ bé thích ${quizUser.quizProfile.interests.join(", ")}. ` : ""}Cùng chơi quiz, lưu điểm và sưu tập huy hiệu nhé.`
+              : "Cùng chơi, cùng học và thu thập những ngôi sao của riêng bạn. Mỗi thử thách là một cuộc phiêu lưu mới!"}
           </p>
           <div className="flex flex-wrap gap-3">
             <span className="rounded-full bg-white px-4 py-2 text-base font-bold text-primary">
-              ★ {score} điểm khám phá
+              ★ {accountBestPoints} điểm khám phá
             </span>
             <span className="rounded-full bg-white px-4 py-2 text-base font-bold text-primary">
-              🏅 {score > 0 ? 1 : 0} huy hiệu
+              🏅 {accountBestPoints > 0 ? 1 : 0} huy hiệu
             </span>
+            <Link
+              to="/tai-khoan"
+              className="inline-flex items-center gap-2 rounded-full border border-primary/15 bg-white px-4 py-2 text-sm font-bold text-primary hover:bg-primary/5"
+            >
+              <UserRound size={16} />
+              {quizUser ? "Hồ sơ phụ huynh" : "Đăng nhập để lưu tiến độ"}
+            </Link>
           </div>
         </div>
         <Mascot pose="encouraging" className="mx-auto h-53" />
       </div>
       <h2 className="mb-6 text-3xl">Chọn cuộc phiêu lưu của bạn</h2>
       <div className="grid gap-6 md:grid-cols-3">
-        {adventures.map((quiz, index) => (
-          <div
-            className="relative rounded-[24px] border border-primary/10 bg-white p-6"
-            key={quiz.id || quiz.title}
-          >
+        {adventures.map((quiz, index) => {
+          const quizKey = quiz.id || `chapter-${index + 1}`
+          const completed = Number(bestScores[quizKey] || 0) > 0
+          return (
+            <div
+              className="relative rounded-[24px] border border-primary/10 bg-white p-6"
+              key={quiz.id || quiz.title}
+            >
             <p className="mb-5 text-sm font-bold tracking-[.12em] text-[#1D80C4]">
               {quiz.chapter.toUpperCase()}
             </p>
@@ -2346,7 +2498,7 @@ function Quizzes() {
             <div className="mb-5 h-1.5 rounded-full bg-primary/10">
               <div
                 className={`h-full rounded-full bg-[#59B447] ${
-                  score > 0 && index === 0 ? "w-full" : "w-0"
+                  completed ? "w-full" : "w-0"
                 }`}
               />
             </div>
@@ -2361,11 +2513,12 @@ function Quizzes() {
                 Bắt đầu <ArrowRight size={16} />
               </Button>
               <span className="text-sm font-semibold text-[#4A5461]">
-                {score > 0 && index === 0 ? "✓ Đã hoàn thành" : "Chưa khám phá"}
+                {completed ? "✓ Đã hoàn thành" : "Chưa khám phá"}
               </span>
             </div>
-          </div>
-        ))}
+            </div>
+          )
+        })}
       </div>
       <div className="mt-10 rounded-3xl border border-primary/10 p-6">
         <h3 className="mb-5 text-xl">Bộ sưu tập của bạn</h3>
@@ -2379,7 +2532,7 @@ function Quizzes() {
             <div
               key={badge}
               className={`collectible flex items-center gap-3 rounded-2xl border-2 border-dashed px-4 py-3 text-base font-bold ${
-                score > 0 && index === 0
+                accountBestPoints > 0 && index === 0
                   ? "border-[#FBAF37] bg-[#FBAF37]/10 text-primary"
                   : "border-primary/15 text-[#4A5461]/55"
               }`}
@@ -2387,7 +2540,7 @@ function Quizzes() {
               <Trophy
                 size={24}
                 className={
-                  score > 0 && index === 0
+                  accountBestPoints > 0 && index === 0
                     ? "text-[#FBAF37]"
                     : "text-primary/25"
                 }
@@ -2407,7 +2560,7 @@ function Quiz() {
   const [retried, setRetried] = useState(false)
   const [retryReady, setRetryReady] = useState(false)
   const [attempt, setAttempt] = useState(0)
-  const { setScore, quizzes } = useStore()
+  const { setScore, setLastQuizKey, quizzes } = useStore()
   const navigate = useNavigate()
   const location = useLocation()
   const { enabled } = useMotionPreferences()
@@ -2436,6 +2589,10 @@ function Quiz() {
   function next() {
     if (current === activeQuestions.length - 1) {
       setScore(points)
+      const requestedChapter = new URLSearchParams(location.search).get("chapter")
+      setLastQuizKey(
+        requestedQuizId || `chapter-${requestedChapter || "1"}`,
+      )
       navigate("/result", { viewTransition: enabled })
     } else {
       setCurrent(current + 1)
@@ -2620,9 +2777,20 @@ function Quiz() {
   )
 }
 function Result() {
-  const { score } = useStore()
+  const { score, lastQuizKey, quizUser, saveQuizProgress } = useStore()
   const { enabled } = useMotionPreferences()
   const stars = score >= 35 ? 3 : score >= 25 ? 2 : score > 0 ? 1 : 0
+  const savedRunRef = useRef("")
+  const [saveState, setSaveState] = useState("")
+  useEffect(() => {
+    if (score <= 0) return
+    const signature = `${lastQuizKey}:${score}:${quizUser?.$id || "guest"}`
+    if (savedRunRef.current === signature) return
+    savedRunRef.current = signature
+    void saveQuizProgress(lastQuizKey, score)
+      .then(() => setSaveState(quizUser ? "Đã lưu tiến độ vào tài khoản." : "Đã lưu trên thiết bị này."))
+      .catch(() => setSaveState("Chưa đồng bộ được. Tiến độ vẫn còn trên thiết bị này."))
+  }, [lastQuizKey, score, quizUser?.$id, saveQuizProgress])
   const entrance = (delay: number) => ({
     initial: enabled ? { opacity: 0, y: 12, scale: 0.96 } : false as const,
     animate: { opacity: 1, y: 0, scale: 1 },
@@ -2702,6 +2870,21 @@ function Result() {
           </div>
         </Floating>
       </motion.div>
+      <div className="mx-auto mb-8 max-w-xl rounded-2xl border border-primary/10 bg-white p-5">
+        <p className="font-bold text-primary">
+          {quizUser
+            ? `Tiến độ của ${quizUser.quizProfile.childNickname || "bé"} sẽ được lưu vào hồ sơ phụ huynh.`
+            : "Đăng nhập tài khoản phụ huynh để đồng bộ điểm và cá nhân hóa huy hiệu."}
+        </p>
+        {saveState && <p className="mt-2 text-sm text-[#4A5461]">{saveState}</p>}
+        <Link
+          to="/tai-khoan"
+          className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-[#1D80C4] underline underline-offset-4"
+        >
+          <UserRound size={16} />
+          {quizUser ? "Xem hồ sơ quiz" : "Đăng nhập hoặc tạo tài khoản"}
+        </Link>
+      </div>
       <motion.div
         {...entrance(1.5)}
         className="flex flex-wrap justify-center gap-3"
@@ -2718,7 +2901,8 @@ function Result() {
   )
 }
 function Cart() {
-  const { quantity, setQuantity } = useStore()
+  const { quantity, setQuantity, cartProductId } = useStore()
+  const product = getBookProduct(cartProductId)
   return (
     <div className="mx-auto max-w-[1000px] px-6 py-12">
       <h1 className="mb-8 text-4xl">Giỏ hàng của bạn</h1>
@@ -2731,10 +2915,34 @@ function Cart() {
       ) : (
         <div className="grid gap-8 md:grid-cols-[1.5fr_1fr]">
           <div className="flex flex-col items-center gap-6 rounded-3xl border border-border bg-white p-6 sm:flex-row">
-            <Cover className="h-40 w-28 shrink-0" />
+            {product.isCombo ? (
+              <div className="grid w-44 shrink-0 grid-cols-3 gap-1">
+                {bookProducts.filter((book) => !book.isCombo).map((book) => (
+                  <img
+                    key={book.id}
+                    src={book.cover}
+                    alt={`Bìa ${book.title}`}
+                    className="w-full rounded-md"
+                  />
+                ))}
+              </div>
+            ) : (
+              <img
+                src={product.cover}
+                alt={`Bìa ${product.title}`}
+                className="w-56 shrink-0 rounded-xl"
+              />
+            )}
             <div>
-              <h3 className="mb-4 text-xl">{bookTitle}</h3>
-              <p className="mb-4">189.000đ</p>
+              <h3 className="mb-2 text-xl">{product.title}</h3>
+              <p className="mb-4 text-lg font-bold text-primary">
+                {money(product.price)}
+                {product.compareAt && (
+                  <span className="ml-2 text-sm font-normal text-[#4A5461]/60 line-through">
+                    {money(product.compareAt)}
+                  </span>
+                )}
+              </p>
               <Qty value={quantity} onChange={setQuantity} />
               <button
                 onClick={() => setQuantity(0)}
@@ -2745,7 +2953,7 @@ function Cart() {
               </button>
             </div>
           </div>
-          <Summary quantity={quantity} />
+          <Summary quantity={quantity} productId={cartProductId} />
         </div>
       )}
     </div>
@@ -2753,20 +2961,23 @@ function Cart() {
 }
 function Summary({
   quantity,
+  productId,
   checkout = false,
 }: {
   quantity: number
+  productId: string
   checkout?: boolean
 }) {
+  const product = getBookProduct(productId)
   return (
     <div className="rounded-3xl border border-border bg-white p-7">
       <h3 className="mb-6 text-2xl">Đơn hàng của bạn</h3>
       <p className="mb-5 text-sm">
-        {bookTitle} × {quantity}
+        {product.title} × {quantity}
       </p>
       <div className="mb-3 flex justify-between text-base">
         <span>Tạm tính</span>
-        <span>{money(quantity * 189000)}</span>
+        <span>{money(quantity * product.price)}</span>
       </div>
       <div className="mb-5 flex justify-between text-base">
         <span>Phí giao hàng</span>
@@ -2774,15 +2985,15 @@ function Summary({
       </div>
       <div className="flex justify-between border-t border-border pt-5 text-lg font-bold">
         <span>Tổng cộng</span>
-        <span>{money(quantity * 189000 + 25000)}</span>
+        <span>{money(quantity * product.price + 25000)}</span>
       </div>
       {!checkout && (
         <Button to="/checkout" className="mt-7 w-full">
-          Tiến hành thanh toán <ArrowRight size={16} />
+          Tiếp tục đặt trước <ArrowRight size={16} />
         </Button>
       )}
       <p className="mt-5 flex justify-center gap-2 text-sm text-[#4A5461]">
-        <ShieldCheck size={15} /> Thanh toán an toàn
+        <ShieldCheck size={15} /> Không cần thanh toán trực tuyến
       </p>
     </div>
   )
@@ -2817,8 +3028,9 @@ function Field({
   )
 }
 function Checkout() {
-  const { quantity, setQuantity, notify } = useStore()
+  const { quantity, setQuantity, cartProductId, notify } = useStore()
   const navigate = useNavigate()
+  const product = getBookProduct(cartProductId)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState("")
   return (
@@ -2827,7 +3039,7 @@ function Checkout() {
         Giỏ hàng → <b className="text-primary">Thông tin & thanh toán</b> → Hoàn
         tất
       </p>
-      <h1 className="mb-9 text-4xl">Mang Riko về nhà</h1>
+      <h1 className="mb-9 text-4xl">Đặt trước sách Riko</h1>
       <div className="grid items-start gap-10 md:grid-cols-[1.5fr_1fr]">
         <form
           onSubmit={async (event) => {
@@ -2838,18 +3050,19 @@ function Checkout() {
             const orderQuantity = Math.max(1, quantity)
             try {
               const order = await createOrder({
+                productId: product.id,
                 customerName: String(data.get("customerName") || "").trim(),
                 phone: String(data.get("phone") || "").trim(),
                 email: String(data.get("email") || "").trim(),
                 province: String(data.get("province") || "").trim(),
                 address: String(data.get("address") || "").trim(),
                 quantity: orderQuantity,
-                total: orderQuantity * 189000 + 25000,
+                total: orderQuantity * product.price + 25000,
               })
               localStorage.setItem("rikokid-last-order", order.orderCode)
               setQuantity(0)
               navigate("/order-success", {
-                state: { orderCode: order.orderCode },
+                state: { orderCode: order.orderCode, productId: product.id },
               })
             } catch (cause) {
               const message =
@@ -2862,7 +3075,7 @@ function Checkout() {
           }}
           className="space-y-6"
         >
-          <h3 className="text-xl">Thông tin người nhận</h3>
+          <h3 className="text-xl">Thông tin đặt trước</h3>
           <div className="grid gap-5 sm:grid-cols-2">
             <Field label="Họ tên" name="customerName" />
             <Field label="Số điện thoại" name="phone" type="tel" />
@@ -2870,13 +3083,14 @@ function Checkout() {
             <Field label="Tỉnh / Thành phố" name="province" />
           </div>
           <Field label="Địa chỉ nhận sách" name="address" />
-          <h3 className="text-xl">Giao hàng & thanh toán</h3>
-          <div className="rounded-xl border border-border p-4 text-sm">
-            Giao hàng tiêu chuẩn · 3–5 ngày · 25.000đ
+          <h3 className="text-xl">Xác nhận đặt trước</h3>
+          <div className="rounded-xl border border-border p-4 text-sm leading-6">
+            Rikokid sẽ liên hệ xác nhận đơn và thời gian giao hàng. Phí giao
+            hàng dự kiến: 25.000đ.
           </div>
           <label className="flex gap-3 rounded-xl border border-border p-4 text-sm">
-            <input type="radio" defaultChecked name="payment" /> Thanh toán khi
-            nhận hàng (COD)
+            <input type="radio" defaultChecked name="payment" /> Dự kiến thanh
+            toán khi nhận sách (COD; Rikokid sẽ xác nhận lại)
           </label>
           {error && (
             <p
@@ -2887,19 +3101,23 @@ function Checkout() {
             </p>
           )}
           <p className="text-sm leading-6 text-[#4A5461]">
-            Đơn hàng sẽ được lưu an toàn để đội ngũ Rikokid xác nhận. Thanh toán
-            hiện theo hình thức COD khi nhận sách.
+            Đây là yêu cầu đặt trước. Đội ngũ Rikokid sẽ liên hệ bạn để xác nhận
+            sản phẩm, thời gian giao và hình thức thanh toán trước khi gửi sách.
           </p>
           <button
             disabled={submitting}
             type="submit"
             className="w-full rounded-full bg-primary py-4 text-base font-semibold text-white disabled:opacity-60"
           >
-            {submitting ? "Đang gửi đơn hàng..." : "Đặt hàng"}{" "}
+            {submitting ? "Đang gửi yêu cầu..." : "Gửi yêu cầu đặt trước"}{" "}
             <span className="ml-2">→</span>
           </button>
         </form>
-        <Summary quantity={Math.max(1, quantity)} checkout />
+        <Summary
+          quantity={Math.max(1, quantity)}
+          productId={cartProductId}
+          checkout
+        />
       </div>
     </div>
   )
@@ -2914,8 +3132,8 @@ function Success() {
   return (
     <div className="mx-auto max-w-[700px] px-6 py-12 text-center">
       <Mascot pose="celebrating" className="mx-auto h-60" />
-      <h1 className="text-4xl">Đặt hàng thành công!</h1>
-      <p className="mt-5 text-lg">Riko đang trên đường đến với bạn!</p>
+      <h1 className="text-4xl">Đã nhận yêu cầu đặt trước!</h1>
+      <p className="mt-5 text-lg">Rikokid sẽ liên hệ để xác nhận đơn hàng.</p>
       <p className="my-5 text-sm text-[#4A5461]">Mã đơn hàng #{orderCode}</p>
       <div className="flex flex-wrap justify-center gap-3">
         <Button onClick={() => setTrack(!track)}>Theo dõi đơn hàng</Button>
@@ -3136,6 +3354,236 @@ function Login() {
           Rikokid.
         </p>
       </form>
+    </div>
+  )
+}
+
+function QuizAccount() {
+  const {
+    quizUser,
+    quizAuthReady,
+    loginQuiz,
+    registerQuiz,
+    updateQuizAccountProfile,
+    logoutQuiz,
+  } = useStore()
+  const [registerMode, setRegisterMode] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState("")
+  const [message, setMessage] = useState("")
+  const totalBestPoints = quizUser
+    ? Object.values(quizUser.quizProfile.bestScores).reduce(
+        (total, value) => total + Number(value || 0),
+        0,
+      )
+    : 0
+
+  if (!quizAuthReady) {
+    return (
+      <div className="mx-auto max-w-xl px-6 py-20 text-center text-primary">
+        Đang tải hồ sơ nhà thám hiểm…
+      </div>
+    )
+  }
+
+  if (quizUser) {
+    return (
+      <div className="mx-auto max-w-2xl px-6 py-12">
+        <div className="rounded-3xl border border-primary/10 bg-[#FFFEF0] p-6 md:p-9">
+          <Eyebrow>HỒ SƠ NHÀ THÁM HIỂM</Eyebrow>
+          <h1 className="text-3xl md:text-4xl">
+            Chào {quizUser.quizProfile.childNickname || quizUser.name}!
+          </h1>
+          <p className="mt-3 text-sm text-[#4A5461]">
+            Tài khoản phụ huynh · {quizUser.email}
+          </p>
+          <div className="my-6 grid gap-3 sm:grid-cols-2">
+            <div className="rounded-2xl bg-white p-5">
+              <b className="text-3xl text-primary">{totalBestPoints}</b>
+              <p className="mt-1 text-sm text-[#4A5461]">Điểm tốt nhất đã lưu</p>
+            </div>
+            <div className="rounded-2xl bg-white p-5">
+              <b className="text-3xl text-primary">
+                {Object.keys(quizUser.quizProfile.bestScores).length}
+              </b>
+              <p className="mt-1 text-sm text-[#4A5461]">Quiz đã hoàn thành</p>
+            </div>
+          </div>
+          {Object.keys(quizUser.quizProfile.bestScores).length > 0 && (
+            <div className="mb-6 rounded-2xl bg-white p-5">
+              <h2 className="mb-3 font-bold text-primary">Thành tích gần đây</h2>
+              <ul className="space-y-2 text-sm text-[#4A5461]">
+                {Object.entries(quizUser.quizProfile.bestScores).map(([key, value]) => (
+                  <li key={key} className="flex justify-between gap-4">
+                    <span>{key.startsWith("chapter-") ? `Chương ${key.slice(8)}` : key}</span>
+                    <b>{value} điểm</b>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          <form
+            key={quizUser.$id}
+            onSubmit={async (event) => {
+              event.preventDefault()
+              setError("")
+              setMessage("")
+              setSubmitting(true)
+              const data = new FormData(event.currentTarget)
+              try {
+                await updateQuizAccountProfile({
+                  ...quizUser.quizProfile,
+                  childNickname: String(data.get("childNickname") || "").trim(),
+                  interests: String(data.get("interests") || "")
+                    .split(/[,،]/)
+                    .map((interest) => interest.trim())
+                    .filter(Boolean)
+                    .slice(0, 8),
+                })
+                setMessage("Đã cập nhật sở thích và biệt danh của bé.")
+              } catch (cause) {
+                setError(cause instanceof Error ? cause.message : "Chưa lưu được hồ sơ.")
+              } finally {
+                setSubmitting(false)
+              }
+            }}
+            className="space-y-4 rounded-2xl bg-white p-5"
+          >
+            <h2 className="font-bold text-primary">Cá nhân hóa quiz</h2>
+            <label className="block text-sm font-medium">
+              Biệt danh của bé
+              <input
+                name="childNickname"
+                maxLength={32}
+                defaultValue={quizUser.quizProfile.childNickname}
+                placeholder="Ví dụ: Mít"
+                className="mt-2 block w-full rounded-xl border border-primary/15 px-4 py-3 outline-none focus:border-primary"
+              />
+            </label>
+            <label className="block text-sm font-medium">
+              Chủ đề bé yêu thích
+              <input
+                name="interests"
+                defaultValue={quizUser.quizProfile.interests.join(", ")}
+                placeholder="Động vật, phương tiện, thiên nhiên"
+                className="mt-2 block w-full rounded-xl border border-primary/15 px-4 py-3 outline-none focus:border-primary"
+              />
+            </label>
+            {message && <p role="status" className="text-sm text-[#28823F]">{message}</p>}
+            {error && <p role="alert" className="text-sm text-[#B83E2C]">{error}</p>}
+            <button
+              disabled={submitting}
+              className="rounded-full bg-primary px-5 py-3 font-semibold text-white disabled:opacity-60"
+            >
+              {submitting ? "Đang lưu…" : "Lưu hồ sơ"}
+            </button>
+          </form>
+          <div className="mt-5 flex flex-wrap gap-3">
+            <Button to="/quizzes"><Gamepad2 size={16} /> Tiếp tục chơi quiz</Button>
+            <Button secondary onClick={() => void logoutQuiz()}>Đăng xuất</Button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="mx-auto max-w-xl px-6 py-12">
+      <div className="rounded-3xl border border-primary/10 bg-[#FFFEF0] p-6 md:p-9">
+        <Mascot pose="encouraging" className="mx-auto h-36" />
+        <Eyebrow>TÀI KHOẢN PHỤ HUYNH</Eyebrow>
+        <h1 className="text-3xl md:text-4xl">
+          Lưu hành trình của bé
+        </h1>
+        <p className="my-4 text-sm leading-6 text-[#4A5461]">
+          Điểm tốt nhất và huy hiệu quiz được đồng bộ vào hồ sơ. Chỉ cần email
+          của phụ huynh; bé có thể dùng biệt danh và chọn chủ đề yêu thích.
+        </p>
+        <form
+          onSubmit={async (event) => {
+            event.preventDefault()
+            setError("")
+            setSubmitting(true)
+            const data = new FormData(event.currentTarget)
+            const email = String(data.get("email") || "").trim()
+            const password = String(data.get("password") || "")
+            try {
+              if (registerMode) {
+                await registerQuiz({
+                  guardianName: String(data.get("guardianName") || "").trim(),
+                  email,
+                  password,
+                  childNickname: String(data.get("childNickname") || "").trim(),
+                  interests: String(data.get("interests") || "")
+                    .split(/[,،]/)
+                    .map((interest) => interest.trim())
+                    .filter(Boolean)
+                    .slice(0, 8),
+                })
+              } else {
+                await loginQuiz(email, password)
+              }
+            } catch (cause) {
+              setError(cause instanceof Error ? cause.message : "Không đăng nhập được.")
+            } finally {
+              setSubmitting(false)
+            }
+          }}
+          className="space-y-4"
+        >
+          {registerMode && <Field label="Tên phụ huynh" name="guardianName" />}
+          <Field label="Email phụ huynh" name="email" type="email" />
+          <Field label="Mật khẩu" name="password" type="password" minLength={8} />
+          {registerMode && (
+            <>
+              <label className="block text-sm font-medium">
+                Biệt danh của bé <span className="font-normal text-[#4A5461]">(không bắt buộc)</span>
+                <input
+                  name="childNickname"
+                  maxLength={32}
+                  placeholder="Ví dụ: Mít"
+                  className="mt-2 block w-full rounded-xl border border-primary/15 bg-white px-4 py-3.5 outline-none focus:border-primary"
+                />
+              </label>
+              <label className="block text-sm font-medium">
+                Chủ đề bé yêu thích <span className="font-normal text-[#4A5461]">(không bắt buộc)</span>
+                <input
+                  name="interests"
+                  placeholder="Động vật, phương tiện, thiên nhiên"
+                  className="mt-2 block w-full rounded-xl border border-primary/15 bg-white px-4 py-3.5 outline-none focus:border-primary"
+                />
+              </label>
+            </>
+          )}
+          {!isAppwriteConfigured && (
+            <p role="status" className="rounded-xl bg-[#FBAF37]/15 p-4 text-sm text-[#6E493E]">
+              Chưa cấu hình Appwrite cho môi trường này. Điểm quiz vẫn được giữ
+              trên thiết bị; đăng nhập đồng bộ cần kết nối Appwrite.
+            </p>
+          )}
+          {error && <p role="alert" className="rounded-xl bg-[#F15A3E]/10 p-4 text-sm text-[#B83E2C]">{error}</p>}
+          <button
+            disabled={submitting || !isAppwriteConfigured}
+            className="w-full rounded-full bg-primary py-4 font-semibold text-white disabled:opacity-60"
+          >
+            {submitting
+              ? "Đang xử lý…"
+              : registerMode
+                ? "Tạo tài khoản phụ huynh"
+                : "Đăng nhập và đồng bộ"}
+          </button>
+        </form>
+        <button
+          type="button"
+          onClick={() => {
+            setRegisterMode(!registerMode)
+            setError("")
+          }}
+          className="mt-5 w-full text-sm font-semibold text-primary underline underline-offset-4"
+        >
+          {registerMode ? "Đã có tài khoản? Đăng nhập" : "Chưa có tài khoản? Tạo hồ sơ mới"}
+        </button>
+      </div>
     </div>
   )
 }
@@ -4348,6 +4796,7 @@ function OrdersAdmin() {
       .finally(() => setLoading(false))
   }, [notify])
   const statuses = [
+    "Đặt trước",
     "Mới nhận",
     "Đang chuẩn bị",
     "Đang giao",
@@ -4389,6 +4838,11 @@ function OrdersAdmin() {
                 <tr key={order.id} className="border-t border-border align-top">
                   <td className="whitespace-nowrap p-4 font-bold text-primary">
                     {order.orderCode}
+                    <span className="mt-1 block whitespace-normal text-xs font-medium text-[#4A5461]">
+                      {order.productId
+                        ? getBookProduct(order.productId).title
+                        : "Đơn sách cũ"}
+                    </span>
                   </td>
                   <td className="p-4">{order.customerName}</td>
                   <td className="p-4 text-xs leading-6">
@@ -4461,7 +4915,9 @@ function AdminOther() {
           <Cover className="h-64 w-45" />
           <div>
             <h3 className="text-3xl">{bookTitle}</h3>
-            <p className="my-4 text-sm">64 trang · 6–12 tuổi · 189.000đ</p>
+            <p className="my-4 text-sm leading-6">
+              3 chủ đề · 299.000đ/quyển (giá cũ 350.000đ) · Combo 799.000đ
+            </p>
             <Button to="/book">Xem sách</Button>
           </div>
         </div>
@@ -4500,11 +4956,21 @@ function Provider({ children }: { children: ReactNode }) {
   const [quantity, setQuantity] = useState(
     () => Number(localStorage.getItem("rikokid-cart")) || 0,
   )
+  const [cartProductId, setCartProductId] = useState(
+    () => localStorage.getItem("rikokid-cart-product") || "vehicles",
+  )
   const [videos, setVideos] = useState<VideoItem[]>(
     isAppwriteConfigured ? [] : initialVideos,
   )
   const [quizzes, setQuizzes] = useState<QuizRecord[]>([])
-  const [score, setScore] = useState(0)
+  const [score, setScore] = useState(
+    () => Number(localStorage.getItem("rikokid-quiz-score")) || 0,
+  )
+  const [lastQuizKey, setLastQuizKey] = useState(
+    () => localStorage.getItem("rikokid-last-quiz") || "general",
+  )
+  const [quizUser, setQuizUser] = useState<QuizUser | null>(null)
+  const [quizAuthReady, setQuizAuthReady] = useState(!isAppwriteConfigured)
   const [toast, setToast] = useState("")
   const [adminUser, setAdminUser] = useState<{
     $id: string
@@ -4524,6 +4990,48 @@ function Provider({ children }: { children: ReactNode }) {
   useEffect(() => {
     localStorage.setItem("rikokid-cart", String(quantity))
   }, [quantity])
+  useEffect(() => {
+    localStorage.setItem("rikokid-cart-product", cartProductId)
+  }, [cartProductId])
+  useEffect(() => {
+    localStorage.setItem("rikokid-quiz-score", String(score))
+  }, [score])
+  useEffect(() => {
+    localStorage.setItem("rikokid-last-quiz", lastQuizKey)
+  }, [lastQuizKey])
+  useEffect(() => {
+    if (!isAppwriteConfigured) {
+      setQuizAuthReady(true)
+      return
+    }
+    let active = true
+    getQuizUser()
+      .then(async (user) => (user ? mergeGuestQuizScores(user) : null))
+      .then((user) => {
+        if (active) setQuizUser(user)
+      })
+      .catch(() => {
+        if (active) setQuizUser(null)
+      })
+      .finally(() => {
+        if (active) setQuizAuthReady(true)
+      })
+    return () => {
+      active = false
+    }
+  }, [])
+  const saveQuizProgress = useCallback(
+    async (key: string, resultScore: number) => {
+      const scores = guestQuizScores()
+      scores[key] = Math.max(scores[key] || 0, Math.max(0, resultScore))
+      localStorage.setItem("rikokid-quiz-scores", JSON.stringify(scores))
+      if (quizUser) {
+        const user = await saveQuizResultToAccount(key, resultScore)
+        setQuizUser(user)
+      }
+    },
+    [quizUser],
+  )
   const ensureAdminSession = useCallback(() => {
     if (!isAppwriteConfigured) {
       setAuthReady(true)
@@ -4598,12 +5106,43 @@ function Provider({ children }: { children: ReactNode }) {
       value={{
         quantity,
         setQuantity,
+        cartProductId,
+        setCartProductId,
         videos,
         setVideos,
         quizzes,
         setQuizzes,
         score,
         setScore,
+        lastQuizKey,
+        setLastQuizKey,
+        quizUser,
+        quizAuthReady,
+        loginQuiz: async (email, password) => {
+          const user = await loginQuizUser(email, password)
+          setQuizUser(await mergeGuestQuizScores(user))
+          adminUserRef.current = null
+          setAdminUser(null)
+          setAuthReady(true)
+        },
+        registerQuiz: async (input) => {
+          const user = await registerQuizUser(input)
+          setQuizUser(await mergeGuestQuizScores(user))
+          adminUserRef.current = null
+          setAdminUser(null)
+          setAuthReady(true)
+        },
+        updateQuizAccountProfile: async (profile) => {
+          setQuizUser(await updateQuizProfile(profile))
+        },
+        logoutQuiz: async () => {
+          await logoutQuizUser()
+          setQuizUser(null)
+          adminUserRef.current = null
+          setAdminUser(null)
+          setAuthReady(true)
+        },
+        saveQuizProgress,
         adminUser,
         authReady,
         ensureAdminSession,
@@ -4663,6 +5202,7 @@ const router = createBrowserRouter([
       { path: "order-success", Component: Success },
       { path: "about", Component: About },
       { path: "parents", element: <About parents /> },
+      { path: "tai-khoan", Component: QuizAccount },
       { path: "login", Component: Login },
       { path: "recovery", Component: PasswordRecovery },
       {

@@ -10,6 +10,7 @@ import {
   Teams,
 } from "appwrite"
 import { appwriteConfig, isAppwriteConfigured } from "./appwriteConfig"
+import { orderCodeProductId } from "../data/bookProducts"
 export { appwriteConfig, isAppwriteConfigured } from "./appwriteConfig"
 
 export type VideoRecord = {
@@ -45,6 +46,7 @@ export type QuizRecord = {
 export type OrderRecord = {
   id: string
   orderCode: string
+  productId: string | null
   customerName: string
   phone: string
   email: string
@@ -54,6 +56,40 @@ export type OrderRecord = {
   total: number
   status: string
   createdAt: string
+}
+
+export type QuizProfile = {
+  childNickname: string
+  interests: string[]
+  bestScores: Record<string, number>
+}
+
+export type QuizUser = {
+  $id: string
+  name: string
+  email: string
+  quizProfile: QuizProfile
+}
+
+function normalizeQuizProfile(value: unknown): QuizProfile {
+  const profile = value && typeof value === "object"
+    ? (value as Partial<QuizProfile>)
+    : {}
+  const scores = profile.bestScores && typeof profile.bestScores === "object"
+    ? Object.fromEntries(
+        Object.entries(profile.bestScores).map(([key, score]) => [
+          key,
+          Math.max(0, Number(score) || 0),
+        ]),
+      )
+    : {}
+  return {
+    childNickname: String(profile.childNickname || ""),
+    interests: Array.isArray(profile.interests)
+      ? profile.interests.map(String).filter(Boolean).slice(0, 8)
+      : [],
+    bestScores: scores,
+  }
 }
 
 const client = new Client()
@@ -288,6 +324,7 @@ export async function deleteVideo(video: VideoRecord) {
 }
 
 export async function createOrder(input: {
+  productId: string
   customerName: string
   phone: string
   email: string
@@ -297,15 +334,16 @@ export async function createOrder(input: {
   total: number
 }) {
   requireAppwrite()
-  const orderCode = `RIKO-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}-${ID.unique().slice(0, 6).toUpperCase()}`
+  const { productId, ...orderData } = input
+  const orderCode = `RIKO-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}-${ID.unique().slice(0, 6).toUpperCase()}-${productId.toUpperCase()}`
   const row = await tables.createRow({
     databaseId: appwriteConfig.databaseId,
     tableId: appwriteConfig.ordersTableId,
     rowId: ID.unique(),
     data: {
-      ...input,
+      ...orderData,
       orderCode,
-      status: "Mới nhận",
+      status: "Đặt trước",
     },
     permissions: adminRowPermissions(),
   })
@@ -322,6 +360,7 @@ export async function listOrders(): Promise<OrderRecord[]> {
   return result.rows.map((row) => ({
     id: row.$id,
     orderCode: String(row.orderCode || row.$id),
+    productId: orderCodeProductId(String(row.orderCode || "")),
     customerName: String(row.customerName || ""),
     phone: String(row.phone || ""),
     email: String(row.email || ""),
@@ -451,6 +490,94 @@ export async function completePasswordRecovery(
 }
 
 export async function logoutAdmin() {
+  if (!isAppwriteConfigured) return
+  await account.deleteSession({ sessionId: "current" }).catch(() => undefined)
+}
+
+export async function getQuizUser(): Promise<QuizUser | null> {
+  if (!isAppwriteConfigured) return null
+  try {
+    const user = await account.get()
+    const prefs = await account.getPrefs<Record<string, unknown>>()
+    return {
+      $id: user.$id,
+      name: user.name,
+      email: user.email,
+      quizProfile: normalizeQuizProfile(prefs.quizProfile),
+    }
+  } catch {
+    return null
+  }
+}
+
+export async function registerQuizUser(input: {
+  guardianName: string
+  email: string
+  password: string
+  childNickname: string
+  interests: string[]
+}): Promise<QuizUser> {
+  requireAppwrite()
+  await account.create({
+    userId: ID.unique(),
+    email: input.email.trim(),
+    password: input.password,
+    name: input.guardianName.trim(),
+  })
+  await account.createEmailPasswordSession({
+    email: input.email.trim(),
+    password: input.password,
+  })
+  const prefs = await account.getPrefs<Record<string, unknown>>()
+  await account.updatePrefs({
+    prefs: {
+      ...prefs,
+      quizProfile: normalizeQuizProfile({
+        childNickname: input.childNickname,
+        interests: input.interests,
+        bestScores: {},
+      }),
+    },
+  })
+  const user = await getQuizUser()
+  if (!user) throw new Error("Đã tạo tài khoản nhưng chưa tải được hồ sơ quiz.")
+  return user
+}
+
+export async function loginQuizUser(email: string, password: string) {
+  requireAppwrite()
+  await account.createEmailPasswordSession({ email: email.trim(), password })
+  const user = await getQuizUser()
+  if (!user) throw new Error("Không tải được hồ sơ quiz sau khi đăng nhập.")
+  return user
+}
+
+export async function updateQuizProfile(profile: QuizProfile) {
+  requireAppwrite()
+  const prefs = await account.getPrefs<Record<string, unknown>>()
+  await account.updatePrefs({
+    prefs: { ...prefs, quizProfile: normalizeQuizProfile(profile) },
+  })
+  const user = await getQuizUser()
+  if (!user) throw new Error("Không tải được hồ sơ quiz đã cập nhật.")
+  return user
+}
+
+export async function saveQuizResult(quizKey: string, score: number) {
+  requireAppwrite()
+  const prefs = await account.getPrefs<Record<string, unknown>>()
+  const profile = normalizeQuizProfile(prefs.quizProfile)
+  profile.bestScores[quizKey] = Math.max(
+    profile.bestScores[quizKey] || 0,
+    Math.max(0, Math.floor(score)),
+  )
+  await account.updatePrefs({ prefs: { ...prefs, quizProfile: profile } })
+  const user = await getQuizUser()
+  if (!user) throw new Error("Không tải được tiến độ quiz đã lưu.")
+  return user
+}
+
+export async function logoutQuizUser() {
   if (!isAppwriteConfigured) return
   await account.deleteSession({ sessionId: "current" }).catch(() => undefined)
 }

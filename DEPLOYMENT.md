@@ -39,6 +39,9 @@ names in its SDK requests.
 Enable row security. Give the `Any` role **Create** only. Give the
 `Rikokid Admins` team **Create**, **Read**, **Update**, and **Delete**. Each
 order row is created with admin-team-only read, update, and delete permissions.
+New preorder rows use the existing `status` value `Đặt trước`. Their product
+SKU (`vehicles`, `animals`, `nature`, or `combo3`) is appended to `orderCode`,
+so the current Appwrite table schema does not need another column.
 
 ### Videos
 
