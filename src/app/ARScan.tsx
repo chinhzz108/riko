@@ -217,7 +217,6 @@ function makeVideoElement() {
   video.preload = "auto"
   video.autoplay = true
   video.loop = true
-  video.muted = true
   video.playsInline = true
   video.setAttribute("playsinline", "")
   video.setAttribute("webkit-playsinline", "")
@@ -372,6 +371,7 @@ export default function ARScan({ runtime }: { runtime?: ARScanRuntime } = {}) {
   const selectionRef = useRef<Selection | null>(null)
   const videoManifestRef = useRef<Promise<VideoAsset[]> | null>(null)
   const playbackSessionRef = useRef(createARPlaybackSession())
+  const soundOnRef = useRef(true)
   const recognitionPauseRef = useRef<ReturnType<typeof createRecognitionPause> | null>(null)
   const presentStageRef = useRef<(() => void) | null>(null)
   const followVideoRef = useRef<(() => void) | null>(null)
@@ -390,7 +390,8 @@ export default function ARScan({ runtime }: { runtime?: ARScanRuntime } = {}) {
   const [cameraSize, setCameraSize] = useState("")
   const [torchSupported, setTorchSupported] = useState(false)
   const [torchOn, setTorchOn] = useState(false)
-  const [soundOn, setSoundOn] = useState(false)
+  const [soundOn, setSoundOn] = useState(true)
+  const [audioNeedsTap, setAudioNeedsTap] = useState(false)
   const [scannedQR, setScannedQR] = useState("")
   const [presentationScale, setPresentationScale] = useState(1)
 
@@ -422,7 +423,9 @@ export default function ARScan({ runtime }: { runtime?: ARScanRuntime } = {}) {
     pendingQRRef.current = null
     setScannedQR("")
     setTrackedPageLabel(next.slot.label)
-    setSoundOn(false)
+    soundOnRef.current = true
+    setSoundOn(true)
+    setAudioNeedsTap(false)
     presentationScaleRef.current = 1
     setPresentationScale(1)
     for (const record of planeRecordsRef.current) record.offset = { x: 0, y: 0 }
@@ -569,8 +572,8 @@ export default function ARScan({ runtime }: { runtime?: ARScanRuntime } = {}) {
     media.video.pause()
     media.colorVideo.pause()
     media.maskVideo.pause()
-    media.video.muted = true
-    media.colorVideo.muted = true
+    media.video.muted = !soundOnRef.current
+    media.colorVideo.muted = !soundOnRef.current
     media.maskVideo.muted = true
 
     const setSource = (video: HTMLVideoElement, url: string) => {
@@ -589,8 +592,19 @@ export default function ARScan({ runtime }: { runtime?: ARScanRuntime } = {}) {
       url: string,
     ) => {
       setSource(video, url)
-      const playback = video.play()
-      await playback
+      try {
+        await video.play()
+      } catch (cause) {
+        if (cause instanceof Error && cause.name === "NotAllowedError" && !video.muted) {
+          soundOnRef.current = false
+          setSoundOn(false)
+          setAudioNeedsTap(true)
+          video.muted = true
+          await video.play()
+        } else {
+          throw cause
+        }
+      }
       await waitForVideoFrame(video)
       texture.needsUpdate = true
     }
@@ -1288,9 +1302,23 @@ export default function ARScan({ runtime }: { runtime?: ARScanRuntime } = {}) {
 
   function toggleSound() {
     const next = !soundOn
+    soundOnRef.current = next
     setSoundOn(next)
+    setAudioNeedsTap(false)
     const media = spatialRef.current
-    if (media?.currentVideo) media.currentVideo.muted = !next
+    if (media?.currentVideo) {
+      media.currentVideo.muted = !next
+      if (next) {
+        void media.currentVideo.play().catch((cause: unknown) => {
+          if (cause instanceof Error && cause.name === "NotAllowedError") {
+            soundOnRef.current = false
+            setSoundOn(false)
+            setAudioNeedsTap(true)
+            media.currentVideo!.muted = true
+          }
+        })
+      }
+    }
   }
 
   async function toggleTorch() {
@@ -1511,6 +1539,11 @@ export default function ARScan({ runtime }: { runtime?: ARScanRuntime } = {}) {
                           <VolumeX size={16} />
                         )}
                       </button>
+                      {audioNeedsTap && (
+                        <span className="text-[10px] text-white/80">
+                          Chạm loa để bật tiếng
+                        </span>
+                      )}
                     </div>
                   </div>
                   <div className="flex items-center justify-center gap-3 border-t border-white/15 pt-2">
@@ -1618,9 +1651,27 @@ export default function ARScan({ runtime }: { runtime?: ARScanRuntime } = {}) {
                   playsInline
                   muted={!soundOn}
                   controls
+                  onCanPlay={(event) => {
+                    const video = event.currentTarget
+                    if (!soundOnRef.current) return
+                    void video.play().catch((cause: unknown) => {
+                      if (cause instanceof Error && cause.name === "NotAllowedError") {
+                        soundOnRef.current = false
+                        setSoundOn(false)
+                        setAudioNeedsTap(true)
+                        video.muted = true
+                        void video.play().catch(() => undefined)
+                      }
+                    })
+                  }}
                   className="aspect-video w-full bg-black object-contain"
                 />
                 <div className="flex items-center justify-between gap-3 px-3 py-2 text-[11px] text-[#596575]">
+                  {audioNeedsTap && (
+                    <span className="text-[#596575]">
+                      Chạm loa để bật tiếng
+                    </span>
+                  )}
                   <button
                     type="button"
                     onClick={toggleSound}
