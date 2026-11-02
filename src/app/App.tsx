@@ -105,6 +105,7 @@ import arVideoPresentations from "../data/arVideoPresentation.json"
 import { bookProducts, getBookProduct } from "../data/bookProducts"
 import HomeBookSection from "./HomeBookSection"
 import BookShop from "./BookShop"
+import BookCatalog from "./BookCatalog"
 const ARScan = lazy(() => import("./ARScan"))
 
 const createOrder: typeof import("../lib/appwrite").createOrder = (...args) =>
@@ -1636,13 +1637,18 @@ function Book() {
   const navigate = useNavigate()
   const { quantity, setQuantity, cartProductId, setCartProductId, notify } = useStore()
   const requestedProduct = new URLSearchParams(location.search).get("product")
-  const selectedProduct = getBookProduct(requestedProduct || cartProductId)
+  const selectedProduct = bookProducts.find((product) => product.id === requestedProduct)
+  useEffect(() => {
+    setAmount(1)
+    window.scrollTo(0, 0)
+  }, [selectedProduct?.id])
   const selectProduct = (id: string) => {
     const search = new URLSearchParams(location.search)
     search.set("product", id)
     navigate({ pathname: "/book", search: search.toString() }, { replace: true, preventScrollReset: true })
   }
   const selectAndAdd = (checkout: boolean) => {
+    if (!selectedProduct) return
     const replacing = quantity > 0 && cartProductId !== selectedProduct.id
     setCartProductId(selectedProduct.id)
     setQuantity(checkout || replacing ? amount : quantity + amount)
@@ -1650,6 +1656,7 @@ function Book() {
       notify(replacing ? "Đã đổi lựa chọn trong giỏ hàng." : "Đã thêm sách vào giỏ hàng.")
     }
   }
+  if (!selectedProduct) return <BookCatalog />
   return (
     <BookShop
       product={selectedProduct}

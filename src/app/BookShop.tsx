@@ -1,4 +1,5 @@
 import {
+  ArrowLeft,
   ArrowRight,
   BookOpen,
   Check,
@@ -44,15 +45,27 @@ export default function BookShop({
     <div className="mx-auto max-w-[1240px] px-4 pb-8 pt-7 sm:px-6 lg:px-10">
       <nav
         aria-label="Đường dẫn"
-        className="mb-7 flex items-center gap-2 text-xs font-medium text-[#717987] sm:text-sm"
+        className="mb-7 flex flex-wrap items-center justify-between gap-4 text-xs font-medium text-[#717987] sm:text-sm"
       >
-        <Link to="/" className="transition hover:text-primary">
-          Trang chủ
+        <div className="flex flex-wrap items-center gap-2">
+          <Link to="/" className="transition hover:text-primary">
+            Trang chủ
+          </Link>
+          <ChevronRight size={14} aria-hidden="true" />
+          <Link to="/book" className="transition hover:text-primary">
+            Sách Riko
+          </Link>
+          <ChevronRight size={14} aria-hidden="true" />
+          <span aria-current="page" className="font-semibold text-primary">
+            {product.title}
+          </span>
+        </div>
+        <Link
+          to="/book"
+          className="inline-flex items-center gap-1.5 font-bold text-primary transition hover:underline"
+        >
+          <ArrowLeft size={15} /> Chọn sách khác
         </Link>
-        <ChevronRight size={14} aria-hidden="true" />
-        <span aria-current="page" className="font-semibold text-primary">
-          Sách Riko
-        </span>
       </nav>
 
       <section

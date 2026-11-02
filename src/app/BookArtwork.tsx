@@ -4,10 +4,12 @@ export default function BookArtwork({
   productId,
   className = "",
   priority = false,
+  compact = false,
 }: {
   productId: string
   className?: string
   priority?: boolean
+  compact?: boolean
 }) {
   const product = getBookProduct(productId)
   const books = product.isCombo
@@ -34,12 +36,20 @@ export default function BookArtwork({
         className="pointer-events-none absolute -bottom-[50%] -left-[15%] -z-10 aspect-square w-[85%] rounded-full bg-white/35"
       />
       {product.isCombo ? (
-        <div className="relative grid w-[82%] grid-cols-2 items-center gap-x-3 gap-y-4 py-[8%]">
+        <div
+          className={`relative grid grid-cols-2 items-center ${
+            compact
+              ? "w-[80%] gap-2 py-[3%]"
+              : "w-[82%] gap-x-3 gap-y-4 py-[8%]"
+          }`}
+        >
           {books.map((book, index) => (
             <div
               key={book.id}
               className={`book-jacket ${
-                index === 0 ? "col-span-2 mx-auto w-[64%]" : "w-full"
+                index === 0
+                  ? `col-span-2 mx-auto ${compact ? "w-[58%]" : "w-[64%]"}`
+                  : "w-full"
               }`}
             >
               <img

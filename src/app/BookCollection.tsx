@@ -6,18 +6,27 @@ import BookArtwork from "./BookArtwork"
 export default function BookCollection({
   selectedId,
   onSelect,
+  includeCombo = false,
+  actionLabel = "Xem sách",
 }: {
   selectedId?: string
   onSelect?: (id: string) => void
+  includeCombo?: boolean
+  actionLabel?: string
 }) {
   return (
-    <div className="grid gap-5 md:grid-cols-3 lg:gap-6">
+    <div
+      className={`grid gap-5 lg:gap-6 ${
+        includeCombo ? "sm:grid-cols-2 lg:grid-cols-4" : "md:grid-cols-3"
+      }`}
+    >
       {bookProducts
-        .filter((product) => !product.isCombo)
+        .filter((product) => includeCombo || !product.isCombo)
         .map((product) => {
           const selected = selectedId === product.id
-          const actionClass =
-            "group inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-primary/15 px-4 py-2.5 text-sm font-bold text-primary transition hover:border-primary hover:bg-primary hover:text-white"
+          const actionClass = `group inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-primary/15 px-4 py-2.5 text-sm font-bold text-primary transition hover:border-primary hover:bg-primary hover:text-white ${
+            includeCombo ? "w-full" : ""
+          }`
           return (
             <article
               key={product.id}
@@ -27,17 +36,55 @@ export default function BookCollection({
                   : "border-primary/10"
               }`}
             >
-              <BookArtwork productId={product.id} className="aspect-[1.35]" />
+              {onSelect ? (
+                <BookArtwork
+                  productId={product.id}
+                  compact
+                  className="aspect-[1.35]"
+                />
+              ) : (
+                <Link
+                  to={`/book?product=${product.id}`}
+                  aria-label={`Xem chi tiết ${product.title}`}
+                  className="block"
+                >
+                  <BookArtwork
+                    productId={product.id}
+                    compact
+                    className="aspect-[1.35]"
+                  />
+                </Link>
+              )}
               <div className="flex flex-1 flex-col px-5 pb-5 pt-5 lg:px-6 lg:pb-6">
-                <p className="text-[11px] font-bold uppercase tracking-[.18em] text-[#52688C]">
-                  {product.chapter} · Khám phá cùng Riko
+                <p
+                  className={`text-[11px] font-bold uppercase tracking-[.18em] text-[#52688C] ${
+                    includeCombo ? "min-h-8" : ""
+                  }`}
+                >
+                  {product.isCombo
+                    ? "Trọn bộ · Tiết kiệm 98.000đ"
+                    : `${product.chapter} · Khám phá cùng Riko`}
                 </p>
-                <h3 className="mt-2 text-[22px] leading-7">{product.title}</h3>
-                <p className="mb-6 mt-3 flex-1 text-sm font-medium leading-6 text-[#606A79]">
+                <h3
+                  className={`mt-2 leading-7 ${
+                    includeCombo ? "min-h-14 text-xl" : "text-[22px]"
+                  }`}
+                >
+                  {product.title}
+                </h3>
+                <p
+                  className={`mb-6 mt-3 text-sm font-medium leading-6 text-[#606A79] ${
+                    includeCombo ? "line-clamp-3 h-[72px] shrink-0" : "flex-1"
+                  }`}
+                >
                   {product.description}
                 </p>
-                <div className="flex flex-wrap items-center justify-between gap-3 border-t border-primary/10 pt-5">
-                  <div>
+                <div
+                  className={`flex flex-wrap justify-between gap-3 border-t border-primary/10 pt-5 ${
+                    includeCombo ? "mt-auto items-stretch" : "items-center"
+                  }`}
+                >
+                  <div className={includeCombo ? "min-h-[42px]" : undefined}>
                     <p className="text-[22px] font-bold leading-none text-primary">
                       {product.price.toLocaleString("vi-VN")}đ
                     </p>
@@ -71,10 +118,10 @@ export default function BookCollection({
                   ) : (
                     <Link
                       to={`/book?product=${product.id}`}
-                      aria-label={`Xem sách ${product.title}`}
+                      aria-label={`${actionLabel} ${product.title}`}
                       className={actionClass}
                     >
-                      Xem sách{" "}
+                      {actionLabel}{" "}
                       <ArrowRight
                         size={15}
                         className="transition-transform group-hover:translate-x-0.5"
