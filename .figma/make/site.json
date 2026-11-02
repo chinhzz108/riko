@@ -1,5 +1,10 @@
 {
-  "description": "Engage children aged 6-12 with an interactive platform that combines a children's book, educational videos, and fun quizzes, enhancing learning through play.",
+  "title": "RikoKid — Khám phá cùng Riko",
+  "description": "Cùng RikoKid khám phá thế giới qua sách, video và quiz tương tác dành cho trẻ 6–12 tuổi.",
+  "language": "vi",
+  "icons": {
+    "icon": "/favicon.png"
+  },
   "robots": {
     "index": false
   },
