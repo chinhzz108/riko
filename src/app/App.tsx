@@ -103,6 +103,8 @@ import rikoExplaining from "../assets/riko/explaining.png"
 import bookVideoManifest from "../data/bookVideoSlots.json"
 import arVideoPresentations from "../data/arVideoPresentation.json"
 import { bookProducts, getBookProduct } from "../data/bookProducts"
+import HomeBookSection from "./HomeBookSection"
+import BookShop from "./BookShop"
 const ARScan = lazy(() => import("./ARScan"))
 
 const createOrder: typeof import("../lib/appwrite").createOrder = (...args) =>
@@ -606,19 +608,19 @@ function Cover({
     </Tilt>
   )
 }
-function Logo({ transparent = false }: { transparent?: boolean }) {
+function Logo({ transparent = false, compact = false }: { transparent?: boolean; compact?: boolean }) {
   return (
     <Link
       to="/"
       aria-label="RIKOKID — Trang chủ"
-      className="relative flex h-[88px] w-[180px] shrink-0 items-center justify-center overflow-hidden"
+      className={`relative flex shrink-0 items-center justify-center overflow-hidden ${compact ? "h-20 w-20 min-[360px]:w-24 min-[400px]:w-32 sm:w-40 xl:w-45" : "h-[88px] w-[180px]"}`}
     >
       <img
         src={transparent ? rikokidLogoTransparent : rikokidLogo}
         alt=""
         loading={transparent ? "lazy" : undefined}
         decoding="async"
-        className="absolute left-1/2 w-[220px] max-w-none -translate-x-1/2 -translate-y-1/2"
+        className={`absolute left-1/2 max-w-none -translate-x-1/2 -translate-y-1/2 ${compact ? "w-28 min-[360px]:w-32 min-[400px]:w-40 sm:w-50 xl:w-55" : "w-[220px]"}`}
         style={{ top: "calc(50% - 2px)" }}
       />
     </Link>
@@ -627,7 +629,7 @@ function Logo({ transparent = false }: { transparent?: boolean }) {
 function Header() {
   const [open, setOpen] = useState(false)
   const { enabled } = useMotionPreferences()
-  const { quantity } = useStore()
+  const { quantity, quizUser } = useStore()
   const location = useLocation()
   useEffect(() => setOpen(false), [location])
   const links = [
@@ -638,9 +640,9 @@ function Header() {
     ["Về Riko", "/about"],
   ]
   return (
-    <header className="sticky top-0 z-30 border-b border-border/60 bg-background/95">
-      <div className="mx-auto flex h-23 max-w-[1240px] items-center justify-between px-6 lg:px-10">
-        <Logo />
+    <header className="sticky top-0 z-30 border-b border-border/60 bg-background/95 backdrop-blur-md">
+      <div className="mx-auto flex h-21 max-w-[1280px] items-center justify-between gap-1 px-3 sm:gap-2 sm:px-6 lg:px-8">
+        <Logo compact />
         <nav className="hidden items-center gap-3 lg:flex xl:gap-5">
           {links.map(([label, path]) => (
             <Link
@@ -668,13 +670,13 @@ function Header() {
           ))}
         </nav>
         <div className="flex items-center gap-1 sm:gap-3">
-          <div className="hidden lg:block">
+          <div className="hidden xl:block">
             <MotionToggle />
           </div>
           <Link
             to="/cart"
             aria-label="Giỏ hàng"
-            className="relative rounded-full p-3 text-primary transition hover:bg-primary/5"
+            className="relative rounded-full p-2 text-primary transition hover:bg-primary/5 sm:p-3"
           >
             <ShoppingBag size={21} />
             {quantity > 0 && (
@@ -685,13 +687,15 @@ function Header() {
           </Link>
           <Link
             to="/tai-khoan"
-            aria-label="Tài khoản quiz"
+            aria-label={quizUser ? "Tài khoản phụ huynh" : "Đăng nhập tài khoản phụ huynh"}
             title="Tài khoản phụ huynh"
-            className="rounded-full p-3 text-primary transition hover:bg-primary/5"
+            aria-current={location.pathname === "/tai-khoan" ? "page" : undefined}
+            className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-[#FBAF37] bg-[#FBAF37] px-2.5 py-2.5 text-xs font-bold text-[#293D79] shadow-[0_4px_14px_#FBAF3733] transition hover:-translate-y-0.5 hover:bg-[#FFC567] hover:shadow-[0_7px_20px_#FBAF3744] sm:gap-2 sm:px-3 sm:text-sm xl:px-4"
           >
-            <UserRound size={20} />
+            <UserRound size={17} />
+            <span>{quizUser ? "Tài khoản" : "Đăng nhập"}</span>
           </Link>
-          <div className="hidden md:block">
+          <div className="hidden xl:block">
             <Button to="/book" className="!px-5 !py-3">
               Đặt trước <ArrowRight size={15} />
             </Button>
@@ -699,7 +703,7 @@ function Header() {
           <button
             onClick={() => setOpen(!open)}
             className="rounded-full p-2.5 text-primary hover:bg-primary/5 lg:hidden"
-            aria-label="Mở menu"
+            aria-label={open ? "Đóng menu" : "Mở menu"}
             aria-expanded={open}
           >
             {open ? <X /> : <Menu />}
@@ -727,6 +731,13 @@ function Header() {
             <MotionToggle />
             <span className="text-sm text-primary">Chuyển động nhẹ nhàng</span>
           </div>
+          <Link
+            to="/tai-khoan"
+            className="inline-flex w-fit items-center gap-2 rounded-full bg-[#FBAF37] px-4 py-3 font-bold text-[#293D79]"
+          >
+            <UserRound size={18} />
+            {quizUser ? "Tài khoản phụ huynh" : "Đăng nhập"}
+          </Link>
         </nav>
       )}
     </header>
@@ -907,8 +918,6 @@ function StoryQR() {
   )
 }
 function Home() {
-  const { quantity, setQuantity, setCartProductId, notify } = useStore()
-  const [amount, setAmount] = useState(1)
   const { enabled } = useMotionPreferences()
   return (
     <>
@@ -1279,106 +1288,7 @@ function Home() {
           ))}
         </div>
       </motion.section>
-      <motion.section
-        initial={enabled ? { opacity: 0, y: 14 } : false}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.08 }}
-        transition={{ duration: 0.6 }}
-        className="mx-auto max-w-[1160px] px-6 pb-15"
-      >
-        <div className="grid items-center gap-10 overflow-hidden rounded-[28px] border border-primary/10 bg-white px-7 py-10 md:grid-cols-2 md:px-12">
-          <div className="relative flex min-h-94 items-center justify-center">
-            <div className="absolute inset-5 rotate-6 rounded-[45%] bg-[#3F97D2]/10" />
-            {bookProducts.filter((product) => !product.isCombo).map((product, index) => (
-              <img
-                key={product.id}
-                src={product.cover}
-                alt={`Bìa ${product.title}`}
-                loading="lazy"
-                className={`absolute w-[58%] rounded-xl border-4 border-white shadow-xl transition duration-500 hover:z-20 hover:scale-105 ${
-                  index === 0
-                    ? "left-[4%] top-[17%] -rotate-12"
-                    : index === 1
-                      ? "left-[21%] top-[7%] z-10 rotate-2"
-                      : "right-[4%] top-[17%] rotate-12"
-                }`}
-              />
-            ))}
-            <div className="absolute bottom-4 right-4 z-20 rotate-3 rounded-full border-4 border-white bg-[#FBAF37] px-4 py-3 text-center text-xs font-bold text-[#6E493E] shadow-md">
-              3 chủ đề
-              <br />1 combo
-            </div>
-          </div>
-          <div>
-            <Eyebrow>CUỐN SÁCH CỦA RIKO</Eyebrow>
-            <h2 className="text-3xl leading-tight md:text-[40px]">
-              Ba quyển sách nhỏ.
-              <br />
-              Cả thế giới khám phá.
-            </h2>
-            <p className="mt-3 text-lg font-bold text-[#363B47]">
-              Phương tiện · Động vật · Hiện tượng thiên nhiên
-            </p>
-            <p className="mt-3 text-sm font-medium leading-7 text-[#4A5461]">
-              Ba quyển sách đưa bé khám phá phương tiện, thế giới động vật và
-              những hiện tượng thiên nhiên cùng Riko.
-            </p>
-            <div className="my-4 flex flex-wrap gap-2">
-              {["6–12 tuổi", "64 trang màu", "QR & video", "Quiz thú vị"].map(
-                (text) => (
-                  <span
-                    key={text}
-                    className="rounded-full bg-primary/5 px-3 py-1.5 text-xs font-semibold text-primary"
-                  >
-                    {text}
-                  </span>
-                ),
-              )}
-            </div>
-            <div className="flex items-center gap-2 text-xs text-[#4A5461]">
-              <span className="text-base text-[#FBAF37]">★★★★★</span> 4.9 / 5 ·
-              128 đánh giá
-            </div>
-            <div className="my-5 flex items-center gap-3">
-              <b className="text-3xl text-primary">299.000đ</b>
-              <span className="text-sm text-[#4A5461]/60 line-through">
-                350.000đ
-              </span>
-            </div>
-            <div className="flex flex-wrap items-center gap-3">
-              <Qty value={amount} onChange={setAmount} />
-              <Button
-                to="/checkout"
-                onClick={() => {
-                  setCartProductId("vehicles")
-                  setQuantity(amount)
-                }}
-              >
-                Đặt trước <ShoppingBag size={16} />
-              </Button>
-              <Button secondary to="/preview">
-                <BookOpen size={16} /> Xem thử
-              </Button>
-            </div>
-            <button
-              onClick={() => {
-                setCartProductId("vehicles")
-                setQuantity(quantity + amount)
-                notify("Đã thêm sách vào giỏ. Riko đang chờ bạn!")
-              }}
-              className="mt-4 text-xs font-bold text-primary underline underline-offset-4"
-            >
-              Thêm vào giỏ hàng
-            </button>
-            <Link
-              to="/book"
-              className="mt-4 block text-sm font-bold text-[#F15A3E] underline underline-offset-4"
-            >
-              Xem 3 bìa sách · Combo đủ 3 quyển 799.000đ
-            </Link>
-          </div>
-        </div>
-      </motion.section>
+      <HomeBookSection />
       <Marquee />
       <ScrollStory
         stages={[
@@ -1720,277 +1630,34 @@ function Qty({
     </div>
   )
 }
-function ProductShowcase() {
-  const { enabled, desktop } = useMotionPreferences()
-  const [active, setActive] = useState(0)
-  const steps = [
-    {
-      title: "Câu chuyện cùng Riko",
-      text: "Một ngôi sao thất lạc, những người bạn mới và một cuộc phiêu lưu đầy lòng tốt. Lật trang để mở trí tưởng tượng.",
-      icon: BookOpen,
-    },
-    {
-      title: "Video tương tác",
-      text: "Những câu chuyện trên trang giấy tiếp tục trên màn hình. Video ngắn, dễ hiểu và chọn lọc cho các bạn nhỏ.",
-      icon: Video,
-    },
-    {
-      title: "Quét QR trong sách",
-      text: "Từ trang sách đến video chỉ trong một lần quét. Không cần đăng nhập hay thao tác phức tạp.",
-      icon: QrCode,
-    },
-    {
-      title: "Quiz sau mỗi chương",
-      text: "Câu hỏi thú vị giúp con ghi nhớ tự nhiên. Mỗi lần thử lại là một cơ hội học thêm điều mới.",
-      icon: Gamepad2,
-    },
-    {
-      title: "Nhận phần thưởng",
-      text: "Ngôi sao và huy hiệu ghi nhận nỗ lực của con — không có bảng xếp hạng hay áp lực cạnh tranh.",
-      icon: Trophy,
-    },
-  ]
-  return (
-    <section className="my-16 grid gap-10 rounded-[28px] bg-primary/5 px-6 py-10 lg:grid-cols-[1fr_1.15fr] lg:px-10">
-      <div
-        className={
-          enabled && desktop ? "sticky top-28 self-start" : "self-start"
-        }
-      >
-        <Eyebrow>MỘT CUỐN SÁCH, NHIỀU CÁCH KHÁM PHÁ</Eyebrow>
-        <h2 className="mb-7 text-3xl leading-tight">
-          Không chỉ là
-          <br />
-          một cuốn sách.
-        </h2>
-        <Floating duration={8}>
-          <Cover className="mx-auto h-80 w-57 -rotate-5" />
-        </Floating>
-        <div className="mt-8 flex items-center justify-center gap-2">
-          {steps.map((step, index) => (
-            <span
-              key={step.title}
-              className={`h-1.5 rounded-full transition-all duration-500 ${
-                index === active ? "w-9 bg-primary" : "w-3 bg-primary/20"
-              }`}
-            />
-          ))}
-        </div>
-        <p className="mt-3 text-center text-sm font-semibold text-primary">
-          {steps[active].title}
-        </p>
-      </div>
-      <div className="space-y-6">
-        {steps.map((step, index) => (
-          <motion.article
-            key={step.title}
-            onViewportEnter={() => setActive(index)}
-            viewport={{ amount: 0.6 }}
-            initial={enabled ? { opacity: 0, x: 20 } : false}
-            whileInView={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5 }}
-            className={`rounded-[24px] border bg-white p-7 lg:min-h-57 ${
-              active === index
-                ? "border-primary/30 shadow-[0_8px_30px_#374BA009]"
-                : "border-primary/10"
-            }`}
-          >
-            <div className="mb-5 flex items-center justify-between">
-              <step.icon size={28} className="text-[#1D80C4]" />
-              <span className="text-sm font-bold text-primary/35">
-                0{index + 1}
-              </span>
-            </div>
-            <h3 className="text-2xl">{step.title}</h3>
-            <p className="mt-3 text-base leading-7 text-[#4A5461]">
-              {step.text}
-            </p>
-          </motion.article>
-        ))}
-      </div>
-    </section>
-  )
-}
 function Book() {
   const [amount, setAmount] = useState(1)
+  const location = useLocation()
+  const navigate = useNavigate()
   const { quantity, setQuantity, cartProductId, setCartProductId, notify } = useStore()
-  const [selectedId, setSelectedId] = useState(cartProductId)
-  const selectedProduct = getBookProduct(selectedId)
-  const singleBooks = bookProducts.filter((product) => !product.isCombo)
+  const requestedProduct = new URLSearchParams(location.search).get("product")
+  const selectedProduct = getBookProduct(requestedProduct || cartProductId)
+  const selectProduct = (id: string) => {
+    const search = new URLSearchParams(location.search)
+    search.set("product", id)
+    navigate({ pathname: "/book", search: search.toString() }, { replace: true, preventScrollReset: true })
+  }
   const selectAndAdd = (checkout: boolean) => {
     const replacing = quantity > 0 && cartProductId !== selectedProduct.id
     setCartProductId(selectedProduct.id)
     setQuantity(checkout || replacing ? amount : quantity + amount)
     if (!checkout) {
-      notify(
-        replacing
-          ? "Đã đổi lựa chọn trong giỏ hàng."
-          : "Đã thêm sách vào giỏ hàng.",
-      )
+      notify(replacing ? "Đã đổi lựa chọn trong giỏ hàng." : "Đã thêm sách vào giỏ hàng.")
     }
   }
   return (
-    <div className="mx-auto max-w-[1160px] px-6 py-12">
-      <p className="mb-8 text-sm text-[#4A5461]">
-        <Link to="/">Trang chủ</Link> / Sách Riko
-      </p>
-      <Eyebrow>BỘ SÁCH KHÁM PHÁ CÙNG RIKO</Eyebrow>
-      <h1 className="max-w-3xl text-4xl leading-tight md:text-5xl">
-        Chọn một cuộc phiêu lưu
-        <span className="text-[#F15A3E]"> hoặc trọn bộ ba</span>
-      </h1>
-      <p className="mb-8 mt-4 max-w-2xl text-base leading-7 text-[#4A5461]">
-        Ba chủ đề trong PDF bìa: Phương tiện, Động vật và Hiện tượng thiên nhiên.
-        Chọn từng quyển giá 299.000đ hoặc lấy combo đủ 3 quyển giá 799.000đ.
-      </p>
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {bookProducts.map((product) => (
-          <button
-            key={product.id}
-            type="button"
-            onClick={() => {
-              setSelectedId(product.id)
-              setCartProductId(product.id)
-            }}
-            aria-pressed={selectedId === product.id}
-            className={`rounded-3xl border bg-white p-4 text-left transition hover:-translate-y-1 hover:shadow-lg ${
-              selectedId === product.id
-                ? "border-primary ring-2 ring-primary/15"
-                : "border-border"
-            }`}
-          >
-            {product.isCombo ? (
-              <div className="grid aspect-[4/3] grid-cols-3 gap-1 overflow-hidden rounded-2xl bg-[#FFFEF0] p-2">
-                {singleBooks.map((book) => (
-                  <img
-                    key={book.id}
-                    src={book.cover}
-                    alt={`Bìa ${book.title}`}
-                    loading="lazy"
-                    className="h-full w-full rounded-lg object-cover"
-                  />
-                ))}
-              </div>
-            ) : (
-              <img
-                src={product.cover}
-                alt={`Bìa ${product.title}`}
-                loading="lazy"
-                className="aspect-[4/3] w-full rounded-2xl object-cover"
-              />
-            )}
-            <p className="mt-4 text-xs font-bold uppercase tracking-wider text-[#1D80C4]">
-              {product.chapter}
-            </p>
-            <h2 className="mt-1 min-h-14 text-xl font-bold">{product.title}</h2>
-            <div className="mt-2 flex flex-wrap items-baseline gap-2">
-              <span className="text-2xl font-bold text-primary">
-                {money(product.price)}
-              </span>
-              {product.compareAt && (
-                <span className="text-sm text-[#4A5461]/60 line-through">
-                  {money(product.compareAt)}
-                </span>
-              )}
-            </div>
-            {product.isCombo && (
-              <p className="mt-2 text-xs font-semibold text-[#28823F]">
-                Tiết kiệm 98.000đ so với mua lẻ
-              </p>
-            )}
-            <span className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-primary">
-              {selectedId === product.id ? "Đang chọn" : "Chọn sản phẩm"}
-              {selectedId === product.id && <Check size={16} />}
-            </span>
-          </button>
-        ))}
-      </div>
-      <section className="my-10 grid items-center gap-6 rounded-3xl border border-primary/10 bg-[#FFFEF0] p-5 md:grid-cols-[1fr_1.15fr] md:p-8">
-        <div className="grid grid-cols-3 gap-2">
-          {(selectedProduct.isCombo ? singleBooks : [selectedProduct]).map(
-            (product) => (
-              <img
-                key={product.id}
-                src={product.cover}
-                alt={`Bìa ${product.title}`}
-                className="w-full rounded-xl shadow-sm"
-              />
-            ),
-          )}
-        </div>
-        <div>
-          <Eyebrow>NHẬN ĐẶT TRƯỚC</Eyebrow>
-          <h2 className="text-3xl font-bold">{selectedProduct.title}</h2>
-          <p className="mt-2 text-sm leading-6 text-[#4A5461]">
-            {selectedProduct.isCombo
-              ? "Một bộ gồm đủ ba quyển: Phương tiện, Động vật và Hiện tượng thiên nhiên."
-              : `Chủ đề ${selectedProduct.title.toLowerCase()} trong bộ sách khám phá cùng Riko.`}
-          </p>
-          <div className="my-4 flex items-center gap-3">
-            <span className="text-3xl font-bold text-primary">
-              {money(selectedProduct.price)}
-            </span>
-            {selectedProduct.compareAt && (
-              <span className="text-sm text-[#4A5461]/60 line-through">
-                {money(selectedProduct.compareAt)}
-              </span>
-            )}
-          </div>
-          <div className="flex flex-wrap items-center gap-4">
-            <Qty value={amount} onChange={setAmount} />
-            <Button to="/checkout" onClick={() => selectAndAdd(true)}>
-              Đặt trước <ArrowRight size={16} />
-            </Button>
-            <Button secondary onClick={() => selectAndAdd(false)}>
-              <ShoppingBag size={16} /> Thêm vào giỏ
-            </Button>
-          </div>
-          <p className="mt-4 text-xs text-[#4A5461]">
-            Đây là yêu cầu đặt trước. Rikokid sẽ liên hệ xác nhận đơn và thời
-            gian giao hàng.
-          </p>
-        </div>
-      </section>
-      <ProductShowcase />
-      <div className="py-16">
-        <SectionTitle
-          label="KHÔNG CHỈ LÀ MỘT CUỐN SÁCH"
-          title="Bên trong có cả một thế giới"
-        />
-        <div className="grid gap-5 sm:grid-cols-3">
-          {[
-            [
-              "Câu chuyện về lòng tốt",
-              "Học cách quan tâm, chia sẻ và giúp đỡ những người bạn.",
-            ],
-            [
-              "Khám phá thiên nhiên",
-              "Nhận biết cây cối, động vật và bảo vệ môi trường.",
-            ],
-            [
-              "Học cùng trải nghiệm số",
-              "Quét QR, xem video và chinh phục quiz sau mỗi chương.",
-            ],
-          ].map(([title, desc]) => (
-            <div key={title} className="rounded-2xl bg-[#FFFEF0] p-6">
-              <Sparkles className="mb-4 text-[#FBAF37]" />
-              <h3 className="text-xl">{title}</h3>
-              <p className="mt-3 text-sm leading-6 text-[#4A5461]">{desc}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-      <SectionTitle
-        label="SÁCH → QR → VIDEO → QUIZ"
-        title="Một lần quét, thêm một điều kỳ diệu"
-        subtitle="Chỉ cần quét mã QR bằng điện thoại để mở những video đặc biệt của Riko. Không cần đăng nhập."
-      />
-      <div className="text-center">
-        <Button to="/watch/1">
-          Trải nghiệm ngay <Play size={16} />
-        </Button>
-      </div>
-    </div>
+    <BookShop
+      product={selectedProduct}
+      quantityControl={<Qty value={amount} onChange={setAmount} />}
+      onSelect={selectProduct}
+      onAddToCart={() => selectAndAdd(false)}
+      onCheckout={() => selectAndAdd(true)}
+    />
   )
 }
 function Preview() {
@@ -3488,17 +3155,41 @@ function QuizAccount() {
   }
 
   return (
-    <div className="mx-auto max-w-xl px-6 py-12">
-      <div className="rounded-3xl border border-primary/10 bg-[#FFFEF0] p-6 md:p-9">
-        <Mascot pose="encouraging" className="mx-auto h-36" />
-        <Eyebrow>TÀI KHOẢN PHỤ HUYNH</Eyebrow>
-        <h1 className="text-3xl md:text-4xl">
+    <div className="mx-auto max-w-xl px-4 py-10 sm:px-6 sm:py-14">
+      <div className="overflow-hidden rounded-[28px] border border-primary/10 bg-white p-5 shadow-[0_16px_60px_-20px_#374BA02a] sm:p-6 md:p-9">
+        <div className="mb-6 flex items-center justify-between gap-3 rounded-2xl bg-[#FFF4DD] px-4 py-2">
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-[.14em] text-[#8D662F]">Tài khoản phụ huynh</p>
+            <p className="mt-2 text-sm font-bold text-primary">Cùng con lớn lên qua từng khám phá</p>
+          </div>
+          <Mascot pose="encouraging" className="h-24 w-20 shrink-0" />
+        </div>
+        <h1 className="text-3xl leading-tight tracking-tight">
           Lưu hành trình của bé
         </h1>
         <p className="my-4 text-sm leading-6 text-[#4A5461]">
           Điểm tốt nhất và huy hiệu quiz được đồng bộ vào hồ sơ. Chỉ cần email
           của phụ huynh; bé có thể dùng biệt danh và chọn chủ đề yêu thích.
         </p>
+        <div role="group" aria-label="Chọn đăng nhập hoặc tạo tài khoản" className="mb-6 grid grid-cols-2 gap-1 rounded-full bg-[#F0F2F9] p-1">
+          {[
+            { label: "Đăng nhập", register: false },
+            { label: "Tạo tài khoản", register: true },
+          ].map((option) => (
+            <button
+              key={option.label}
+              type="button"
+              aria-pressed={registerMode === option.register}
+              onClick={() => {
+                setRegisterMode(option.register)
+                setError("")
+              }}
+              className={`rounded-full px-2 py-3 text-xs font-bold transition sm:px-3 sm:text-sm ${registerMode === option.register ? "bg-primary text-white shadow-sm" : "text-[#68758C] hover:text-primary"}`}
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
         <form
           onSubmit={async (event) => {
             event.preventDefault()
@@ -3564,7 +3255,7 @@ function QuizAccount() {
           {error && <p role="alert" className="rounded-xl bg-[#F15A3E]/10 p-4 text-sm text-[#B83E2C]">{error}</p>}
           <button
             disabled={submitting || !isAppwriteConfigured}
-            className="w-full rounded-full bg-primary py-4 font-semibold text-white disabled:opacity-60"
+            className="w-full rounded-full bg-primary py-4 font-bold text-white shadow-[0_6px_18px_#374BA025] transition hover:bg-[#293D91] disabled:opacity-60"
           >
             {submitting
               ? "Đang xử lý…"
