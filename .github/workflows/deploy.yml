@@ -49,14 +49,17 @@ jobs:
       - name: Verify AR model and LiteRT runtime assets
         run: |
           node --input-type=module <<'NODE'
-          import { stat } from "node:fs/promises";
+          import { readFile, stat } from "node:fs/promises";
+
+          const { litertVersion } = JSON.parse(await readFile("src/data/arRuntimeAssets.json", "utf8"));
+          const wasmRoot = `dist/litert/${litertVersion}/wasm`;
 
           const requiredAssets = [
             "dist/models/riko-ar-detector.tflite",
-            "dist/litert/wasm/litert_wasm_internal.js",
-            "dist/litert/wasm/litert_wasm_internal.wasm",
-            "dist/litert/wasm/litert_wasm_compat_internal.js",
-            "dist/litert/wasm/litert_wasm_compat_internal.wasm",
+            `${wasmRoot}/litert_wasm_internal.js`,
+            `${wasmRoot}/litert_wasm_internal.wasm`,
+            `${wasmRoot}/litert_wasm_compat_internal.js`,
+            `${wasmRoot}/litert_wasm_compat_internal.wasm`,
           ];
 
           for (const path of requiredAssets) {

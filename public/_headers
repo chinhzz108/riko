@@ -8,3 +8,9 @@
 
 /videos/ar/packed/native-v3/*
   Cache-Control: public, max-age=31536000, immutable
+
+/models/riko-ar-detector.tflite
+  Cache-Control: public, max-age=31536000, immutable
+
+/litert/2.5.3/*
+  Cache-Control: public, max-age=31536000, immutable

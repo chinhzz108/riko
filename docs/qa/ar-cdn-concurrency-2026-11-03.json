@@ -1,0 +1,979 @@
+{
+  "date": "2026-11-03T08:48:12.191Z",
+  "origin": "https://rikokid.me",
+  "scope": "One Windows/Vietnam client: ten concurrent cold resource sets, then fifty concurrent 1 MiB video ranges. No camera/model computation is sent to a shared server.",
+  "limits": "This measures this client's network and CDN responses, not maximum global users, phone FPS, model compilation time, or Appwrite capacity.",
+  "elapsedMs": 24532,
+  "coldStart": {
+    "requests": 30,
+    "passed": 30,
+    "failed": 0,
+    "statusCounts": {
+      "200": 30
+    },
+    "ttfbP50Ms": 522,
+    "ttfbP95Ms": 1268,
+    "totalP50Ms": 11981,
+    "totalP95Ms": 17470,
+    "bytes": 425769690,
+    "cacheCounts": {
+      "DYNAMIC": 30
+    }
+  },
+  "videoRanges": {
+    "requests": 50,
+    "passed": 50,
+    "failed": 0,
+    "statusCounts": {
+      "206": 50
+    },
+    "ttfbP50Ms": 550,
+    "ttfbP95Ms": 1316,
+    "totalP50Ms": 3950,
+    "totalP95Ms": 6221,
+    "bytes": 52428800,
+    "cacheCounts": {
+      "HIT": 50
+    }
+  },
+  "coldSessions": {
+    "total": 10,
+    "passed": 10,
+    "p50Ms": 16056,
+    "p95Ms": 17960
+  },
+  "sessions": [
+    {
+      "id": 0,
+      "pass": true,
+      "totalMs": 16056
+    },
+    {
+      "id": 1,
+      "pass": true,
+      "totalMs": 17410
+    },
+    {
+      "id": 2,
+      "pass": true,
+      "totalMs": 17960
+    },
+    {
+      "id": 3,
+      "pass": true,
+      "totalMs": 17473
+    },
+    {
+      "id": 4,
+      "pass": true,
+      "totalMs": 17399
+    },
+    {
+      "id": 5,
+      "pass": true,
+      "totalMs": 15928
+    },
+    {
+      "id": 6,
+      "pass": true,
+      "totalMs": 16173
+    },
+    {
+      "id": 7,
+      "pass": true,
+      "totalMs": 15544
+    },
+    {
+      "id": 8,
+      "pass": true,
+      "totalMs": 13726
+    },
+    {
+      "id": 9,
+      "pass": true,
+      "totalMs": 15293
+    }
+  ],
+  "results": [
+    {
+      "phase": "cold-start",
+      "path": "/litert/wasm/litert_wasm_internal.wasm",
+      "status": 200,
+      "bytes": 9367934,
+      "ttfbMs": 1275,
+      "totalMs": 5988,
+      "cache": "DYNAMIC",
+      "cacheControl": "public, max-age=0, must-revalidate",
+      "pass": true
+    },
+    {
+      "phase": "cold-start",
+      "path": "/litert/wasm/litert_wasm_internal.wasm",
+      "status": 200,
+      "bytes": 9367934,
+      "ttfbMs": 883,
+      "totalMs": 7535,
+      "cache": "DYNAMIC",
+      "cacheControl": "public, max-age=0, must-revalidate",
+      "pass": true
+    },
+    {
+      "phase": "cold-start",
+      "path": "/litert/wasm/litert_wasm_internal.wasm",
+      "status": 200,
+      "bytes": 9367934,
+      "ttfbMs": 1268,
+      "totalMs": 8280,
+      "cache": "DYNAMIC",
+      "cacheControl": "public, max-age=0, must-revalidate",
+      "pass": true
+    },
+    {
+      "phase": "cold-start",
+      "path": "/models/riko-ar-detector.tflite?v=popup-v3",
+      "status": 200,
+      "bytes": 5408554,
+      "ttfbMs": 345,
+      "totalMs": 8390,
+      "cache": "DYNAMIC",
+      "cacheControl": "public, max-age=0, must-revalidate",
+      "pass": true
+    },
+    {
+      "phase": "cold-start",
+      "path": "/litert/wasm/litert_wasm_internal.wasm",
+      "status": 200,
+      "bytes": 9367934,
+      "ttfbMs": 1069,
+      "totalMs": 8568,
+      "cache": "DYNAMIC",
+      "cacheControl": "public, max-age=0, must-revalidate",
+      "pass": true
+    },
+    {
+      "phase": "cold-start",
+      "path": "/litert/wasm/litert_wasm_internal.wasm",
+      "status": 200,
+      "bytes": 9367934,
+      "ttfbMs": 1059,
+      "totalMs": 8880,
+      "cache": "DYNAMIC",
+      "cacheControl": "public, max-age=0, must-revalidate",
+      "pass": true
+    },
+    {
+      "phase": "cold-start",
+      "path": "/litert/wasm/litert_wasm_internal.wasm",
+      "status": 200,
+      "bytes": 9367934,
+      "ttfbMs": 1180,
+      "totalMs": 9551,
+      "cache": "DYNAMIC",
+      "cacheControl": "public, max-age=0, must-revalidate",
+      "pass": true
+    },
+    {
+      "phase": "cold-start",
+      "path": "/litert/wasm/litert_wasm_internal.wasm",
+      "status": 200,
+      "bytes": 9367934,
+      "ttfbMs": 777,
+      "totalMs": 9773,
+      "cache": "DYNAMIC",
+      "cacheControl": "public, max-age=0, must-revalidate",
+      "pass": true
+    },
+    {
+      "phase": "cold-start",
+      "path": "/litert/wasm/litert_wasm_internal.wasm",
+      "status": 200,
+      "bytes": 9367934,
+      "ttfbMs": 442,
+      "totalMs": 9851,
+      "cache": "DYNAMIC",
+      "cacheControl": "public, max-age=0, must-revalidate",
+      "pass": true
+    },
+    {
+      "phase": "cold-start",
+      "path": "/models/riko-ar-detector.tflite?v=popup-v3",
+      "status": 200,
+      "bytes": 5408554,
+      "ttfbMs": 528,
+      "totalMs": 10137,
+      "cache": "DYNAMIC",
+      "cacheControl": "public, max-age=0, must-revalidate",
+      "pass": true
+    },
+    {
+      "phase": "cold-start",
+      "path": "/litert/wasm/litert_wasm_internal.wasm",
+      "status": 200,
+      "bytes": 9367934,
+      "ttfbMs": 774,
+      "totalMs": 10448,
+      "cache": "DYNAMIC",
+      "cacheControl": "public, max-age=0, must-revalidate",
+      "pass": true
+    },
+    {
+      "phase": "cold-start",
+      "path": "/models/riko-ar-detector.tflite?v=popup-v3",
+      "status": 200,
+      "bytes": 5408554,
+      "ttfbMs": 459,
+      "totalMs": 11180,
+      "cache": "DYNAMIC",
+      "cacheControl": "public, max-age=0, must-revalidate",
+      "pass": true
+    },
+    {
+      "phase": "cold-start",
+      "path": "/models/riko-ar-detector.tflite?v=popup-v3",
+      "status": 200,
+      "bytes": 5408554,
+      "ttfbMs": 366,
+      "totalMs": 11514,
+      "cache": "DYNAMIC",
+      "cacheControl": "public, max-age=0, must-revalidate",
+      "pass": true
+    },
+    {
+      "phase": "cold-start",
+      "path": "/models/riko-ar-detector.tflite?v=popup-v3",
+      "status": 200,
+      "bytes": 5408554,
+      "ttfbMs": 487,
+      "totalMs": 11862,
+      "cache": "DYNAMIC",
+      "cacheControl": "public, max-age=0, must-revalidate",
+      "pass": true
+    },
+    {
+      "phase": "cold-start",
+      "path": "/models/riko-ar-detector.tflite?v=popup-v3",
+      "status": 200,
+      "bytes": 5408554,
+      "ttfbMs": 500,
+      "totalMs": 11981,
+      "cache": "DYNAMIC",
+      "cacheControl": "public, max-age=0, must-revalidate",
+      "pass": true
+    },
+    {
+      "phase": "cold-start",
+      "path": "/models/riko-ar-detector.tflite?v=popup-v3",
+      "status": 200,
+      "bytes": 5408554,
+      "ttfbMs": 595,
+      "totalMs": 12936,
+      "cache": "DYNAMIC",
+      "cacheControl": "public, max-age=0, must-revalidate",
+      "pass": true
+    },
+    {
+      "phase": "cold-start",
+      "path": "/ar/book-pages.mind.br",
+      "status": 200,
+      "bytes": 27800481,
+      "ttfbMs": 428,
+      "totalMs": 13725,
+      "cache": "DYNAMIC",
+      "cacheControl": "public, max-age=86400",
+      "pass": true
+    },
+    {
+      "phase": "cold-start",
+      "path": "/models/riko-ar-detector.tflite?v=popup-v3",
+      "status": 200,
+      "bytes": 5408554,
+      "ttfbMs": 522,
+      "totalMs": 13812,
+      "cache": "DYNAMIC",
+      "cacheControl": "public, max-age=0, must-revalidate",
+      "pass": true
+    },
+    {
+      "phase": "cold-start",
+      "path": "/ar/book-pages.mind.br",
+      "status": 200,
+      "bytes": 27800481,
+      "ttfbMs": 497,
+      "totalMs": 14534,
+      "cache": "DYNAMIC",
+      "cacheControl": "public, max-age=86400",
+      "pass": true
+    },
+    {
+      "phase": "cold-start",
+      "path": "/ar/book-pages.mind.br",
+      "status": 200,
+      "bytes": 27800481,
+      "ttfbMs": 644,
+      "totalMs": 15291,
+      "cache": "DYNAMIC",
+      "cacheControl": "public, max-age=86400",
+      "pass": true
+    },
+    {
+      "phase": "cold-start",
+      "path": "/litert/wasm/litert_wasm_internal.wasm",
+      "status": 200,
+      "bytes": 9367934,
+      "ttfbMs": 871,
+      "totalMs": 15503,
+      "cache": "DYNAMIC",
+      "cacheControl": "public, max-age=0, must-revalidate",
+      "pass": true
+    },
+    {
+      "phase": "cold-start",
+      "path": "/models/riko-ar-detector.tflite?v=popup-v3",
+      "status": 200,
+      "bytes": 5408554,
+      "ttfbMs": 431,
+      "totalMs": 15544,
+      "cache": "DYNAMIC",
+      "cacheControl": "public, max-age=0, must-revalidate",
+      "pass": true
+    },
+    {
+      "phase": "cold-start",
+      "path": "/models/riko-ar-detector.tflite?v=popup-v3",
+      "status": 200,
+      "bytes": 5408554,
+      "ttfbMs": 511,
+      "totalMs": 15731,
+      "cache": "DYNAMIC",
+      "cacheControl": "public, max-age=0, must-revalidate",
+      "pass": true
+    },
+    {
+      "phase": "cold-start",
+      "path": "/ar/book-pages.mind.br",
+      "status": 200,
+      "bytes": 27800481,
+      "ttfbMs": 497,
+      "totalMs": 15925,
+      "cache": "DYNAMIC",
+      "cacheControl": "public, max-age=86400",
+      "pass": true
+    },
+    {
+      "phase": "cold-start",
+      "path": "/ar/book-pages.mind.br",
+      "status": 200,
+      "bytes": 27800481,
+      "ttfbMs": 414,
+      "totalMs": 15981,
+      "cache": "DYNAMIC",
+      "cacheControl": "public, max-age=86400",
+      "pass": true
+    },
+    {
+      "phase": "cold-start",
+      "path": "/ar/book-pages.mind.br",
+      "status": 200,
+      "bytes": 27800481,
+      "ttfbMs": 472,
+      "totalMs": 16170,
+      "cache": "DYNAMIC",
+      "cacheControl": "public, max-age=86400",
+      "pass": true
+    },
+    {
+      "phase": "cold-start",
+      "path": "/ar/book-pages.mind.br",
+      "status": 200,
+      "bytes": 27800481,
+      "ttfbMs": 751,
+      "totalMs": 17406,
+      "cache": "DYNAMIC",
+      "cacheControl": "public, max-age=86400",
+      "pass": true
+    },
+    {
+      "phase": "cold-start",
+      "path": "/ar/book-pages.mind.br",
+      "status": 200,
+      "bytes": 27800481,
+      "ttfbMs": 423,
+      "totalMs": 17397,
+      "cache": "DYNAMIC",
+      "cacheControl": "public, max-age=86400",
+      "pass": true
+    },
+    {
+      "phase": "cold-start",
+      "path": "/ar/book-pages.mind.br",
+      "status": 200,
+      "bytes": 27800481,
+      "ttfbMs": 671,
+      "totalMs": 17470,
+      "cache": "DYNAMIC",
+      "cacheControl": "public, max-age=86400",
+      "pass": true
+    },
+    {
+      "phase": "cold-start",
+      "path": "/ar/book-pages.mind.br",
+      "status": 200,
+      "bytes": 27800481,
+      "ttfbMs": 726,
+      "totalMs": 17957,
+      "cache": "DYNAMIC",
+      "cacheControl": "public, max-age=86400",
+      "pass": true
+    },
+    {
+      "phase": "video-range",
+      "path": "/videos/ar/packed/native-v3/DV01.mp4",
+      "status": 206,
+      "bytes": 1048576,
+      "ttfbMs": 228,
+      "totalMs": 1015,
+      "cache": "HIT",
+      "cacheControl": "public, max-age=31536000, immutable",
+      "pass": true
+    },
+    {
+      "phase": "video-range",
+      "path": "/videos/ar/packed/native-v3/DV01.mp4",
+      "status": 206,
+      "bytes": 1048576,
+      "ttfbMs": 116,
+      "totalMs": 1250,
+      "cache": "HIT",
+      "cacheControl": "public, max-age=31536000, immutable",
+      "pass": true
+    },
+    {
+      "phase": "video-range",
+      "path": "/videos/ar/packed/native-v3/HTTN13.mp4",
+      "status": 206,
+      "bytes": 1048576,
+      "ttfbMs": 112,
+      "totalMs": 1374,
+      "cache": "HIT",
+      "cacheControl": "public, max-age=31536000, immutable",
+      "pass": true
+    },
+    {
+      "phase": "video-range",
+      "path": "/videos/ar/packed/native-v3/DV01.mp4",
+      "status": 206,
+      "bytes": 1048576,
+      "ttfbMs": 128,
+      "totalMs": 1370,
+      "cache": "HIT",
+      "cacheControl": "public, max-age=31536000, immutable",
+      "pass": true
+    },
+    {
+      "phase": "video-range",
+      "path": "/videos/ar/packed/native-v3/HTTN13.mp4",
+      "status": 206,
+      "bytes": 1048576,
+      "ttfbMs": 175,
+      "totalMs": 1377,
+      "cache": "HIT",
+      "cacheControl": "public, max-age=31536000, immutable",
+      "pass": true
+    },
+    {
+      "phase": "video-range",
+      "path": "/videos/ar/packed/native-v3/HTTN13.mp4",
+      "status": 206,
+      "bytes": 1048576,
+      "ttfbMs": 105,
+      "totalMs": 1714,
+      "cache": "HIT",
+      "cacheControl": "public, max-age=31536000, immutable",
+      "pass": true
+    },
+    {
+      "phase": "video-range",
+      "path": "/videos/ar/packed/native-v3/DV01.mp4",
+      "status": 206,
+      "bytes": 1048576,
+      "ttfbMs": 118,
+      "totalMs": 1727,
+      "cache": "HIT",
+      "cacheControl": "public, max-age=31536000, immutable",
+      "pass": true
+    },
+    {
+      "phase": "video-range",
+      "path": "/videos/ar/packed/native-v3/HTTN13.mp4",
+      "status": 206,
+      "bytes": 1048576,
+      "ttfbMs": 149,
+      "totalMs": 1719,
+      "cache": "HIT",
+      "cacheControl": "public, max-age=31536000, immutable",
+      "pass": true
+    },
+    {
+      "phase": "video-range",
+      "path": "/videos/ar/packed/native-v3/GT01.mp4",
+      "status": 206,
+      "bytes": 1048576,
+      "ttfbMs": 242,
+      "totalMs": 2031,
+      "cache": "HIT",
+      "cacheControl": "public, max-age=31536000, immutable",
+      "pass": true
+    },
+    {
+      "phase": "video-range",
+      "path": "/videos/ar/packed/native-v3/HTTN13.mp4",
+      "status": 206,
+      "bytes": 1048576,
+      "ttfbMs": 145,
+      "totalMs": 3323,
+      "cache": "HIT",
+      "cacheControl": "public, max-age=31536000, immutable",
+      "pass": true
+    },
+    {
+      "phase": "video-range",
+      "path": "/videos/ar/packed/native-v3/GT05.mp4",
+      "status": 206,
+      "bytes": 1048576,
+      "ttfbMs": 507,
+      "totalMs": 3382,
+      "cache": "HIT",
+      "cacheControl": "public, max-age=31536000, immutable",
+      "pass": true
+    },
+    {
+      "phase": "video-range",
+      "path": "/videos/ar/packed/native-v3/GT05.mp4",
+      "status": 206,
+      "bytes": 1048576,
+      "ttfbMs": 108,
+      "totalMs": 3447,
+      "cache": "HIT",
+      "cacheControl": "public, max-age=31536000, immutable",
+      "pass": true
+    },
+    {
+      "phase": "video-range",
+      "path": "/videos/ar/packed/native-v3/GT01.mp4",
+      "status": 206,
+      "bytes": 1048576,
+      "ttfbMs": 375,
+      "totalMs": 3492,
+      "cache": "HIT",
+      "cacheControl": "public, max-age=31536000, immutable",
+      "pass": true
+    },
+    {
+      "phase": "video-range",
+      "path": "/videos/ar/packed/native-v3/DV05.mp4",
+      "status": 206,
+      "bytes": 1048576,
+      "ttfbMs": 810,
+      "totalMs": 3474,
+      "cache": "HIT",
+      "cacheControl": "public, max-age=31536000, immutable",
+      "pass": true
+    },
+    {
+      "phase": "video-range",
+      "path": "/videos/ar/packed/native-v3/GT05.mp4",
+      "status": 206,
+      "bytes": 1048576,
+      "ttfbMs": 627,
+      "totalMs": 3512,
+      "cache": "HIT",
+      "cacheControl": "public, max-age=31536000, immutable",
+      "pass": true
+    },
+    {
+      "phase": "video-range",
+      "path": "/videos/ar/packed/native-v3/DV05.mp4",
+      "status": 206,
+      "bytes": 1048576,
+      "ttfbMs": 135,
+      "totalMs": 3504,
+      "cache": "HIT",
+      "cacheControl": "public, max-age=31536000, immutable",
+      "pass": true
+    },
+    {
+      "phase": "video-range",
+      "path": "/videos/ar/packed/native-v3/GT05.mp4",
+      "status": 206,
+      "bytes": 1048576,
+      "ttfbMs": 917,
+      "totalMs": 3529,
+      "cache": "HIT",
+      "cacheControl": "public, max-age=31536000, immutable",
+      "pass": true
+    },
+    {
+      "phase": "video-range",
+      "path": "/videos/ar/packed/native-v3/GT01.mp4",
+      "status": 206,
+      "bytes": 1048576,
+      "ttfbMs": 648,
+      "totalMs": 3544,
+      "cache": "HIT",
+      "cacheControl": "public, max-age=31536000, immutable",
+      "pass": true
+    },
+    {
+      "phase": "video-range",
+      "path": "/videos/ar/packed/native-v3/HTTN13.mp4",
+      "status": 206,
+      "bytes": 1048576,
+      "ttfbMs": 952,
+      "totalMs": 3569,
+      "cache": "HIT",
+      "cacheControl": "public, max-age=31536000, immutable",
+      "pass": true
+    },
+    {
+      "phase": "video-range",
+      "path": "/videos/ar/packed/native-v3/GT05.mp4",
+      "status": 206,
+      "bytes": 1048576,
+      "ttfbMs": 1225,
+      "totalMs": 3555,
+      "cache": "HIT",
+      "cacheControl": "public, max-age=31536000, immutable",
+      "pass": true
+    },
+    {
+      "phase": "video-range",
+      "path": "/videos/ar/packed/native-v3/GT01.mp4",
+      "status": 206,
+      "bytes": 1048576,
+      "ttfbMs": 360,
+      "totalMs": 3664,
+      "cache": "HIT",
+      "cacheControl": "public, max-age=31536000, immutable",
+      "pass": true
+    },
+    {
+      "phase": "video-range",
+      "path": "/videos/ar/packed/native-v3/DV01.mp4",
+      "status": 206,
+      "bytes": 1048576,
+      "ttfbMs": 531,
+      "totalMs": 3765,
+      "cache": "HIT",
+      "cacheControl": "public, max-age=31536000, immutable",
+      "pass": true
+    },
+    {
+      "phase": "video-range",
+      "path": "/videos/ar/packed/native-v3/DV05.mp4",
+      "status": 206,
+      "bytes": 1048576,
+      "ttfbMs": 487,
+      "totalMs": 3800,
+      "cache": "HIT",
+      "cacheControl": "public, max-age=31536000, immutable",
+      "pass": true
+    },
+    {
+      "phase": "video-range",
+      "path": "/videos/ar/packed/native-v3/GT05.mp4",
+      "status": 206,
+      "bytes": 1048576,
+      "ttfbMs": 909,
+      "totalMs": 3840,
+      "cache": "HIT",
+      "cacheControl": "public, max-age=31536000, immutable",
+      "pass": true
+    },
+    {
+      "phase": "video-range",
+      "path": "/videos/ar/packed/native-v3/HTTN07.mp4",
+      "status": 206,
+      "bytes": 1048576,
+      "ttfbMs": 867,
+      "totalMs": 3950,
+      "cache": "HIT",
+      "cacheControl": "public, max-age=31536000, immutable",
+      "pass": true
+    },
+    {
+      "phase": "video-range",
+      "path": "/videos/ar/packed/native-v3/GT01.mp4",
+      "status": 206,
+      "bytes": 1048576,
+      "ttfbMs": 550,
+      "totalMs": 4041,
+      "cache": "HIT",
+      "cacheControl": "public, max-age=31536000, immutable",
+      "pass": true
+    },
+    {
+      "phase": "video-range",
+      "path": "/videos/ar/packed/native-v3/DV01.mp4",
+      "status": 206,
+      "bytes": 1048576,
+      "ttfbMs": 1151,
+      "totalMs": 4020,
+      "cache": "HIT",
+      "cacheControl": "public, max-age=31536000, immutable",
+      "pass": true
+    },
+    {
+      "phase": "video-range",
+      "path": "/videos/ar/packed/native-v3/DV05.mp4",
+      "status": 206,
+      "bytes": 1048576,
+      "ttfbMs": 890,
+      "totalMs": 4086,
+      "cache": "HIT",
+      "cacheControl": "public, max-age=31536000, immutable",
+      "pass": true
+    },
+    {
+      "phase": "video-range",
+      "path": "/videos/ar/packed/native-v3/GT05.mp4",
+      "status": 206,
+      "bytes": 1048576,
+      "ttfbMs": 940,
+      "totalMs": 4067,
+      "cache": "HIT",
+      "cacheControl": "public, max-age=31536000, immutable",
+      "pass": true
+    },
+    {
+      "phase": "video-range",
+      "path": "/videos/ar/packed/native-v3/GT01.mp4",
+      "status": 206,
+      "bytes": 1048576,
+      "ttfbMs": 1247,
+      "totalMs": 4106,
+      "cache": "HIT",
+      "cacheControl": "public, max-age=31536000, immutable",
+      "pass": true
+    },
+    {
+      "phase": "video-range",
+      "path": "/videos/ar/packed/native-v3/HTTN13.mp4",
+      "status": 206,
+      "bytes": 1048576,
+      "ttfbMs": 799,
+      "totalMs": 4142,
+      "cache": "HIT",
+      "cacheControl": "public, max-age=31536000, immutable",
+      "pass": true
+    },
+    {
+      "phase": "video-range",
+      "path": "/videos/ar/packed/native-v3/HTTN07.mp4",
+      "status": 206,
+      "bytes": 1048576,
+      "ttfbMs": 427,
+      "totalMs": 4170,
+      "cache": "HIT",
+      "cacheControl": "public, max-age=31536000, immutable",
+      "pass": true
+    },
+    {
+      "phase": "video-range",
+      "path": "/videos/ar/packed/native-v3/GT05.mp4",
+      "status": 206,
+      "bytes": 1048576,
+      "ttfbMs": 476,
+      "totalMs": 4181,
+      "cache": "HIT",
+      "cacheControl": "public, max-age=31536000, immutable",
+      "pass": true
+    },
+    {
+      "phase": "video-range",
+      "path": "/videos/ar/packed/native-v3/HTTN07.mp4",
+      "status": 206,
+      "bytes": 1048576,
+      "ttfbMs": 1316,
+      "totalMs": 4303,
+      "cache": "HIT",
+      "cacheControl": "public, max-age=31536000, immutable",
+      "pass": true
+    },
+    {
+      "phase": "video-range",
+      "path": "/videos/ar/packed/native-v3/HTTN07.mp4",
+      "status": 206,
+      "bytes": 1048576,
+      "ttfbMs": 858,
+      "totalMs": 4318,
+      "cache": "HIT",
+      "cacheControl": "public, max-age=31536000, immutable",
+      "pass": true
+    },
+    {
+      "phase": "video-range",
+      "path": "/videos/ar/packed/native-v3/HTTN07.mp4",
+      "status": 206,
+      "bytes": 1048576,
+      "ttfbMs": 1136,
+      "totalMs": 4429,
+      "cache": "HIT",
+      "cacheControl": "public, max-age=31536000, immutable",
+      "pass": true
+    },
+    {
+      "phase": "video-range",
+      "path": "/videos/ar/packed/native-v3/DV05.mp4",
+      "status": 206,
+      "bytes": 1048576,
+      "ttfbMs": 1299,
+      "totalMs": 4473,
+      "cache": "HIT",
+      "cacheControl": "public, max-age=31536000, immutable",
+      "pass": true
+    },
+    {
+      "phase": "video-range",
+      "path": "/videos/ar/packed/native-v3/HTTN07.mp4",
+      "status": 206,
+      "bytes": 1048576,
+      "ttfbMs": 453,
+      "totalMs": 4469,
+      "cache": "HIT",
+      "cacheControl": "public, max-age=31536000, immutable",
+      "pass": true
+    },
+    {
+      "phase": "video-range",
+      "path": "/videos/ar/packed/native-v3/GT01.mp4",
+      "status": 206,
+      "bytes": 1048576,
+      "ttfbMs": 1264,
+      "totalMs": 4538,
+      "cache": "HIT",
+      "cacheControl": "public, max-age=31536000, immutable",
+      "pass": true
+    },
+    {
+      "phase": "video-range",
+      "path": "/videos/ar/packed/native-v3/DV05.mp4",
+      "status": 206,
+      "bytes": 1048576,
+      "ttfbMs": 359,
+      "totalMs": 4807,
+      "cache": "HIT",
+      "cacheControl": "public, max-age=31536000, immutable",
+      "pass": true
+    },
+    {
+      "phase": "video-range",
+      "path": "/videos/ar/packed/native-v3/DV05.mp4",
+      "status": 206,
+      "bytes": 1048576,
+      "ttfbMs": 1444,
+      "totalMs": 5025,
+      "cache": "HIT",
+      "cacheControl": "public, max-age=31536000, immutable",
+      "pass": true
+    },
+    {
+      "phase": "video-range",
+      "path": "/videos/ar/packed/native-v3/HTTN07.mp4",
+      "status": 206,
+      "bytes": 1048576,
+      "ttfbMs": 736,
+      "totalMs": 5067,
+      "cache": "HIT",
+      "cacheControl": "public, max-age=31536000, immutable",
+      "pass": true
+    },
+    {
+      "phase": "video-range",
+      "path": "/videos/ar/packed/native-v3/GT05.mp4",
+      "status": 206,
+      "bytes": 1048576,
+      "ttfbMs": 1213,
+      "totalMs": 5164,
+      "cache": "HIT",
+      "cacheControl": "public, max-age=31536000, immutable",
+      "pass": true
+    },
+    {
+      "phase": "video-range",
+      "path": "/videos/ar/packed/native-v3/GT01.mp4",
+      "status": 206,
+      "bytes": 1048576,
+      "ttfbMs": 498,
+      "totalMs": 5317,
+      "cache": "HIT",
+      "cacheControl": "public, max-age=31536000, immutable",
+      "pass": true
+    },
+    {
+      "phase": "video-range",
+      "path": "/videos/ar/packed/native-v3/DV01.mp4",
+      "status": 206,
+      "bytes": 1048576,
+      "ttfbMs": 355,
+      "totalMs": 5425,
+      "cache": "HIT",
+      "cacheControl": "public, max-age=31536000, immutable",
+      "pass": true
+    },
+    {
+      "phase": "video-range",
+      "path": "/videos/ar/packed/native-v3/HTTN13.mp4",
+      "status": 206,
+      "bytes": 1048576,
+      "ttfbMs": 1195,
+      "totalMs": 5525,
+      "cache": "HIT",
+      "cacheControl": "public, max-age=31536000, immutable",
+      "pass": true
+    },
+    {
+      "phase": "video-range",
+      "path": "/videos/ar/packed/native-v3/DV01.mp4",
+      "status": 206,
+      "bytes": 1048576,
+      "ttfbMs": 393,
+      "totalMs": 5563,
+      "cache": "HIT",
+      "cacheControl": "public, max-age=31536000, immutable",
+      "pass": true
+    },
+    {
+      "phase": "video-range",
+      "path": "/videos/ar/packed/native-v3/DV05.mp4",
+      "status": 206,
+      "bytes": 1048576,
+      "ttfbMs": 1293,
+      "totalMs": 6221,
+      "cache": "HIT",
+      "cacheControl": "public, max-age=31536000, immutable",
+      "pass": true
+    },
+    {
+      "phase": "video-range",
+      "path": "/videos/ar/packed/native-v3/GT01.mp4",
+      "status": 206,
+      "bytes": 1048576,
+      "ttfbMs": 1351,
+      "totalMs": 6225,
+      "cache": "HIT",
+      "cacheControl": "public, max-age=31536000, immutable",
+      "pass": true
+    },
+    {
+      "phase": "video-range",
+      "path": "/videos/ar/packed/native-v3/HTTN07.mp4",
+      "status": 206,
+      "bytes": 1048576,
+      "ttfbMs": 1276,
+      "totalMs": 6470,
+      "cache": "HIT",
+      "cacheControl": "public, max-age=31536000, immutable",
+      "pass": true
+    }
+  ]
+}

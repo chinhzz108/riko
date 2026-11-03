@@ -1,8 +1,7 @@
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import {
   ArrowLeft,
-  Camera,
-  Flashlight,
+  ExternalLink,
   LoaderCircle,
   Minus,
   Plus,
@@ -12,6 +11,7 @@ import {
   X,
 } from "lucide-react"
 import { Link } from "react-router"
+import ARScanIntro from "./ARScanIntro"
 import type {
   Camera as ThreeCamera,
   Group,
@@ -318,22 +318,16 @@ export default function ARScan({ runtime }: { runtime?: ARScanRuntime } = {}) {
     useState<"idle" | "loading" | "ready" | "unavailable">("idle")
   const [selection, setSelection] = useState<Selection | null>(null)
   const [selectedAsset, setSelectedAsset] = useState<VideoAsset | null>(null)
-  const [trackedPageLabel, setTrackedPageLabel] = useState("")
-  const [cameraSize, setCameraSize] = useState("")
-  const [torchSupported, setTorchSupported] = useState(false)
-  const [torchOn, setTorchOn] = useState(false)
   const [soundOn, setSoundOn] = useState(true)
-  const [audioNeedsTap, setAudioNeedsTap] = useState(false)
   const [mediaStatus, setMediaStatus] = useState<"idle" | "loading" | "ready" | "buffering" | "error">("idle")
-  const [scannedQR, setScannedQR] = useState("")
   const [presentationScale, setPresentationScale] = useState(1)
 
-  const selectedTarget = useMemo(() => {
-    if (!selection?.slot.arTargetId) return null
-    return (
-      targets.find((target) => target.id === selection.slot.arTargetId) || null
-    )
-  }, [selection])
+  useEffect(() => {
+    if (!cameraOn) return
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = "hidden"
+    return () => { document.body.style.overflow = previousOverflow }
+  }, [cameraOn])
 
   function chooseSelection(next: Selection | null) {
     selectionRef.current = next
@@ -357,11 +351,8 @@ export default function ARScan({ runtime }: { runtime?: ARScanRuntime } = {}) {
     if (frameRef.current) delete frameRef.current.dataset.arFirstFrameMs
     activePageSlotRef.current = next.source === "qr" ? null : next.slot
     pendingQRRef.current = null
-    setScannedQR("")
-    setTrackedPageLabel(next.slot.label)
     soundOnRef.current = true
     setSoundOn(true)
-    setAudioNeedsTap(false)
     setMediaStatus("loading")
     presentationScaleRef.current = 1
     setPresentationScale(1)
@@ -392,8 +383,6 @@ export default function ARScan({ runtime }: { runtime?: ARScanRuntime } = {}) {
     qrFallbackRef.current = null
     setSelectedAsset(null)
     setMediaStatus("idle")
-    setScannedQR("")
-    setTrackedPageLabel("")
     setError("")
     chooseSelection(null)
     for (const record of planeRecordsRef.current) {
@@ -533,7 +522,6 @@ export default function ARScan({ runtime }: { runtime?: ARScanRuntime } = {}) {
         if (cause instanceof Error && cause.name === "NotAllowedError" && !video.muted) {
           soundOnRef.current = false
           setSoundOn(false)
-          setAudioNeedsTap(true)
           video.muted = true
           await playARVideo(video)
         } else {
@@ -1070,8 +1058,6 @@ export default function ARScan({ runtime }: { runtime?: ARScanRuntime } = {}) {
     setStarting(true)
     chooseSelection(null)
     dismissedSlotRef.current = null
-    setScannedQR("")
-    setTrackedPageLabel("")
     setTrackerStatus("loading")
     setModelStatus("loading")
     setCameraOn(true)
@@ -1102,10 +1088,7 @@ export default function ARScan({ runtime }: { runtime?: ARScanRuntime } = {}) {
         cameraTrack?.getCapabilities?.() as MediaTrackCapabilities & {
           focusMode?: string[]
           exposureMode?: string[]
-          torch?: boolean
         } | undefined
-      setTorchSupported(Boolean(capabilities?.torch))
-      setTorchOn(false)
       const automaticControls: Array<{
         focusMode?: string
         exposureMode?: string
@@ -1155,9 +1138,6 @@ export default function ARScan({ runtime }: { runtime?: ARScanRuntime } = {}) {
       recognitionPauseRef.current = createRecognitionPause(tracker.controller,
         () => new Promise<void>(resolve => requestAnimationFrame(() => resolve())))
       cameraVideoRef.current = tracker.video
-      setCameraSize(
-        `${tracker.video.videoWidth} × ${tracker.video.videoHeight}`,
-      )
       setTrackerStatus("ready")
       if (playbackSessionRef.current.canScan()) beginScanLoop(tracker.video)
       else recognitionPauseRef.current.pause()
@@ -1167,8 +1147,6 @@ export default function ARScan({ runtime }: { runtime?: ARScanRuntime } = {}) {
       if (cameraSessionRef.current !== cameraSession) return
       disposeTracker()
       setCameraOn(false)
-      setTorchSupported(false)
-      setTorchOn(false)
       setTrackerStatus("idle")
       setModelStatus("idle")
       setError(cameraErrorMessage(cameraError))
@@ -1203,7 +1181,7 @@ export default function ARScan({ runtime }: { runtime?: ARScanRuntime } = {}) {
           }
           if (slot?.arVideoUrl && pendingQRRef.current?.slot.id!==slot.id) {
             preloadCandidate(slot)
-            pendingQRRef.current={slot,foundAt:now};setScannedQR(slot.id)
+            pendingQRRef.current={slot,foundAt:now}
           }
         } else if (!event.data.located && now-lastQrLocationAt>1200) {
           const dismissed=playbackSessionRef.current.snapshot().dismissedId
@@ -1300,13 +1278,8 @@ export default function ARScan({ runtime }: { runtime?: ARScanRuntime } = {}) {
     chooseSelection(null)
     setSelectedAsset(null)
     setMediaStatus("idle")
-    setTrackedPageLabel("")
-    setCameraSize("")
-    setTorchSupported(false)
-    setTorchOn(false)
     setTrackerStatus("idle")
     setModelStatus("idle")
-    setScannedQR("")
     dismissedSlotRef.current = null
   }
 
@@ -1314,7 +1287,6 @@ export default function ARScan({ runtime }: { runtime?: ARScanRuntime } = {}) {
     const next = !soundOn
     soundOnRef.current = next
     setSoundOn(next)
-    setAudioNeedsTap(false)
     const media = spatialRef.current
     if (media?.currentVideo) {
       media.currentVideo.muted = !next
@@ -1323,7 +1295,6 @@ export default function ARScan({ runtime }: { runtime?: ARScanRuntime } = {}) {
           if (cause instanceof Error && cause.name === "NotAllowedError") {
             soundOnRef.current = false
             setSoundOn(false)
-            setAudioNeedsTap(true)
             media.currentVideo!.muted = true
           }
         })
@@ -1331,36 +1302,6 @@ export default function ARScan({ runtime }: { runtime?: ARScanRuntime } = {}) {
     }
   }
 
-  async function toggleTorch() {
-    const track = streamRef.current?.getVideoTracks()[0]
-    if (!track || !torchSupported) return
-    const next = !torchOn
-    try {
-      await track.applyConstraints({
-        advanced: [{ torch: next } as MediaTrackConstraintSet],
-      })
-      setTorchOn(next)
-    } catch (torchError) {
-      console.warn("This camera cannot change its torch state.", torchError)
-      setTorchSupported(false)
-      setTorchOn(false)
-    }
-  }
-
-  const targetLabel =
-    selectedTarget?.label ||
-    selection?.slot.label ||
-    trackedPageLabel ||
-    "Riko đang tìm trang sách"
-  const cameraStatus = selection
-    ? `Đang xem ${selection.slot.label} · X để đóng và quét tiếp`
-    : starting
-      ? "Đang kết nối camera và chuẩn bị nhận diện 54 trang…"
-      : trackerStatus === "loading"
-        ? "Đang nạp mục tiêu ảnh của 54 trang…"
-        : modelStatus === "unavailable"
-          ? "Đưa trang sách vào khung hình · QR là dự phòng"
-          : "Đưa hình popup hoặc trang sách vào khung · giữ yên 1–2 giây"
   const qrVideoSrc =
     selectedAsset?.previewVideoUrl ||
     (videoPresentations as Record<string, VideoPresentation>)[
@@ -1371,387 +1312,110 @@ export default function ARScan({ runtime }: { runtime?: ARScanRuntime } = {}) {
       : selectedAsset?.alphaVideoUrl || selection?.slot.arVideoUrl || "")
 
   return (
-    <main
-      className={
-        cameraOn
-          ? "fixed inset-0 z-[60] h-[100dvh] w-screen overflow-clip bg-[#071320] p-0"
-          : "mx-auto min-h-[70vh] max-w-[1120px] px-5 py-8 sm:px-8 sm:py-12"
-      }
-    >
-      {!cameraOn && (
-        <>
-          <Link
-            to="/book"
-            className="inline-flex items-center gap-2 text-sm text-[#4A5461] hover:text-primary"
-          >
-            <ArrowLeft size={17} /> Về trang sách
-          </Link>
-          <div className="mx-auto mt-7 max-w-3xl text-center">
-            <span className="inline-flex items-center gap-2 rounded-full bg-[#E7F5F7] px-4 py-2 text-xs font-bold uppercase tracking-[0.12em] text-primary">
-              <Camera size={15} /> Riko AR
-            </span>
-            <h1 className="mt-4 text-3xl font-bold text-primary sm:text-4xl">
-              Đưa hình popup hoặc trang sách vào khung hình
-            </h1>
-            <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-[#4A5461] sm:text-base">
-              Đưa hình popup hoặc trang sách vào khung để mở nhân vật. Khi video mở, nhân vật
-              giữ ổn định trong khung camera. Kéo để di chuyển, chụm hai ngón
-              để thu phóng. Bấm X để đóng video và tự quét trang tiếp theo.
-            </p>
-          </div>
-        </>
-      )}
-
-      <div
-        className={
-          cameraOn
-            ? "relative h-full w-full overflow-clip bg-[#142333]"
-            : "mx-auto mt-8 max-w-4xl overflow-hidden rounded-[28px] border border-[#DFE5E8] bg-[#142333] shadow-xl"
-        }
-      >
+    <div className={cameraOn ? "ar-camera" : "ar-page"}>
+      {!cameraOn && <ARScanIntro onStart={startCamera} starting={starting} error={error} />}
+      <div className={cameraOn ? "relative h-full w-full" : "hidden"}>
         <div
           ref={frameRef}
           data-ar-stage="true"
           data-ar-phase={selection ? "playing" : cameraOn ? "scanning" : "idle"}
           data-ar-source={selection?.source || ""}
           data-ar-media={mediaStatus}
-          style={{
-            touchAction: cameraOn ? "none" : "auto",
-            userSelect: "none",
-          }}
-          className={`relative bg-[#142333] ${
-            cameraOn
-              ? "h-full w-full overflow-clip"
-              : "aspect-video overflow-hidden"
-          }`}
+          data-ar-detector={modelStatus}
+          style={{ touchAction: cameraOn ? "none" : "auto", userSelect: "none" }}
+          className="relative h-full w-full overflow-clip bg-[#071320]"
         >
-          <div
-            ref={cameraLayerRef}
-            className={`absolute inset-0 ${cameraOn ? "block" : "hidden"}`}
-          />
-          {cameraOn && (
-            <div
-              ref={videoOverlayRef}
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-0 z-20 overflow-hidden"
-            />
-          )}
+          <div ref={cameraLayerRef} className="absolute inset-0" />
+          {cameraOn && <div ref={videoOverlayRef} aria-hidden="true" className="pointer-events-none absolute inset-0 z-20 overflow-hidden" />}
+
           {cameraOn && trackerStatus !== "ready" && (
-            <div className="pointer-events-none absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-[#071320] px-6 text-center text-white">
-              <Camera size={42} className="text-[#A8D8E8]" />
-              <p className="text-base font-semibold">
-                {starting ? "Đang kết nối camera…" : "Đang nạp nhận diện AR…"}
-              </p>
-              <p className="max-w-sm text-sm leading-6 text-white/75">
-                Màn hình quét đã mở toàn màn hình. Cho phép camera để hiện hình
-                trực tiếp và bắt đầu nhận diện.
-              </p>
+            <div role="status" aria-label="Đang mở camera" className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center bg-[#071320]">
+              <LoaderCircle size={32} className="animate-spin text-white/80" aria-hidden="true" />
             </div>
           )}
-          {cameraOn && selection && selection.source !== "qr" &&
-            (mediaStatus === "loading" || mediaStatus === "buffering") && (
-              <div role="status" className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center">
-                <div className="flex items-center gap-3 rounded-2xl bg-black/70 px-5 py-4 text-sm font-semibold text-white">
-                  <LoaderCircle size={21} className="animate-spin" />
-                  {mediaStatus === "loading" ? "Đã nhận trang · đang mở video…" : "Đang tải tiếp video…"}
-                </div>
-              </div>
-            )}
+          {cameraOn && selection && (mediaStatus === "loading" || mediaStatus === "buffering") && (
+            <div role="status" aria-label="Đang tải video AR" className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center">
+              <span className="rounded-full bg-black/50 p-4"><LoaderCircle size={26} className="animate-spin text-white" aria-hidden="true" /></span>
+            </div>
+          )}
           {cameraOn && (
             <>
-              <div
-                className="pointer-events-none absolute inset-x-0 top-0 z-30 flex items-start justify-between gap-4 bg-gradient-to-b from-black/75 to-transparent px-4 pb-8 pt-4 text-white sm:px-6"
-                style={{ paddingTop: "max(1rem, env(safe-area-inset-top))" }}
-              >
-                <div className="min-w-0">
-                  <p className="text-sm font-bold">Riko AR · camera sau</p>
-                  <p className="mt-1 max-w-[75vw] text-xs text-white/90">
-                    {cameraStatus}
-                  </p>
-                </div>
-                <div className="pointer-events-auto flex shrink-0 items-center gap-2">
-                  {torchSupported && (
-                    <button
-                      type="button"
-                      onClick={() => void toggleTorch()}
-                      className="inline-flex items-center gap-1.5 rounded-full bg-black/45 px-3 py-2 text-sm font-semibold text-white transition hover:bg-black/70"
-                      aria-label={torchOn ? "Tắt đèn camera" : "Bật đèn camera"}
-                    >
-                      <Flashlight size={16} /> {torchOn ? "Tắt đèn" : "Bật đèn"}
-                    </button>
-                  )}
-                  <Link
-                    to="/"
-                    className="inline-flex items-center gap-1.5 rounded-full bg-black/45 px-3 py-2 text-sm font-semibold text-white transition hover:bg-black/70"
-                  >
-                    <X size={17} /> Thoát
-                  </Link>
-                </div>
-              </div>
-              {!selection && (
-                <div className="pointer-events-none absolute left-1/2 top-1/2 z-10 h-[68%] w-[82%] max-w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-2xl sm:h-[74%] sm:w-[56%]">
-                  <span className="absolute left-0 top-0 h-8 w-8 rounded-tl-2xl border-l-[3px] border-t-[3px] border-white drop-shadow" />
-                  <span className="absolute right-0 top-0 h-8 w-8 rounded-tr-2xl border-r-[3px] border-t-[3px] border-white drop-shadow" />
-                  <span className="absolute bottom-0 left-0 h-8 w-8 rounded-bl-2xl border-b-[3px] border-l-[3px] border-white drop-shadow" />
-                  <span className="absolute bottom-0 right-0 h-8 w-8 rounded-br-2xl border-b-[3px] border-r-[3px] border-white drop-shadow" />
-                  <span className="absolute inset-x-2 bottom-3 rounded-xl bg-black/60 px-3 py-2 text-center text-xs font-semibold text-white sm:text-sm">
-                    Giữ popup hoặc trọn trang sách trong khung · tránh lóa ·
-                    cách camera khoảng 25–40 cm
-                  </span>
-                </div>
-              )}
-              {cameraOn && error && (
-                <div
-                  role="alert"
-                  className="absolute inset-x-4 bottom-20 z-40 mx-auto flex max-w-md items-center justify-between gap-3 rounded-2xl bg-red-950/90 px-4 py-3 text-sm font-semibold text-white shadow-xl"
-                  style={{
-                    bottom:
-                      "max(5rem, calc(env(safe-area-inset-bottom) + 4rem))",
-                  }}
-                >
-                  <span>{error}</span>
-                  <button
-                    type="button"
-                    className="shrink-0 rounded-full bg-white/15 px-3 py-2 text-xs"
-                    onClick={() => {
-                      const slot =
-                        selectionRef.current?.slot || activePageSlotRef.current
-                      if (slot) void showSpatialVideo(slot)
-                    }}
-                  >
-                    Thử lại
-                  </button>
-                </div>
-              )}
-              {selection && selection.source !== "qr" && (
-                <button
-                  type="button"
-                  data-ar-controls="true"
-                  onClick={() => void closeARVideo()}
-                  aria-label="Đóng video AR và quét tiếp"
-                  className="absolute right-4 top-24 z-40 flex h-12 w-12 items-center justify-center rounded-full border border-white/70 bg-white/95 text-[#173E72] shadow-lg active:scale-95"
-                >
-                  <X size={25} strokeWidth={2.5} />
+              <div className="ar-camera-topbar" data-ar-controls="true">
+                <button type="button" onClick={stopCamera} aria-label="Đóng camera" className="ar-camera-button">
+                  <ArrowLeft size={22} aria-hidden="true" />
                 </button>
-              )}
-              {selection && selection.source !== "qr" && (
-                <div
-                  data-ar-controls="true"
-                  className="absolute bottom-5 left-1/2 z-30 flex max-w-[94vw] -translate-x-1/2 flex-col gap-2 rounded-2xl bg-[#173E72]/95 px-4 py-3 text-xs font-semibold text-white shadow-lg backdrop-blur-sm"
-                  style={{
-                    bottom: "max(1.25rem, env(safe-area-inset-bottom))",
-                  }}
-                >
-                  <div className="flex w-full items-center justify-between gap-3">
-                    <span className="max-w-[54vw] truncate">{targetLabel}</span>
-                    <div className="flex items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={toggleSound}
-                        className="rounded-full p-1 hover:bg-white/15"
-                        aria-label={
-                          soundOn ? "Tắt tiếng video AR" : "Bật tiếng video AR"
-                        }
-                      >
-                        {soundOn ? (
-                          <Volume2 size={16} />
-                        ) : (
-                          <VolumeX size={16} />
-                        )}
-                      </button>
-                      {audioNeedsTap && (
-                        <span className="text-[10px] text-white/80">
-                          Chạm loa để bật tiếng
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-center gap-3 border-t border-white/15 pt-2">
-                    <span className="text-white/75">Kích thước</span>
-                    <button
-                      type="button"
-                      onClick={() => changePresentationScale(-0.25)}
-                      disabled={presentationScale <= MIN_AR_SCALE}
-                      aria-label="Thu nhỏ video AR"
-                      className="rounded-full bg-white/15 p-2 disabled:opacity-30"
-                    >
-                      <Minus size={16} />
-                    </button>
-                    <span className="w-10 text-center tabular-nums">
-                      {Math.round(presentationScale * 100)}%
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => changePresentationScale(0.25)}
-                      disabled={presentationScale >= MAX_AR_SCALE}
-                      aria-label="Phóng to video AR"
-                      className="rounded-full bg-white/15 p-2 disabled:opacity-30"
-                    >
-                      <Plus size={16} />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={resetPresentation}
-                      aria-label="Đặt lại vị trí và kích thước AR"
-                      className="rounded-full bg-white/15 p-2"
-                    >
-                      <RotateCcw size={16} />
-                    </button>
-                  </div>
-                  <p className="text-center text-[10px] font-normal text-white/75">
-                    Kéo để di chuyển · Chụm để thu phóng · X để quét tiếp
-                  </p>
+                {selection && (
+                  <button type="button" onClick={() => void closeARVideo()} aria-label="Đóng video AR và quét tiếp" className="ar-camera-button">
+                    <X size={24} aria-hidden="true" />
+                  </button>
+                )}
+              </div>
+
+              {!selection && trackerStatus === "ready" && (
+                <div aria-hidden="true" className="ar-camera-viewfinder">
+                  <span className="ar-viewfinder-corner ar-viewfinder-tl" />
+                  <span className="ar-viewfinder-corner ar-viewfinder-tr" />
+                  <span className="ar-viewfinder-corner ar-viewfinder-bl" />
+                  <span className="ar-viewfinder-corner ar-viewfinder-br" />
                 </div>
               )}
-              <button
-                type="button"
-                onClick={stopCamera}
-                className="absolute left-3 top-20 z-30 inline-flex items-center gap-2 rounded-full bg-black/55 px-3 py-2 text-xs font-semibold text-white hover:bg-black/75 sm:bottom-4 sm:left-4 sm:top-auto"
-              >
-                <RotateCcw size={15} /> Dừng camera
-              </button>
-              {scannedQR && !selection && (
-                <span
-                  className="absolute bottom-5 right-3 z-20 rounded-full bg-black/65 px-3 py-2 text-xs text-white"
-                  style={{
-                    bottom: "max(1.25rem, env(safe-area-inset-bottom))",
-                  }}
-                >
-                  Đã đọc QR · chờ nhận ảnh 0,8 giây
-                </span>
+
+              {selection?.source === "qr" && selection.slot.arVideoUrl && (
+                <div className="ar-qr-video" data-ar-controls="true">
+                  <video
+                    key={`${selection.slot.id}:${qrVideoSrc}`}
+                    src={qrVideoSrc}
+                    autoPlay loop playsInline muted={!soundOn} controls
+                    onPlaying={() => setMediaStatus("ready")}
+                    onWaiting={() => setMediaStatus("buffering")}
+                    onCanPlay={(event) => {
+                      const video = event.currentTarget
+                      if (!soundOnRef.current) return
+                      void video.play().catch((cause: unknown) => {
+                        if (cause instanceof Error && cause.name === "NotAllowedError") {
+                          soundOnRef.current = false
+                          setSoundOn(false)
+                          video.muted = true
+                          void video.play().catch(() => undefined)
+                        }
+                      })
+                    }}
+                    className="block max-h-[70dvh] w-full bg-black object-contain"
+                  />
+                </div>
+              )}
+
+              {selection && (
+                <div role="toolbar" aria-label="Điều khiển video AR" data-ar-controls="true" className="ar-camera-toolbar">
+                  <button type="button" onClick={toggleSound} aria-label={soundOn ? "Tắt tiếng video AR" : "Bật tiếng video AR"} aria-pressed={soundOn} className="ar-camera-tool">
+                    {soundOn ? <Volume2 size={20} aria-hidden="true" /> : <VolumeX size={20} aria-hidden="true" />}
+                  </button>
+                  {selection.source !== "qr" ? (
+                    <>
+                      <span className="mx-1 h-5 w-px bg-white/20" aria-hidden="true" />
+                      <button type="button" onClick={() => changePresentationScale(-0.25)} disabled={presentationScale <= MIN_AR_SCALE} aria-label="Thu nhỏ video AR" className="ar-camera-tool"><Minus size={20} aria-hidden="true" /></button>
+                      <button type="button" onClick={() => changePresentationScale(0.25)} disabled={presentationScale >= MAX_AR_SCALE} aria-label="Phóng to video AR" className="ar-camera-tool"><Plus size={20} aria-hidden="true" /></button>
+                      <button type="button" onClick={resetPresentation} aria-label="Đặt lại vị trí và kích thước AR" className="ar-camera-tool"><RotateCcw size={19} aria-hidden="true" /></button>
+                    </>
+                  ) : (
+                    <Link to={`/watch/${selection.slot.id}`} aria-label="Mở trang video" className="ar-camera-tool"><ExternalLink size={19} aria-hidden="true" /></Link>
+                  )}
+                </div>
+              )}
+              {error && (
+                <div role="alert" className="ar-camera-error">
+                  <span>{error}</span>
+                  <button type="button" aria-label="Thử phát lại video" className="ar-camera-tool shrink-0" onClick={() => {
+                    const slot = selectionRef.current?.slot || activePageSlotRef.current
+                    if (slot) void showSpatialVideo(slot)
+                  }}><RotateCcw size={19} aria-hidden="true" /></button>
+                </div>
               )}
             </>
           )}
-          {!cameraOn && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center px-5 text-center text-white">
-              <Camera size={48} className="text-[#A8D8E8]" />
-              <p className="mt-4 text-lg font-semibold">
-                Khung camera hiển thị toàn màn hình
-              </p>
-              <p className="mt-2 max-w-md text-sm text-white/75">
-                Cho phép camera sau, đưa popup hoặc trọn một trang sách vào
-                khung và giữ yên để nhận diện khóa hình.
-              </p>
-              <button
-                type="button"
-                onClick={startCamera}
-                disabled={starting}
-                className="mt-6 inline-flex items-center gap-2 rounded-full bg-[#F45B40] px-6 py-3 font-semibold text-white transition hover:bg-[#dc4c33] disabled:opacity-60"
-              >
-                <Camera size={18} />{" "}
-                {starting ? "Đang mở camera…" : "Bắt đầu quét"}
-              </button>
-            </div>
-          )}
-          {cameraOn &&
-            selection?.source === "qr" &&
-            selection.slot.arVideoUrl && (
-              <div className="absolute inset-x-3 bottom-3 z-20 max-h-[55dvh] overflow-hidden rounded-2xl border border-white/70 bg-white shadow-2xl sm:inset-x-auto sm:bottom-auto sm:right-4 sm:top-20 sm:w-[min(42%,420px)]">
-                <div className="flex items-center justify-between gap-3 bg-[#173E72] px-3 py-2 text-white">
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-bold">{targetLabel}</p>
-                    <p className="text-[11px] text-white/75">
-                      Video từ mã QR · X để đóng và quét tiếp
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => void closeARVideo()}
-                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full hover:bg-white/15"
-                    aria-label="Đóng video AR và quét tiếp"
-                  >
-                    <X size={17} />
-                  </button>
-                </div>
-                <video
-                  key={`${selection.slot.id}:${qrVideoSrc}`}
-                  src={qrVideoSrc}
-                  autoPlay
-                  loop
-                  playsInline
-                  muted={!soundOn}
-                  controls
-                  onPlaying={() => setMediaStatus("ready")}
-                  onWaiting={() => setMediaStatus("buffering")}
-                  onCanPlay={(event) => {
-                    const video = event.currentTarget
-                    if (!soundOnRef.current) return
-                    void video.play().catch((cause: unknown) => {
-                      if (cause instanceof Error && cause.name === "NotAllowedError") {
-                        soundOnRef.current = false
-                        setSoundOn(false)
-                        setAudioNeedsTap(true)
-                        video.muted = true
-                        void video.play().catch(() => undefined)
-                      }
-                    })
-                  }}
-                  className="aspect-video w-full bg-black object-contain"
-                />
-                <div className="flex items-center justify-between gap-3 px-3 py-2 text-[11px] text-[#596575]">
-                  {audioNeedsTap && (
-                    <span className="text-[#596575]">
-                      Chạm loa để bật tiếng
-                    </span>
-                  )}
-                  <button
-                    type="button"
-                    onClick={toggleSound}
-                    className="inline-flex items-center gap-1.5 font-semibold text-primary"
-                  >
-                    {soundOn ? <Volume2 size={15} /> : <VolumeX size={15} />}{" "}
-                    {soundOn ? "Tắt tiếng" : "Bật tiếng"}
-                  </button>
-                  <Link
-                    to={`/watch/${selection.slot.id}`}
-                    className="shrink-0 font-semibold text-primary underline underline-offset-2"
-                  >
-                    Mở trang video
-                  </Link>
-                </div>
-              </div>
-            )}
         </div>
         <canvas ref={captureCanvasRef} className="hidden" aria-hidden="true" />
-        {!cameraOn && (
-          <div className="flex flex-wrap items-center justify-between gap-3 bg-white px-4 py-4 sm:px-6">
-            <p className="text-xs leading-5 text-[#596575]">
-              Dùng hình popup hoặc sách thật, giữ đối tượng trong khung hình và
-              tránh ánh phản chiếu. Nhân vật sẽ hiện ra ngay khi được nhận diện.
-            </p>
-            <div className="flex gap-2">
-              <Link
-                to="/book"
-                className="inline-flex items-center gap-2 rounded-full border border-[#D9E0E5] px-4 py-2 text-sm font-semibold text-primary hover:bg-[#F5F8FA]"
-              >
-                Xem sách
-              </Link>
-            </div>
-          </div>
-        )}
       </div>
-      {error && (
-        <p
-          role="alert"
-          className="mx-auto mt-4 max-w-3xl rounded-2xl bg-red-50 px-4 py-3 text-sm text-red-700"
-        >
-          {error}
-        </p>
-      )}
-      {selection &&
-        selectedAsset?.alpha &&
-        isSafariOrIOS() &&
-        selection.source === "qr" && (
-          <p className="mx-auto mt-3 max-w-3xl text-center text-xs text-[#6B7480]">
-            Bấm X để đóng video và tiếp tục quét trang sách.
-          </p>
-        )}
-      {!cameraOn && (
-        <p className="mx-auto mt-5 max-w-3xl text-center text-xs leading-5 text-[#6B7480]">
-          Trên iPhone hãy mở bằng Safari và cho phép camera. Hãy bật đủ sáng,
-          tránh ánh phản chiếu và giữ nguyên trang khoảng 1–2 giây.
-        </p>
-      )}
-    </main>
+    </div>
   )
 }
