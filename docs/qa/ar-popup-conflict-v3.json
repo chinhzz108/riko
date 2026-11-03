@@ -1,0 +1,45 @@
+{
+  "date": "2026-11-03",
+  "kind": "desktop-chromium-synthetic-camera",
+  "realMindAR": false,
+  "realModel": false,
+  "measurements": [
+    {
+      "page": "book-c1-p04",
+      "popup": "book-c1-p03",
+      "mode": "conflict",
+      "shown": true,
+      "shake": false,
+      "trackerFrames": 215,
+      "modelCalls": 2,
+      "qrJobs": 12,
+      "qrWorkers": 0,
+      "starts": 1,
+      "stops": 1,
+      "startedAt": 313.5,
+      "warming": false,
+      "decodedQR": "https://rikokid.me/watch/book-c1-p04",
+      "phase": "playing",
+      "source": "popup",
+      "mediaState": "ready",
+      "firstFrameMs": "38.4",
+      "detector": {
+        "execution": "idle",
+        "pending": false
+      },
+      "cameraLive": "live",
+      "media": {
+        "url": "/videos/ar/packed/native-v3/GT01.mp4",
+        "time": 5.687976,
+        "width": 2560,
+        "height": 720,
+        "dropped": 3,
+        "total": 621
+      },
+      "transform": "translate3d(-10000px, -10000px, 0px)",
+      "renders": "621"
+    }
+  ],
+  "scenario": "?mode=conflict&page=book-c1-p04&popup=book-c1-p03&trackBackground=1&warmDelay=3500",
+  "limits": "Desktop Chromium; synthetic camera frames; not physical iOS/Android measurements."
+}

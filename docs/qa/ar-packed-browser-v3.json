@@ -1,0 +1,591 @@
+{
+  "date": "2026-11-03",
+  "kind": "desktop-browser-decode-shader-playback",
+  "results": [
+    {
+      "id": "GT01",
+      "pass": true,
+      "alphaMAE": 0.00043463945908227584,
+      "colorMAE": 0.009860822808115675,
+      "mode": "cutout",
+      "dimensions": [
+        2560,
+        720
+      ],
+      "packedSHA256": "bead6f0c94f2bb4efe90930fb677ecb06e1833ac1c60c293bcecdfa89616c010",
+      "url": "/videos/ar/packed/native-v3/GT01.mp4"
+    },
+    {
+      "id": "GT02",
+      "pass": true,
+      "alphaMAE": 0.0009106072984749561,
+      "colorMAE": 0.018715518659834146,
+      "mode": "cutout",
+      "dimensions": [
+        1920,
+        960
+      ],
+      "packedSHA256": "a20f386a86b5d890f7647bb41c8f7dac762bcc56a977ec18dbd802488afa5f37",
+      "url": "/videos/ar/packed/native-v3/GT02.mp4"
+    },
+    {
+      "id": "GT03",
+      "pass": true,
+      "alphaMAE": 0.000360705805759824,
+      "colorMAE": 0.008871811935528485,
+      "mode": "cutout",
+      "dimensions": [
+        2560,
+        720
+      ],
+      "packedSHA256": "022b99f29ec7a2624e2764c837eb1bd6c8d9a836a3028bd2eca909f3180d7620",
+      "url": "/videos/ar/packed/native-v3/GT03.mp4"
+    },
+    {
+      "id": "GT04",
+      "pass": true,
+      "alphaMAE": 0.0006042613442946985,
+      "colorMAE": 0.012369197366565684,
+      "mode": "cutout",
+      "dimensions": [
+        2560,
+        720
+      ],
+      "packedSHA256": "65f30b95134428a4e30b9673e6d78cc6a3c7bf0d05627912867d61aee591e23b",
+      "url": "/videos/ar/packed/native-v3/GT04.mp4"
+    },
+    {
+      "id": "GT05",
+      "pass": true,
+      "alphaMAE": 0.0027897188606341734,
+      "colorMAE": 0.013059681841756031,
+      "mode": "cutout",
+      "dimensions": [
+        2560,
+        720
+      ],
+      "packedSHA256": "06f32cf8ad8e9ea91e15fb1992d0a1c0c901c7535d531eb2c0315091cf467b73",
+      "url": "/videos/ar/packed/native-v3/GT05.mp4"
+    },
+    {
+      "id": "GT06",
+      "pass": true,
+      "alphaMAE": 0.0003893484477124458,
+      "colorMAE": 0.020209675567633565,
+      "mode": "cutout",
+      "dimensions": [
+        2560,
+        720
+      ],
+      "packedSHA256": "e94a584af00215dd794caf2feebe4908950ffd086c7ddfbb76f4bf692eeabfec",
+      "url": "/videos/ar/packed/native-v3/GT06.mp4"
+    },
+    {
+      "id": "GT07",
+      "pass": true,
+      "alphaMAE": 0.00038642301538673566,
+      "colorMAE": 0.023579512974788632,
+      "mode": "cutout",
+      "dimensions": [
+        2560,
+        720
+      ],
+      "packedSHA256": "d0d63c37515bbd848fd544226c71fb3ff46d988939957dbeeeb630e2331a06b5",
+      "url": "/videos/ar/packed/native-v3/GT07.mp4"
+    },
+    {
+      "id": "GT08",
+      "pass": true,
+      "alphaMAE": 0.0004046404803241013,
+      "colorMAE": 0.011089123469961302,
+      "mode": "cutout",
+      "dimensions": [
+        2560,
+        720
+      ],
+      "packedSHA256": "0eff2477cff15fd51fbfb89f4d06fc13ef77d52a8424f90b7b7b8c8c49cd0eb5",
+      "url": "/videos/ar/packed/native-v3/GT08.mp4"
+    },
+    {
+      "id": "GT09",
+      "pass": true,
+      "alphaMAE": 0.0009031607434640895,
+      "colorMAE": 0.01677314859758562,
+      "mode": "cutout",
+      "dimensions": [
+        2560,
+        720
+      ],
+      "packedSHA256": "dcf459f663cfdc1640ad6c402b31df9717f7a8d34a54c7d0ca992ab5e5f9ae16",
+      "url": "/videos/ar/packed/native-v3/GT09.mp4"
+    },
+    {
+      "id": "GT10",
+      "pass": true,
+      "alphaMAE": 0.00043764467592596434,
+      "colorMAE": 0.014503114559401243,
+      "mode": "cutout",
+      "dimensions": [
+        2560,
+        720
+      ],
+      "packedSHA256": "c126a85f2fac00bc6749637943162ef123f5f49ec70cfa49dbbe26e68989d99c",
+      "url": "/videos/ar/packed/native-v3/GT10.mp4"
+    },
+    {
+      "id": "DV01",
+      "pass": true,
+      "alphaMAE": 0.0006321593307462301,
+      "colorMAE": 0.00918070062661339,
+      "mode": "cutout",
+      "dimensions": [
+        2560,
+        720
+      ],
+      "packedSHA256": "00227a83932276ac01b7afb3322f9b09473fd3ab568ff452da653e62cd59dfd6",
+      "url": "/videos/ar/packed/native-v3/DV01.mp4"
+    },
+    {
+      "id": "DV02",
+      "pass": true,
+      "alphaMAE": 0.00038469435083063856,
+      "colorMAE": 0.00955410280382456,
+      "mode": "cutout",
+      "dimensions": [
+        2560,
+        720
+      ],
+      "packedSHA256": "6ef37688c0a34bb7794231b1ad384ecb446c772b1e097a59a662b7e7d0aec7ad",
+      "url": "/videos/ar/packed/native-v3/DV02.mp4"
+    },
+    {
+      "id": "DV03",
+      "pass": true,
+      "alphaMAE": 0.0003830188759531844,
+      "colorMAE": 0.01120067115235641,
+      "mode": "cutout",
+      "dimensions": [
+        2560,
+        720
+      ],
+      "packedSHA256": "913acd44c9b05894303eab604fef04aafba54da02a84a905eddb227ec7b25f68",
+      "url": "/videos/ar/packed/native-v3/DV03.mp4"
+    },
+    {
+      "id": "DV04",
+      "pass": true,
+      "alphaMAE": 0.0003281005327478399,
+      "colorMAE": 0.008718385379398369,
+      "mode": "cutout",
+      "dimensions": [
+        2560,
+        720
+      ],
+      "packedSHA256": "f1d7e5dc07af54a9423d4fbbf6ab1e7d23212bbc324c1e303f6539a2f228b2f2",
+      "url": "/videos/ar/packed/native-v3/DV04.mp4"
+    },
+    {
+      "id": "DV05",
+      "pass": true,
+      "alphaMAE": 0.0009023097086056998,
+      "colorMAE": 0.020258412738389114,
+      "mode": "cutout",
+      "dimensions": [
+        2560,
+        720
+      ],
+      "packedSHA256": "f414d6b3955cd50866a771b4f19605a5f81d6782494e8e3a665ba85b05fb62c7",
+      "url": "/videos/ar/packed/native-v3/DV05.mp4"
+    },
+    {
+      "id": "DV06",
+      "pass": true,
+      "alphaMAE": 0.00047955814270155505,
+      "colorMAE": 0.010845469672244255,
+      "mode": "cutout",
+      "dimensions": [
+        2560,
+        720
+      ],
+      "packedSHA256": "01e147ac5fc4bb26141733adc164b2ce98e7f3fc2965563a74709b4da7dfa55c",
+      "url": "/videos/ar/packed/native-v3/DV06.mp4"
+    },
+    {
+      "id": "DV07",
+      "pass": true,
+      "alphaMAE": 0.0004392669611247625,
+      "colorMAE": 0.018806121639940738,
+      "mode": "cutout",
+      "dimensions": [
+        2560,
+        720
+      ],
+      "packedSHA256": "2f8b1ba3271171a5ff8b6eed7693c2df3638f64bba02b33fee70276020e8ee8c",
+      "url": "/videos/ar/packed/native-v3/DV07.mp4"
+    },
+    {
+      "id": "DV08",
+      "pass": true,
+      "alphaMAE": 0.00043136829384535116,
+      "colorMAE": 0.010975826992604458,
+      "mode": "cutout",
+      "dimensions": [
+        2560,
+        720
+      ],
+      "packedSHA256": "d403161ce2bc28c71f119e85719d677d3093563b5d15be875bef9df245f5dd4b",
+      "url": "/videos/ar/packed/native-v3/DV08.mp4"
+    },
+    {
+      "id": "DV09",
+      "pass": true,
+      "alphaMAE": 0.0005388380395561379,
+      "colorMAE": 0.016800330698089457,
+      "mode": "cutout",
+      "dimensions": [
+        2560,
+        720
+      ],
+      "packedSHA256": "2b86a4bc289912e300e9efe1fa4c3e3d6608af2d3e4c6894aa93aaaa07aca8f5",
+      "url": "/videos/ar/packed/native-v3/DV09.mp4"
+    },
+    {
+      "id": "DV10",
+      "pass": true,
+      "alphaMAE": 0.0007131938061683355,
+      "colorMAE": 0.010291186261263087,
+      "mode": "cutout",
+      "dimensions": [
+        2560,
+        720
+      ],
+      "packedSHA256": "eb7e4d1645fe238eeb6044e1faefcd56a70e02d1fd05443f416447a77916ff1d",
+      "url": "/videos/ar/packed/native-v3/DV10.mp4"
+    },
+    {
+      "id": "HTTN01",
+      "pass": true,
+      "alphaMAE": 0.0024356883595441315,
+      "colorMAE": 0.028247462789637266,
+      "mode": "cutout",
+      "dimensions": [
+        2560,
+        720
+      ],
+      "packedSHA256": "bfbb2ba1fc8b5e12d2a926f98b386916d9d759a4fe3289053feb1a41da1c2d6e",
+      "url": "/videos/ar/packed/native-v3/HTTN01.mp4"
+    },
+    {
+      "id": "HTTN02",
+      "pass": true,
+      "alphaMAE": 0,
+      "colorMAE": 0.005526164304701934,
+      "mode": "scene",
+      "dimensions": [
+        1920,
+        540
+      ],
+      "packedSHA256": "8b120aca03c656891baf20aa517e088580217c066c0c419fa3b7ed892c4b9e99",
+      "url": "/videos/ar/packed/hq2/HTTN02.mp4"
+    },
+    {
+      "id": "HTTN03",
+      "pass": true,
+      "alphaMAE": 0,
+      "colorMAE": 0.00320087831556071,
+      "mode": "scene",
+      "dimensions": [
+        1920,
+        540
+      ],
+      "packedSHA256": "f0b055a59f1797b38f644ffbfaf82392e2436220bf3fe1e60cb7ea37007db617",
+      "url": "/videos/ar/packed/hq2/HTTN03.mp4"
+    },
+    {
+      "id": "HTTN04",
+      "pass": true,
+      "alphaMAE": 0,
+      "colorMAE": 0.003365589357730969,
+      "mode": "scene",
+      "dimensions": [
+        1920,
+        540
+      ],
+      "packedSHA256": "6fa18ee4c985c4de04cb78af73d74d9fb71a2fcec4d2a994184a68422c9871ce",
+      "url": "/videos/ar/packed/hq2/HTTN04.mp4"
+    },
+    {
+      "id": "HTTN05",
+      "pass": true,
+      "alphaMAE": 0,
+      "colorMAE": 0.004776897921431797,
+      "mode": "scene",
+      "dimensions": [
+        1920,
+        540
+      ],
+      "packedSHA256": "34949bf0cf060296b228387924860907a5048cb5633fb103b95a98bd28a5e91b",
+      "url": "/videos/ar/packed/hq2/HTTN05.mp4"
+    },
+    {
+      "id": "HTTN06",
+      "pass": true,
+      "alphaMAE": 0,
+      "colorMAE": 0.0036489045331652213,
+      "mode": "scene",
+      "dimensions": [
+        1920,
+        540
+      ],
+      "packedSHA256": "7b79271a8d49cd79d86a7701da44733cf1daf10f13b2928dd615b421d5bf1d36",
+      "url": "/videos/ar/packed/hq2/HTTN06.mp4"
+    },
+    {
+      "id": "HTTN07",
+      "pass": true,
+      "alphaMAE": 0.002047776033155307,
+      "colorMAE": 0,
+      "mode": "glow",
+      "dimensions": [
+        2560,
+        720
+      ],
+      "packedSHA256": "6d7993e3832092c0e0eb0c882db2b314e39eb86c53eb01eff3277a46d63bf211",
+      "url": "/videos/ar/packed/native-v3/HTTN07.mp4"
+    },
+    {
+      "id": "HTTN08",
+      "pass": true,
+      "alphaMAE": 0,
+      "colorMAE": 0.004218544777446264,
+      "mode": "scene",
+      "dimensions": [
+        1920,
+        540
+      ],
+      "packedSHA256": "046f8407ec9f72c63dbf8ade7419bce01d241c7666a90dad65deb2dcd8a3524c",
+      "url": "/videos/ar/packed/hq2/HTTN08.mp4"
+    },
+    {
+      "id": "HTTN09",
+      "pass": true,
+      "alphaMAE": 0,
+      "colorMAE": 0.004475021736622461,
+      "mode": "scene",
+      "dimensions": [
+        1920,
+        540
+      ],
+      "packedSHA256": "e7654aaac6f5ece20a205c6cf8213c2498d6a68371701122c0ddd1c8f6d035a1",
+      "url": "/videos/ar/packed/hq2/HTTN09.mp4"
+    },
+    {
+      "id": "HTTN10",
+      "pass": true,
+      "alphaMAE": 5.318967864923747e-08,
+      "colorMAE": 0.0037474068782842873,
+      "mode": "scene",
+      "dimensions": [
+        1920,
+        540
+      ],
+      "packedSHA256": "765caec24335ece0f48129b6aba1c60447ffe6d7fb72ba784e2f78d478b5166d",
+      "url": "/videos/ar/packed/hq2/HTTN10.mp4"
+    },
+    {
+      "id": "HTTN11",
+      "pass": true,
+      "alphaMAE": 0,
+      "colorMAE": 0.005946178805938058,
+      "mode": "scene",
+      "dimensions": [
+        1920,
+        540
+      ],
+      "packedSHA256": "c5d6863fe26610a41407b2dd55fcce17d0417b877ded68c7e2bf4238b7532637",
+      "url": "/videos/ar/packed/hq2/HTTN11.mp4"
+    },
+    {
+      "id": "HTTN12",
+      "pass": true,
+      "alphaMAE": 0,
+      "colorMAE": 0.005554265601231512,
+      "mode": "scene",
+      "dimensions": [
+        1920,
+        540
+      ],
+      "packedSHA256": "7b7eb7f6faaf6ba86673ccc21c953392024c96f03371b168f7020f10414d8145",
+      "url": "/videos/ar/packed/hq2/HTTN12.mp4"
+    },
+    {
+      "id": "HTTN13",
+      "pass": true,
+      "alphaMAE": 0.003085187525529204,
+      "colorMAE": 0.019880174291938994,
+      "mode": "glow",
+      "dimensions": [
+        2560,
+        720
+      ],
+      "packedSHA256": "b35601b91aada419bb3aa64a972c34fd5260bbae2550d37c1e06a65bb59a17b9",
+      "url": "/videos/ar/packed/native-v3/HTTN13.mp4"
+    },
+    {
+      "id": "HTTN14",
+      "pass": true,
+      "alphaMAE": 0,
+      "colorMAE": 0.0043100957020658906,
+      "mode": "scene",
+      "dimensions": [
+        1920,
+        540
+      ],
+      "packedSHA256": "f64de3be487f5fedfc8e78524eea1eacd828584f31b1b78e8866015e44e20941",
+      "url": "/videos/ar/packed/hq2/HTTN14.mp4"
+    },
+    {
+      "id": "HTTN15",
+      "pass": true,
+      "alphaMAE": 0.00034325959116291544,
+      "colorMAE": 0.006013071895424822,
+      "mode": "glow",
+      "dimensions": [
+        2560,
+        720
+      ],
+      "packedSHA256": "a10b6a3cc8cb25697dc1c46f0e47c682736c014d5cbe2502f2e6d152778b7a16",
+      "url": "/videos/ar/packed/native-v3/HTTN15.mp4"
+    },
+    {
+      "id": "RIKO",
+      "pass": true,
+      "alphaMAE": 0.0006924498314951525,
+      "colorMAE": 0.013524393563844318,
+      "mode": "cutout",
+      "dimensions": [
+        812,
+        720
+      ],
+      "packedSHA256": "4aba4af7a69524be22a7f45e8831ae41ea39532cf3d21fe9ab871c14edc4952c",
+      "url": "/videos/ar/packed/hq2/RIKO.mp4"
+    },
+    {
+      "id": "RECAP_GT",
+      "pass": true,
+      "alphaMAE": 0.00017839818218954188,
+      "colorMAE": 0.005658832241239916,
+      "mode": "mixed",
+      "dimensions": [
+        1920,
+        540
+      ],
+      "packedSHA256": "f1a2c3867b7f7c8142c41e5781f08e1a78118addc7b6114b8de2d2b86a2162ca",
+      "url": "/videos/ar/packed/hq2/RECAP_GT.mp4"
+    },
+    {
+      "id": "RECAP_DV_MAMMALS",
+      "pass": true,
+      "alphaMAE": 0.0001227883731617643,
+      "colorMAE": 0.00767323093209661,
+      "mode": "mixed",
+      "dimensions": [
+        1920,
+        540
+      ],
+      "packedSHA256": "1ac44dafb8020c8398367cd28c618eab8a67c9ab23277606df5aac5069186b4a",
+      "url": "/videos/ar/packed/hq2/RECAP_DV_MAMMALS.mp4"
+    },
+    {
+      "id": "RECAP_DV_BIRDS",
+      "pass": true,
+      "alphaMAE": 0.0002218009599673216,
+      "colorMAE": 0.006234862501745548,
+      "mode": "mixed",
+      "dimensions": [
+        1920,
+        540
+      ],
+      "packedSHA256": "9f34fcd5c4081f2ccbd27009a5461e0e0a359c431194e001473b1160b5af4ff5",
+      "url": "/videos/ar/packed/hq2/RECAP_DV_BIRDS.mp4"
+    },
+    {
+      "id": "RECAP_DV_REPTILES",
+      "pass": true,
+      "alphaMAE": 0.00018467456427015189,
+      "colorMAE": 0.008004592945175871,
+      "mode": "mixed",
+      "dimensions": [
+        1920,
+        540
+      ],
+      "packedSHA256": "6052c21ed3f8773f8579c432efe2954d0638cd5310f80aac194cbac841d58aab",
+      "url": "/videos/ar/packed/hq2/RECAP_DV_REPTILES.mp4"
+    },
+    {
+      "id": "RECAP_DV_AMPHIBIANS",
+      "pass": true,
+      "alphaMAE": 0.00024483209082244744,
+      "colorMAE": 0.006983036217010777,
+      "mode": "mixed",
+      "dimensions": [
+        1920,
+        540
+      ],
+      "packedSHA256": "0d34aa5d1e3847cd9fbb110ff064274278e4eb5459ce50e9c7781b7a31bb0388",
+      "url": "/videos/ar/packed/hq2/RECAP_DV_AMPHIBIANS.mp4"
+    },
+    {
+      "id": "RECAP_DV_INSECTS",
+      "pass": true,
+      "alphaMAE": 0.0005072433704385144,
+      "colorMAE": 0.00582523081750386,
+      "mode": "mixed",
+      "dimensions": [
+        1920,
+        540
+      ],
+      "packedSHA256": "ad147a11497d65806cd6f71ce81d4f561602eb5b5cb29e959a4663e3f2592b78",
+      "url": "/videos/ar/packed/hq2/RECAP_DV_INSECTS.mp4"
+    },
+    {
+      "id": "RECAP_DV",
+      "pass": true,
+      "alphaMAE": 0.00015238842933006485,
+      "colorMAE": 0.004918277033188757,
+      "mode": "mixed",
+      "dimensions": [
+        1920,
+        540
+      ],
+      "packedSHA256": "a10b9f681e147e9a857c671b32a9b58b82c989a6550f72896e8c79f2e63b320c",
+      "url": "/videos/ar/packed/hq2/RECAP_DV.mp4"
+    },
+    {
+      "id": "RECAP_HTTN_A",
+      "pass": true,
+      "alphaMAE": 0,
+      "colorMAE": 0.004635423973044746,
+      "mode": "mixed",
+      "dimensions": [
+        1920,
+        540
+      ],
+      "packedSHA256": "df8aa5a1144ee31f4f060f40e1c6b23fcfb1c585ad30bdacbdb3503963150c8f",
+      "url": "/videos/ar/packed/hq2/RECAP_HTTN_A.mp4"
+    },
+    {
+      "id": "RECAP_HTTN_B",
+      "pass": true,
+      "alphaMAE": 0,
+      "colorMAE": 0.005008740336312114,
+      "mode": "mixed",
+      "dimensions": [
+        1920,
+        540
+      ],
+      "packedSHA256": "b8b2aba4ead6d0c1712e64f5489158508afe625665c863c500be235123cce64d",
+      "url": "/videos/ar/packed/hq2/RECAP_HTTN_B.mp4"
+    }
+  ]
+}

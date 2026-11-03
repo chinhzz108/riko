@@ -1,5 +1,9 @@
 # AR playback, close and automatic scanning — 25 October 2026
 
+The [3 November startup/quality audit](ar-video-startup-quality.md) updates media
+selection, detector lifetime and startup measurements. This report records the
+earlier lifecycle verification.
+
 ## Resulting behavior
 
 One successful page, pop-up or QR recognition opens one video. The video stays

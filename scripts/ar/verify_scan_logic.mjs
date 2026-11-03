@@ -1,10 +1,16 @@
 import assert from "node:assert/strict"
+import { createHash } from "node:crypto"
 import { access, readFile } from "node:fs/promises"
 import {
   QR_FALLBACK_DELAY_MS,
   resolveSlotFromLabel,
   routeSlotFromQR,
   shouldCommitQrFallback,
+  videoCandidates,
+  VISUAL_SCAN_INTERVAL_MS,
+  createVisualConsensus,
+  INDEPENDENT_POPUP_CONFIDENCE,
+  shouldWaitForPopupDetection,
 } from "../../src/lib/arScanLogic.js"
 import { getCoverRect } from "../../src/lib/arScanGeometry.js"
 
@@ -12,9 +18,31 @@ const slotsData = JSON.parse(await readFile("src/data/bookVideoSlots.json", "utf
 const targetsData = JSON.parse(await readFile("src/data/arTargets.json", "utf8"))
 const slots = slotsData.slots
 const targets = targetsData.targets
+const detectorProof = JSON.parse(await readFile("docs/qa/ar-detector-v3.json", "utf8"))
+assert.equal(createHash("sha256").update(await readFile(detectorProof.model)).digest("hex"), detectorProof.sha256, "ship the browser-tested popup model")
+assert.deepEqual(detectorProof.classes, [...slots.map(item => item.pageClass), ...targets.map(item => item.popupLabel)], "model class order must match the scanner")
+assert.deepEqual(detectorProof.thresholds, targetsData.minimumConfidenceByType)
+assert.ok((await readFile("src/lib/arDetectorRuntime.ts", "utf8")).includes(`?v=${detectorProof.version}`), "version the tested model to invalidate old cached weights")
+for (const [reportPath, expectedImages, expectedCorrect] of [
+  [detectorProof.browser.mobileReport, 328, 269],
+  [detectorProof.browser.fullReport, 366, 328],
+]) {
+  const report = JSON.parse(await readFile(reportPath, "utf8"))
+  assert.equal(report.modelVersion, detectorProof.version, "browser QA must use the tested model version")
+  assert.equal(report.modelSHA256, detectorProof.sha256, "browser QA must use the shipped model")
+  assert.equal(report.results.length, expectedImages, "complete the held-out browser batch")
+  assert.equal(report.stats.routes.correct, expectedCorrect)
+}
+assert.equal(shouldWaitForPopupDetection({now:900,foundAt:100,lastSampleAt:-Infinity,unavailable:false}),true,"a cold detector gets a look before the background QR/page opens")
+assert.equal(shouldWaitForPopupDetection({now:900,foundAt:100,lastSampleAt:90,unavailable:false}),true,"a frame captured before the target appeared cannot release fallback")
+assert.equal(shouldWaitForPopupDetection({now:900,foundAt:100,lastSampleAt:150,unavailable:false}),false,"normal fallback keeps its speed once the detector sees the scene")
+assert.equal(shouldWaitForPopupDetection({now:4100,foundAt:100,lastSampleAt:-Infinity,unavailable:false}),false,"a stalled detector cannot block fallback indefinitely")
+assert.equal(shouldWaitForPopupDetection({now:900,foundAt:100,lastSampleAt:-Infinity,unavailable:true}),false,"failed inference immediately releases QR/page fallback")
 const slot = (id) => slots.find((item) => item.id === id) || null
 
 assert.equal(QR_FALLBACK_DELAY_MS, 800)
+assert.equal(VISUAL_SCAN_INTERVAL_MS, 250)
+assert.equal(INDEPENDENT_POPUP_CONFIDENCE, .5)
 assert.equal(slots.length, slotsData.sourcePdfPageCountTotal)
 for (const document of slotsData.sourceDocuments) {
   const documentSlots = slots.filter((item) => item.document === document.document)
@@ -68,6 +96,41 @@ for (const target of targets) {
 assert.equal(resolveSlotFromLabel("popup_HTTN03", undefined, targets, slots)?.id, "book-c3-p07")
 assert.equal(resolveSlotFromLabel("popup_HTTN03", "book-c3-p07", targets, slots)?.id, "book-c3-p07")
 assert.equal(resolveSlotFromLabel("popup_HTTN03", "book-c3-p08", targets, slots)?.id, "book-c3-p08")
+const classNames = [...slots.map(item => item.pageClass), ...targets.map(item => item.popupLabel)]
+const detection = (label, score) => ({ classId: classNames.indexOf(label), score })
+const conflict = [detection("popup_GT01", .8), detection("page_book_c1_p04", .7)]
+assert.equal(videoCandidates(conflict, classNames, targets, slots, slot("book-c1-p04"))[0]?.slot.id, "book-c1-p03", "a confident detached popup wins over the QR on the page underneath")
+assert.equal(videoCandidates([detection("popup_GT01", .1)], classNames, targets, slots, slot("book-c1-p04")).length, 0, "conflicting detections cannot steal the QR fallback")
+assert.equal(videoCandidates([detection("popup_GT01", .8), detection("page_book_c1_p04", .9)], classNames, targets, slots, slot("book-c1-p04"), {allowIndependentPopup:false})[0]?.slot.id, "book-c1-p04", "explicit QR remains authoritative")
+assert.equal(videoCandidates([detection("page_book_c1_p04", .99), detection("popup_GT01", .8)], classNames, targets, slots, slot("book-c1-p04"), {allowIndependentPopup:true})[0]?.slot.id, "book-c1-p03", "a detached popup can be in front of a different tracked page")
+assert.equal(videoCandidates([detection("page_book_c1_p04", .99), detection("popup_GT01", .2)], classNames, targets, slots, slot("book-c1-p04"), {allowIndependentPopup:true})[0]?.slot.id, "book-c1-p04", "weak conflicting popups do not override page context")
+const consensus = createVisualConsensus(3)
+const popupCandidate = { detection: detection("popup_GT01", .82), slot: slot("book-c1-p03") }
+assert.equal(consensus.observe(popupCandidate, 0), null)
+assert.equal(consensus.observe({...popupCandidate, detection: detection("popup_GT01", .84)}, 250)?.slot.id, "book-c1-p03", "strong popup confirms after two frames")
+const weakCandidate={...popupCandidate,detection:detection("popup_GT01",.2)}
+consensus.reset()
+assert.equal(consensus.observe(weakCandidate, 0), null)
+assert.equal(consensus.observe(weakCandidate, 250), null)
+assert.equal(consensus.observe(weakCandidate, 500)?.slot.id,"book-c1-p03","weak results still need three observations")
+consensus.reset()
+assert.equal(consensus.observe(weakCandidate,0),null)
+assert.equal(consensus.observe(null,250),null)
+assert.equal(consensus.observe(weakCandidate,500),null)
+assert.equal(consensus.observe(weakCandidate,750)?.slot.id,"book-c1-p03","one dropout does not reset all evidence")
+consensus.reset()
+consensus.observe(weakCandidate,0)
+consensus.observe(weakCandidate,250)
+consensus.observe({detection:detection("popup_GT02",.8),slot:slot("book-c1-p04")},500)
+assert.equal(consensus.observe(weakCandidate,750),null,"a competing identity starts fresh")
+assert.equal(consensus.observe(weakCandidate,2000),null,"expired evidence cannot confirm a later target")
+consensus.reset()
+consensus.observe({...popupCandidate,detection:{...popupCandidate.detection,box:{x:0,y:0,width:50,height:50}}},0)
+assert.equal(consensus.observe({...popupCandidate,detection:{...popupCandidate.detection,box:{x:600,y:400,width:50,height:50}}},250),null,"a large position jump requires confirmation again")
+consensus.reset()
+consensus.observe(popupCandidate,0)
+assert.equal(consensus.observe({detection:detection("page_book_c1_p03",.9),slot:slot("book-c1-p03")},250)?.slot.id,"book-c1-p03","page and popup evidence can confirm the same clip")
+assert.equal(videoCandidates([detection("popup_HTTN03", .8)], classNames, targets, slots, slot("book-c3-p08"))[0]?.slot.id, "book-c3-p08", "shared videos preserve trusted page context")
 assert.equal(
   resolveSlotFromLabel("popup_HTTN03", "book-c3-p06", targets, slots)?.id,
   "book-c3-p07",

@@ -6,7 +6,7 @@ import {
   type CompiledModel,
 } from "@litertjs/core"
 
-const MODEL_URL = `${import.meta.env.BASE_URL}models/riko-ar-detector.tflite`
+const MODEL_URL = `${import.meta.env.BASE_URL}models/riko-ar-detector.tflite?v=popup-v3`
 const WASM_URL = new URL(
   `${import.meta.env.BASE_URL}litert/wasm/`,
   self.location.origin,

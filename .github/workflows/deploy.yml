@@ -105,6 +105,9 @@ jobs:
       - name: Verify one-shot AR playback and automatic close-to-scan
         run: node scripts/ar/verify_playback_session.mjs
 
+      - name: Verify AR decoded-frame startup and preloading
+        run: node scripts/ar/verify_video_playback.mjs
+
       - name: Verify AR detail preservation and certified media
         run: node scripts/ar/verify_detail_assets.mjs
 

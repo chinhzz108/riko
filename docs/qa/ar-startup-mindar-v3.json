@@ -1,0 +1,168 @@
+{
+  "date": "2026-11-03",
+  "kind": "desktop-chromium-synthetic-camera",
+  "realMindAR": true,
+  "realModel": false,
+  "measurements": [
+    {
+      "page": "book-c1-p03",
+      "mode": "page",
+      "shown": true,
+      "shake": false,
+      "trackerFrames": 5,
+      "modelCalls": 1,
+      "qrJobs": 1,
+      "qrWorkers": 0,
+      "starts": 1,
+      "stops": 1,
+      "startedAt": 4076.100000023842,
+      "phase": "playing",
+      "source": "page",
+      "mediaState": "ready",
+      "firstFrameMs": "382.7",
+      "detector": {
+        "execution": "idle",
+        "pending": false
+      },
+      "cameraLive": "live",
+      "media": {
+        "url": "/videos/ar/packed/native-v3/GT01.mp4",
+        "time": 0.344125,
+        "width": 2560,
+        "height": 720,
+        "dropped": 0,
+        "total": 973
+      },
+      "transform": "translate3d(-10000px, -10000px, 0px)",
+      "renders": "973"
+    },
+    {
+      "page": "book-c1-p03",
+      "mode": "page",
+      "shown": false,
+      "shake": true,
+      "trackerFrames": 5,
+      "modelCalls": 1,
+      "qrJobs": 1,
+      "qrWorkers": 0,
+      "starts": 1,
+      "stops": 1,
+      "startedAt": 4076.100000023842,
+      "phase": "playing",
+      "source": "page",
+      "mediaState": "ready",
+      "firstFrameMs": "382.7",
+      "detector": {
+        "execution": "idle",
+        "pending": false
+      },
+      "cameraLive": "live",
+      "media": {
+        "url": "/videos/ar/packed/native-v3/GT01.mp4",
+        "time": 6.382086,
+        "width": 2560,
+        "height": 720,
+        "dropped": 0,
+        "total": 2078
+      },
+      "transform": "translate3d(-10000px, -10000px, 0px)",
+      "renders": "2078"
+    },
+    {
+      "page": "book-c1-p04",
+      "mode": "page",
+      "shown": true,
+      "shake": false,
+      "trackerFrames": 33,
+      "modelCalls": 4,
+      "qrJobs": 4,
+      "qrWorkers": 0,
+      "starts": 2,
+      "stops": 2,
+      "startedAt": 4076.100000023842,
+      "phase": "playing",
+      "source": "page",
+      "mediaState": "ready",
+      "firstFrameMs": "80.8",
+      "detector": {
+        "execution": "idle",
+        "pending": false
+      },
+      "cameraLive": "live",
+      "media": {
+        "url": "/videos/ar/packed/native-v3/GT02.mp4",
+        "time": 0.02157,
+        "width": 1920,
+        "height": 960,
+        "dropped": 0,
+        "total": 244
+      },
+      "transform": "translate3d(-10000px, -10000px, 0px)",
+      "renders": "2332"
+    },
+    {
+      "page": "book-c1-p04",
+      "mode": "page",
+      "shown": true,
+      "shake": false,
+      "trackerFrames": 33,
+      "modelCalls": 4,
+      "qrJobs": 4,
+      "qrWorkers": 0,
+      "starts": 2,
+      "stops": 2,
+      "startedAt": 4076.100000023842,
+      "phase": "playing",
+      "source": "page",
+      "mediaState": "ready",
+      "firstFrameMs": "80.8",
+      "detector": {
+        "execution": "idle",
+        "pending": false
+      },
+      "cameraLive": "live",
+      "media": {
+        "url": "/videos/ar/packed/native-v3/GT02.mp4",
+        "time": 3.206704,
+        "width": 1920,
+        "height": 960,
+        "dropped": 0,
+        "total": 801
+      },
+      "transform": "translate3d(-10000px, -10000px, 0px)",
+      "renders": "2889"
+    },
+    {
+      "page": "book-c3-p12",
+      "mode": "page",
+      "shown": true,
+      "shake": false,
+      "trackerFrames": 358,
+      "modelCalls": 27,
+      "qrJobs": 23,
+      "qrWorkers": 0,
+      "starts": 3,
+      "stops": 3,
+      "startedAt": 4076.100000023842,
+      "phase": "playing",
+      "source": "page",
+      "mediaState": "ready",
+      "firstFrameMs": "50.5",
+      "detector": {
+        "execution": "idle",
+        "pending": false
+      },
+      "cameraLive": "live",
+      "media": {
+        "url": "/videos/ar/original/hq2/HTTN05.mp4",
+        "time": 2.19472,
+        "width": 1280,
+        "height": 720,
+        "dropped": 0,
+        "total": 537
+      },
+      "transform": "translate3d(238.933px, 98.4px, 0px)",
+      "renders": "2901"
+    }
+  ]
+}

@@ -1,0 +1,164 @@
+{
+  "date": "2026-11-03",
+  "model": "public/models/riko-ar-detector.tflite",
+  "version": "popup-v2",
+  "sha256": "7e6b9787be7a50af028795faea3bc03c93ab99730dbace9bfe99abf2e6d2e0d4",
+  "sourceBundle": "output/ar-training/riko-ar-model-bundle-int8-v2.zip",
+  "inputShape": [
+    1,
+    320,
+    320,
+    3
+  ],
+  "outputShape": [
+    1,
+    93,
+    2100
+  ],
+  "classes": [
+    "page_book_c1_p01",
+    "page_book_c1_p02",
+    "page_book_c1_p03",
+    "page_book_c1_p04",
+    "page_book_c1_p05",
+    "page_book_c1_p06",
+    "page_book_c1_p07",
+    "page_book_c1_p08",
+    "page_book_c1_p09",
+    "page_book_c1_p10",
+    "page_book_c1_p11",
+    "page_book_c1_p12",
+    "page_book_c1_p13",
+    "page_book_c1_p14",
+    "page_book_c2_p01",
+    "page_book_c2_p02",
+    "page_book_c2_p03",
+    "page_book_c2_p04",
+    "page_book_c2_p05",
+    "page_book_c2_p06",
+    "page_book_c2_p07",
+    "page_book_c2_p08",
+    "page_book_c2_p09",
+    "page_book_c2_p10",
+    "page_book_c2_p11",
+    "page_book_c2_p12",
+    "page_book_c2_p13",
+    "page_book_c2_p14",
+    "page_book_c2_p15",
+    "page_book_c2_p16",
+    "page_book_c2_p17",
+    "page_book_c2_p18",
+    "page_book_c2_p19",
+    "page_book_c3_p01",
+    "page_book_c3_p02",
+    "page_book_c3_p03",
+    "page_book_c3_p04",
+    "page_book_c3_p05",
+    "page_book_c3_p06",
+    "page_book_c3_p07",
+    "page_book_c3_p08",
+    "page_book_c3_p09",
+    "page_book_c3_p10",
+    "page_book_c3_p11",
+    "page_book_c3_p12",
+    "page_book_c3_p13",
+    "page_book_c3_p14",
+    "page_book_c3_p15",
+    "page_book_c3_p16",
+    "page_book_c3_p17",
+    "page_book_c3_p18",
+    "page_book_c3_p19",
+    "page_book_c3_p20",
+    "page_book_c3_p21",
+    "popup_GT01",
+    "popup_GT02",
+    "popup_GT03",
+    "popup_GT04",
+    "popup_GT05",
+    "popup_GT06",
+    "popup_GT07",
+    "popup_GT08",
+    "popup_GT09",
+    "popup_GT10",
+    "popup_DV01",
+    "popup_DV02",
+    "popup_DV03",
+    "popup_DV04",
+    "popup_DV05",
+    "popup_DV06",
+    "popup_DV07",
+    "popup_DV08",
+    "popup_DV09",
+    "popup_DV10",
+    "popup_HTTN01",
+    "popup_HTTN02",
+    "popup_HTTN03",
+    "popup_HTTN04",
+    "popup_HTTN05",
+    "popup_HTTN06",
+    "popup_HTTN07",
+    "popup_HTTN08",
+    "popup_HTTN09",
+    "popup_HTTN10",
+    "popup_HTTN11",
+    "popup_HTTN12",
+    "popup_HTTN13",
+    "popup_HTTN14",
+    "popup_HTTN15"
+  ],
+  "thresholds": {
+    "popup": 0.05,
+    "page": 0.35
+  },
+  "baselineRepresentative": {
+    "modelSHA256": "1bfb33556544aed9b011bbd56cc99c459f9395cff463542400f1fd9ea860c170",
+    "routeCorrect": 51,
+    "images": 90,
+    "pageBoxes": {
+      "matched": 47,
+      "total": 54
+    },
+    "popupBoxes": {
+      "matched": 36,
+      "total": 72
+    },
+    "negativeFalseOpens": 1,
+    "negativeImages": 6,
+    "coldMs": 9141.2,
+    "medianWarmMs": 60.9
+  },
+  "replacementRepresentative": {
+    "routeCorrect": 77,
+    "images": 90
+  },
+  "replacementFull": {
+    "page": {
+      "matched": 125,
+      "total": 216
+    },
+    "popup": {
+      "matched": 274,
+      "total": 288
+    },
+    "routes": {
+      "correct": 303,
+      "total": 360
+    },
+    "negative": {
+      "falseOpens": 0,
+      "total": 6
+    },
+    "popupOnlyRoutes": {
+      "correct": 136,
+      "total": 144
+    },
+    "coldMs": 2833,
+    "medianWarmMs": 31.69999998807907
+  },
+  "limits": [
+    "Synthetic transforms of PDF art, not physical book camera photos.",
+    "Box match uses class agreement and IoU >= 0.3; routed-video correctness accepts pages sharing the same video.",
+    "Batch evaluates independent images, not temporal voting or the separate MindAR and QR fallbacks.",
+    "Replacement improves popup detection but page-only recap/divider recognition remains weak; do not claim 100% recognition."
+  ]
+}

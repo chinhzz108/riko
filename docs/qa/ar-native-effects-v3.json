@@ -1,0 +1,39 @@
+{
+  "date": "2026-11-03",
+  "kind": "decoded-effects-over-original-studio-background",
+  "limits": "Reconstruction fidelity is not semantic ground truth for every matted edge.",
+  "assets": [
+    {
+      "id": "HTTN01",
+      "sha256": "bfbb2ba1fc8b5e12d2a926f98b386916d9d759a4fe3289053feb1a41da1c2d6e",
+      "sourceSHA256": "b98a18e5d2ebbd1aac57bffb1aa36e233eab60de1739387f288a4064ce85e338",
+      "frames": 240,
+      "sourceReconstructionMAE": 0.0026584497769363224,
+      "worstFrameMAE": 0.002984235994517803
+    },
+    {
+      "id": "HTTN07",
+      "sha256": "6d7993e3832092c0e0eb0c882db2b314e39eb86c53eb01eff3277a46d63bf211",
+      "sourceSHA256": "1ffd8a2f524dcf38d2ebc43141b834db94a28f5304c74ceb2dd0e4bc3f1f1911",
+      "frames": 240,
+      "sourceReconstructionMAE": 0.008963281975593419,
+      "worstFrameMAE": 0.016215628013014793
+    },
+    {
+      "id": "HTTN13",
+      "sha256": "b35601b91aada419bb3aa64a972c34fd5260bbae2550d37c1e06a65bb59a17b9",
+      "sourceSHA256": "54c9acba800633f61887c7c8a78ab9c0c5a95b2d046abf8920f8b7e1b87a1d60",
+      "frames": 240,
+      "sourceReconstructionMAE": 0.004889473569565098,
+      "worstFrameMAE": 0.005833000410348177
+    },
+    {
+      "id": "HTTN15",
+      "sha256": "a10b6a3cc8cb25697dc1c46f0e47c682736c014d5cbe2502f2e6d152778b7a16",
+      "sourceSHA256": "e5530b93a9be0826d21264c39e0bda4161143e23de2e08edd24fb39235812fbb",
+      "frames": 240,
+      "sourceReconstructionMAE": 0.0017262445702486584,
+      "worstFrameMAE": 0.003996791783720255
+    }
+  ]
+}

@@ -1,0 +1,238 @@
+{
+  "date": "2026-11-03",
+  "model": "public/models/riko-ar-detector.tflite",
+  "version": "popup-v3",
+  "sha256": "cfc9d82f78dc0c627f933c5c95acc1124de2cf63fb241f6341890ab3a96be53f",
+  "bytes": 5408554,
+  "sourceBundle": "output/ar-training/riko-ar-mobile-v3-bundle.zip",
+  "training": {
+    "gpu": "Tesla T4",
+    "epochs": 100,
+    "datasetSHA256": "acd6fa2c3f2a32a683e44750f932c53a07fcaf77dad03f8ccc28d8f494afc2ff",
+    "counts": {
+      "train": 1446,
+      "test-mobile": 280,
+      "test-negative": 48,
+      "val": 344,
+      "test": 360
+    },
+    "validationPT": {
+      "metrics/precision(B)": 0.9255219501208866,
+      "metrics/recall(B)": 0.8685379686695263,
+      "metrics/mAP50(B)": 0.9367830787740862,
+      "metrics/mAP50-95(B)": 0.7626336190514688,
+      "fitness": 0.7626336190514688
+    },
+    "selected": {
+      "file": "best_float16.tflite",
+      "sha256": "cfc9d82f78dc0c627f933c5c95acc1124de2cf63fb241f6341890ab3a96be53f",
+      "bytes": 5408554,
+      "inputShape": [
+        1,
+        320,
+        320,
+        3
+      ],
+      "stats": {
+        "val": {
+          "correct": 330,
+          "wrongOpen": 8,
+          "total": 344,
+          "popupHitsIoU50": 258,
+          "popupTotal": 284,
+          "medianMs": 18.257436000112648
+        }
+      }
+    },
+    "heldOut": {
+      "file": "best_float16.tflite",
+      "sha256": "cfc9d82f78dc0c627f933c5c95acc1124de2cf63fb241f6341890ab3a96be53f",
+      "bytes": 5408554,
+      "inputShape": [
+        1,
+        320,
+        320,
+        3
+      ],
+      "stats": {
+        "test-negative": {
+          "correct": 46,
+          "wrongOpen": 2,
+          "total": 48,
+          "popupHitsIoU50": 0,
+          "popupTotal": 0,
+          "medianMs": 18.191723999734677
+        },
+        "test-mobile": {
+          "correct": 269,
+          "wrongOpen": 9,
+          "total": 280,
+          "popupHitsIoU50": 265,
+          "popupTotal": 280,
+          "medianMs": 18.390823500112674
+        },
+        "test": {
+          "correct": 329,
+          "wrongOpen": 15,
+          "total": 360,
+          "popupHitsIoU50": 269,
+          "popupTotal": 288,
+          "medianMs": 18.418696000026102
+        }
+      }
+    },
+    "baseline": {
+      "file": "baseline-popup-v2.tflite",
+      "sha256": "7e6b9787be7a50af028795faea3bc03c93ab99730dbace9bfe99abf2e6d2e0d4",
+      "bytes": 2894948,
+      "inputShape": [
+        1,
+        320,
+        320,
+        3
+      ],
+      "stats": {
+        "test-negative": {
+          "correct": 8,
+          "wrongOpen": 40,
+          "total": 48,
+          "popupHitsIoU50": 0,
+          "popupTotal": 0,
+          "medianMs": 23.961207500178716
+        },
+        "test-mobile": {
+          "correct": 214,
+          "wrongOpen": 39,
+          "total": 280,
+          "popupHitsIoU50": 220,
+          "popupTotal": 280,
+          "medianMs": 23.906888999817966
+        },
+        "test": {
+          "correct": 303,
+          "wrongOpen": 25,
+          "total": 360,
+          "popupHitsIoU50": 271,
+          "popupTotal": 288,
+          "medianMs": 23.86468800023067
+        }
+      }
+    },
+    "limits": [
+      "Synthetic source-art transformations and region copy-paste, not raised paper camera photographs.",
+      "Validation selects export precision; held-out test is evaluated only after selection.",
+      "Popup patches contain some printed scenery; physical detached popup validation is still required."
+    ]
+  },
+  "inputShape": [
+    1,
+    320,
+    320,
+    3
+  ],
+  "outputShape": [
+    1,
+    93,
+    2100
+  ],
+  "classes": [
+    "page_book_c1_p01",
+    "page_book_c1_p02",
+    "page_book_c1_p03",
+    "page_book_c1_p04",
+    "page_book_c1_p05",
+    "page_book_c1_p06",
+    "page_book_c1_p07",
+    "page_book_c1_p08",
+    "page_book_c1_p09",
+    "page_book_c1_p10",
+    "page_book_c1_p11",
+    "page_book_c1_p12",
+    "page_book_c1_p13",
+    "page_book_c1_p14",
+    "page_book_c2_p01",
+    "page_book_c2_p02",
+    "page_book_c2_p03",
+    "page_book_c2_p04",
+    "page_book_c2_p05",
+    "page_book_c2_p06",
+    "page_book_c2_p07",
+    "page_book_c2_p08",
+    "page_book_c2_p09",
+    "page_book_c2_p10",
+    "page_book_c2_p11",
+    "page_book_c2_p12",
+    "page_book_c2_p13",
+    "page_book_c2_p14",
+    "page_book_c2_p15",
+    "page_book_c2_p16",
+    "page_book_c2_p17",
+    "page_book_c2_p18",
+    "page_book_c2_p19",
+    "page_book_c3_p01",
+    "page_book_c3_p02",
+    "page_book_c3_p03",
+    "page_book_c3_p04",
+    "page_book_c3_p05",
+    "page_book_c3_p06",
+    "page_book_c3_p07",
+    "page_book_c3_p08",
+    "page_book_c3_p09",
+    "page_book_c3_p10",
+    "page_book_c3_p11",
+    "page_book_c3_p12",
+    "page_book_c3_p13",
+    "page_book_c3_p14",
+    "page_book_c3_p15",
+    "page_book_c3_p16",
+    "page_book_c3_p17",
+    "page_book_c3_p18",
+    "page_book_c3_p19",
+    "page_book_c3_p20",
+    "page_book_c3_p21",
+    "popup_GT01",
+    "popup_GT02",
+    "popup_GT03",
+    "popup_GT04",
+    "popup_GT05",
+    "popup_GT06",
+    "popup_GT07",
+    "popup_GT08",
+    "popup_GT09",
+    "popup_GT10",
+    "popup_DV01",
+    "popup_DV02",
+    "popup_DV03",
+    "popup_DV04",
+    "popup_DV05",
+    "popup_DV06",
+    "popup_DV07",
+    "popup_DV08",
+    "popup_DV09",
+    "popup_DV10",
+    "popup_HTTN01",
+    "popup_HTTN02",
+    "popup_HTTN03",
+    "popup_HTTN04",
+    "popup_HTTN05",
+    "popup_HTTN06",
+    "popup_HTTN07",
+    "popup_HTTN08",
+    "popup_HTTN09",
+    "popup_HTTN10",
+    "popup_HTTN11",
+    "popup_HTTN12",
+    "popup_HTTN13",
+    "popup_HTTN14",
+    "popup_HTTN15"
+  ],
+  "thresholds": {
+    "popup": 0.05,
+    "page": 0.35
+  },
+  "trainingNotebook": "https://www.kaggle.com/code/trnchinh/riko-ar-mobile-popup-v3/edit",
+  "browser": {
+    "mobileReport": "docs/qa/ar-detector-browser-v3.json",
+    "fullReport": "docs/qa/ar-detector-browser-full-v3.json"
+  }
+}

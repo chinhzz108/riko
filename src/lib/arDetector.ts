@@ -14,12 +14,45 @@ let pending: {
   reject: (error: Error) => void
   timer: number
 } | null = null
+const MAX_TRANSFER_EDGE = 1280
+
+async function snapshotDetectorFrame(video: HTMLVideoElement | ImageBitmap) {
+  if (!("videoWidth" in video)) return createImageBitmap(video)
+  const width = video.videoWidth
+  const height = video.videoHeight
+  if (!width || !height) return createImageBitmap(video)
+  const scale = Math.min(1, MAX_TRANSFER_EDGE / Math.max(width, height))
+  if (scale === 1) return createImageBitmap(video)
+  try {
+    return await createImageBitmap(video, {
+      resizeWidth: Math.max(1, Math.round(width * scale)),
+      resizeHeight: Math.max(1, Math.round(height * scale)),
+      resizeQuality: "high",
+    })
+  } catch {
+    // Older Safari builds accept the basic overload but reject resize options.
+    return createImageBitmap(video)
+  }
+}
 
 export function getARDetectorStatus() {
   return {
     execution: workerUnavailable ? "main" : worker ? "worker" : "idle",
     pending: Boolean(pending),
   }
+}
+
+/** Compile and execute once while camera permission / page targets load. */
+export async function warmARDetector(classCount: number) {
+  const canvas = document.createElement("canvas")
+  canvas.width = canvas.height = 32
+  const context = canvas.getContext("2d")
+  if (!context || typeof createImageBitmap === "undefined") return
+  context.fillStyle = "rgb(245,245,245)"
+  context.fillRect(0,0,32,32)
+  const image = await createImageBitmap(canvas)
+  try { await detectBookTarget(image, classCount, 2) }
+  finally { image.close() }
 }
 
 export function disposeARDetector() {
@@ -73,7 +106,7 @@ function detectorWorker() {
 }
 
 export async function detectBookTarget(
-  video: HTMLVideoElement,
+  video: HTMLVideoElement | ImageBitmap,
   classCount: number,
   minimumConfidence: number | ((classId: number) => number) = 0.55,
   maskRegion?: ARMaskRegion | null,
@@ -92,7 +125,7 @@ export async function detectBookTarget(
         const currentWorker = detectorWorker()
         // Transfer ownership, keeping the same full camera frame / 320px model input.
         // Resampling, normalization, inference and NMS stay off the UI thread.
-        const image = await createImageBitmap(video)
+        const image = await snapshotDetectorFrame(video)
         if (currentGeneration !== generation) {
           image.close()
           throw new DOMException("AR camera stopped.", "AbortError")

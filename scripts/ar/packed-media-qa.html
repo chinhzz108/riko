@@ -4,6 +4,7 @@
 <h1>AR packed alpha · browser decode + WebGL render</h1>
 <p>Every delivered clip is decoded, advanced, then rendered using the app's H.264 color/matte texture transforms.</p>
 <button id="start">Check 45 clips sequentially</button> <button id="stop" disabled>Stop</button>
+<button id="download" disabled>Download JSON report</button>
 <output id="summary">Ready · no camera or continuous benchmark</output><div id="view"></div><pre id="results"></pre>
 <script type="module">
 import * as THREE from "three"
@@ -27,6 +28,10 @@ const canvas=document.createElement("canvas");canvas.width=size;canvas.height=si
 const ctx=canvas.getContext("2d",{willReadFrequently:true})
 const summary=document.querySelector("#summary"),log=document.querySelector("#results")
 const results=[]
+document.querySelector('#download').onclick=()=>{
+ const url=URL.createObjectURL(new Blob([JSON.stringify({date:'2026-11-03',kind:'desktop-browser-decode-shader-playback',results},null,2)],{type:'application/json'}))
+ const link=document.createElement('a');link.href=url;link.download='ar-packed-browser.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000)
+}
 async function firstFrame(v,url){
  v.pause();v.src=url;v.load()
  await Promise.race([v.play(),new Promise((_,reject)=>setTimeout(()=>reject(new Error("decode timeout")),10000))])
@@ -48,7 +53,7 @@ for(const asset of assets.filter(v=>v.alpha)){
  if(cancelled)break
  try{
   await Promise.all([firstFrame(video,profiles[asset.id].packedVideoUrl),firstFrame(reference,asset.alphaVideoUrl)])
-  if(video.videoWidth!==reference.videoWidth*2||video.videoHeight!==reference.videoHeight)throw new Error("packed dimensions differ from the source")
+  if(video.videoWidth/2<reference.videoWidth||video.videoHeight<reference.videoHeight)throw new Error("packed dimensions reduced source detail")
   color.needsUpdate=true;renderer.render(scene,camera)
   ctx.clearRect(0,0,size,size);ctx.drawImage(renderer.domElement,0,0,size,size);const actual=ctx.getImageData(0,0,size,size).data
   ctx.clearRect(0,0,size,size);ctx.drawImage(reference,0,0,size,size);const expected=ctx.getImageData(0,0,size,size).data
@@ -80,5 +85,6 @@ for(const asset of assets.filter(v=>v.alpha)){
 video.pause();reference.pause();summary.dataset.done="true";summary.dataset.failures=String(results.filter(r=>!r.pass).length)
 summary.dataset.results=JSON.stringify(results)
 start.disabled=false;stop.disabled=true
+document.querySelector('#download').disabled=false
 }
 </script></body></html>

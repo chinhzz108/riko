@@ -1,0 +1,63 @@
+{
+  "date": "2026-11-03",
+  "kind": "desktop-chromium-synthetic-camera",
+  "realMindAR": false,
+  "realModel": false,
+  "measurements": [
+    {
+      "page": "book-c1-p03",
+      "mode": "qr",
+      "shown": true,
+      "shake": false,
+      "trackerFrames": 53,
+      "modelCalls": 4,
+      "qrJobs": 3,
+      "qrWorkers": 0,
+      "starts": 1,
+      "stops": 1,
+      "startedAt": 335.4000000357628,
+      "phase": "playing",
+      "source": "qr",
+      "mediaState": "ready",
+      "detector": {
+        "execution": "idle",
+        "pending": false
+      },
+      "cameraLive": "live",
+      "media": {
+        "url": "/videos/ar/original/hq2/GT01.mp4",
+        "time": 2.755207,
+        "width": 1280,
+        "height": 720,
+        "dropped": 2,
+        "total": 310
+      },
+      "transform": "translate3d(-10000px, -10000px, 0px)",
+      "renders": "3"
+    },
+    {
+      "page": "book-c1-p03",
+      "mode": "qr",
+      "shown": true,
+      "shake": false,
+      "trackerFrames": 1035,
+      "modelCalls": 68,
+      "qrJobs": 56,
+      "qrWorkers": 1,
+      "starts": 2,
+      "stops": 1,
+      "startedAt": 335.4000000357628,
+      "phase": "scanning",
+      "source": "",
+      "mediaState": "idle",
+      "detector": {
+        "execution": "idle",
+        "pending": false
+      },
+      "cameraLive": "live",
+      "media": null,
+      "transform": "translate3d(-10000px, -10000px, 0px)",
+      "renders": "4"
+    }
+  ]
+}

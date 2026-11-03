@@ -1,0 +1,74 @@
+{
+  "date": "2026-11-03",
+  "kind": "desktop-chromium-synthetic-camera",
+  "realMindAR": false,
+  "realModel": true,
+  "measurements": [
+    {
+      "page": "book-c1-p03",
+      "mode": "visual",
+      "shown": true,
+      "shake": false,
+      "trackerFrames": 91,
+      "modelCalls": 3,
+      "qrJobs": 7,
+      "qrWorkers": 0,
+      "starts": 1,
+      "stops": 1,
+      "startedAt": 4975,
+      "lastInferenceMs": 99.69999998807907,
+      "phase": "playing",
+      "source": "popup",
+      "mediaState": "ready",
+      "firstFrameMs": "90.9",
+      "detector": {
+        "execution": "worker",
+        "pending": false
+      },
+      "cameraLive": "live",
+      "media": {
+        "url": "/videos/ar/packed/native-v3/GT01.mp4",
+        "time": 6.873563,
+        "width": 2560,
+        "height": 720,
+        "dropped": 3,
+        "total": 650
+      },
+      "transform": "translate3d(-10000px, -10000px, 0px)",
+      "renders": "652"
+    },
+    {
+      "page": "book-c1-p04",
+      "mode": "visual",
+      "shown": true,
+      "shake": false,
+      "trackerFrames": 139,
+      "modelCalls": 7,
+      "qrJobs": 10,
+      "qrWorkers": 0,
+      "starts": 2,
+      "stops": 2,
+      "startedAt": 4975,
+      "lastInferenceMs": 26.80000001192093,
+      "phase": "playing",
+      "source": "page",
+      "mediaState": "ready",
+      "firstFrameMs": "7.7",
+      "detector": {
+        "execution": "worker",
+        "pending": false
+      },
+      "cameraLive": "live",
+      "media": {
+        "url": "/videos/ar/packed/native-v3/GT02.mp4",
+        "time": 4.572273,
+        "width": 1920,
+        "height": 960,
+        "dropped": 0,
+        "total": 594
+      },
+      "transform": "translate3d(-10000px, -10000px, 0px)",
+      "renders": "1252"
+    }
+  ]
+}

@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="vi"><head><meta charset="utf-8"><title>AR real detector QA</title>
+<style>body{font:14px system-ui;max-width:1000px;margin:30px auto;background:#122030;color:#f5f8fc}button,select{padding:10px;margin:6px}img{width:280px}td,th{padding:7px;border:1px solid #789}pre{white-space:pre-wrap}table{border-collapse:collapse}</style></head>
+<body><h1>Kiểm thử model AR thật</h1>
+<p>Ảnh stress test tổng hợp từ sách, dùng model TFLite và worker của ứng dụng. Kết quả này không đo độ chính xác trên sách thật.</p>
+<select id="size"><option value="representative">90 ảnh đại diện + 6 ảnh trống</option><option value="all">Toàn bộ ảnh stress test + 6 ảnh trống</option><option value="mobile">280 hình rời + 48 ảnh âm</option></select>
+<button id="start">Chạy model thật</button><button id="stop" disabled>Dừng</button>
+<button id="download" disabled>Tải báo cáo JSON</button>
+<p id="status">Sẵn sàng</p><img id="sample" alt="Ảnh kiểm thử hiện tại"><pre id="summary"></pre>
+<table><thead><tr><th>Ảnh</th><th>Kỳ vọng</th><th>Dự đoán</th><th>Điểm</th><th>Kết quả</th></tr></thead><tbody id="rows"></tbody></table>
+<details><summary>Dữ liệu kết quả JSON</summary><pre id="json"></pre></details>
+<script type="module">
+import {detectBookTarget,disposeARDetector} from '/src/lib/arDetector.ts'
+import slotsData from '/src/data/bookVideoSlots.json'
+import targetData from '/src/data/arTargets.json'
+import {resolveSlotFromLabel,videoCandidates} from '/src/lib/arScanLogic.js'
+let base='/output/ar-training/rikokid_ar_dataset/'
+const classes=[...slotsData.slots.map(s=>s.pageClass),...targetData.targets.map(t=>t.popupLabel)]
+const modelVersion='popup-v3',modelUrl='/models/riko-ar-detector.tflite?v='+modelVersion
+const thresholds=i=>classes[i]?.startsWith('popup_')?targetData.minimumConfidenceByType.popup:targetData.minimumConfidenceByType.page
+const status=document.querySelector('#status'),summary=document.querySelector('#summary'),rows=document.querySelector('#rows'),start=document.querySelector('#start'),stop=document.querySelector('#stop')
+let cancelled=false
+document.querySelector('#download').onclick=()=>{
+ const url=URL.createObjectURL(new Blob([document.querySelector('#json').textContent],{type:'application/json'}))
+ const link=document.createElement('a');link.href=url;link.download='ar-detector-browser.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000)
+}
+stop.onclick=()=>{cancelled=true;disposeARDetector()}
+const overlap=(a,b)=>{const area=Math.max(0,Math.min(a.x+a.width,b.x+b.width)-Math.max(a.x,b.x))*Math.max(0,Math.min(a.y+a.height,b.y+b.height)-Math.max(a.y,b.y));return area/(a.width*a.height+b.width*b.height-area)}
+start.onclick=async()=>{
+ start.disabled=true;stop.disabled=false;document.querySelector('#download').disabled=true;cancelled=false;rows.replaceChildren();summary.textContent='';status.textContent='Đang nạp model thật…'
+ const mobile=document.querySelector('#size').value==='mobile'
+ base=`/output/ar-training/${mobile?'rikokid_ar_mobile_dataset':'rikokid_ar_dataset'}/`
+ const results=[],stats={page:{matched:0,total:0},popup:{matched:0,total:0},routes:{correct:0,wrongOpen:0,total:0},negative:{falseOpens:0,total:0}}
+ try{
+  const modelBytes=await fetch(modelUrl).then(r=>{if(!r.ok)throw new Error('Không tải được model để kiểm tra');return r.arrayBuffer()})
+  const modelSHA256=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',modelBytes)),b=>b.toString(16).padStart(2,'0')).join('')
+  const splits=await fetch(base+'splits.json').then(r=>r.json())
+  let samples=splits.filter(s=>mobile?['test-mobile','test-negative'].includes(s.split):s.split==='test')
+  if(document.querySelector('#size').value==='representative'){
+   const seen=new Set();samples=samples.filter(s=>{const key=s.image.replace(/-\d+\.jpg$/,'');if(seen.has(key))return false;seen.add(key);return true})
+  }
+  if(!mobile)samples=[...samples,...Array.from({length:6},(_,i)=>({negative:i,image:`negative-${i}`,labels:null}))]
+  for(const sample of samples){
+   if(cancelled)break
+   const canvas=document.createElement('canvas');canvas.width=640;canvas.height=640;const ctx=canvas.getContext('2d')
+   let expected=[]
+   if(sample.labels){
+    const image=new Image();image.src=base+sample.image.replaceAll('\\','/');await image.decode();ctx.drawImage(image,0,0,640,640)
+    const text=await fetch(base+sample.labels.replaceAll('\\','/')).then(r=>r.text())
+    expected=text.trim().split('\n').filter(Boolean).map(line=>{const [id,cx,cy,w,h]=line.trim().split(/\s+/).map(Number);return {classId:id,box:{x:(cx-w/2)*640,y:(cy-h/2)*640,width:w*640,height:h*640}}})
+   }else{
+    const i=sample.negative;ctx.fillStyle=['#ffffff','#d0d0d0','#151515','#96714c','#367a93','#ffffff'][i];ctx.fillRect(0,0,640,640)
+    if(i===5){ctx.fillStyle='#172638';ctx.font='44px sans-serif';ctx.fillText('Không có sách',110,320)}
+   }
+   document.querySelector('#sample').src=canvas.toDataURL('image/jpeg',.8)
+   const bitmap=await createImageBitmap(canvas),at=performance.now()
+   let detections
+   try{detections=await detectBookTarget(bitmap,classes.length,thresholds)}finally{bitmap.close()}
+   const elapsed=performance.now()-at
+   for(const e of expected){const kind=classes[e.classId].startsWith('popup_')?'popup':'page';stats[kind].total++;if(detections.some(d=>d.classId===e.classId&&overlap(d.box,e.box)>=.3))stats[kind].matched++}
+   const expectedLabels=sample.preferredLabel?[sample.preferredLabel]:expected.map(e=>classes[e.classId])
+   const expectedSlots=expectedLabels.map(label=>resolveSlotFromLabel(label,undefined,targetData.targets,slotsData.slots)).filter(Boolean)
+   const candidate=videoCandidates(detections,classes,targetData.targets,slotsData.slots)[0]
+   const chosen=candidate?{d:candidate.detection,slot:candidate.slot}:null
+   const correct=expectedSlots.some(s=>s.arVideoUrl===chosen?.slot?.arVideoUrl)
+   if(expected.length){stats.routes.total++;if(correct)stats.routes.correct++;else if(chosen)stats.routes.wrongOpen++}else{stats.negative.total++;if(chosen)stats.negative.falseOpens++}
+   const result={image:sample.image,expected:expected.map(e=>classes[e.classId]),preferredLabel:sample.preferredLabel,chosen:chosen?.slot?.id||null,correct:expected.length?correct:!chosen,ms:elapsed,detections:detections.map(d=>({...d,label:classes[d.classId]}))}
+   results.push(result)
+   const row=document.createElement('tr');for(const value of [sample.image.split(/[\\/]/).pop(),expected.map(e=>classes[e.classId]).join(', ')||'trống',chosen?.slot?.id||'không có',chosen?.d?.score.toFixed(4)||'—',result.correct?'PASS':'REVIEW']){const td=document.createElement('td');td.textContent=value;row.append(td)}rows.append(row)
+   status.textContent=`${results.length}/${samples.length} ảnh · ${elapsed.toFixed(0)} ms/ảnh`
+   summary.textContent=JSON.stringify(stats,null,2)
+  }
+  const sorted=results.slice(1).map(r=>r.ms).sort((a,b)=>a-b)
+  const report={date:'2026-11-03',modelVersion,modelUrl,modelSHA256,kind:mobile?'synthetic-movable-popup-images':'synthetic-held-out-stress-images',limits:'Not physical book photos; no real-world accuracy claim.',stats,coldMs:results[0]?.ms,medianWarmMs:sorted[Math.floor(sorted.length/2)],results}
+  document.querySelector('#json').textContent=JSON.stringify(report,null,2)
+  document.querySelector('#download').disabled=false
+  status.textContent=`${cancelled?'Đã dừng':'Hoàn tất'} · ${results.length} ảnh · đúng video ${stats.routes.correct}/${stats.routes.total} · ảnh trống mở nhầm ${stats.negative.falseOpens}/${stats.negative.total}`
+ }catch(error){status.textContent=String(error)}finally{disposeARDetector();start.disabled=false;stop.disabled=true}
+}
+</script></body></html>

@@ -36,7 +36,7 @@ for asset in manifest:
         "-threads", "1", "-c:v", "libvpx-vp9", "-i", str(webm),
         # WebM has a millisecond timebase; compare the same frame index rather
         # than letting framesync pair a rounded PTS with the preceding frame.
-        "-filter_complex", "[0:v]crop=iw/2:ih:iw/2:0,format=gray,settb=AVTB,setpts=N/(24*TB)[p];[1:v]alphaextract,format=gray,settb=AVTB,setpts=N/(24*TB)[a];[p][a]ssim",
+        "-filter_complex", f"[0:v]crop=iw/2:ih:iw/2:0,format=gray,settb=AVTB,setpts=N/(24*TB)[p];[1:v]alphaextract,scale={metadata['width']//2}:{metadata['height']}:flags=lanczos,format=gray,settb=AVTB,setpts=N/(24*TB)[a];[p][a]ssim",
         "-an", "-f", "null", "-",
     ], text=True, capture_output=True, check=True)
     score = float(re.search(r"All:([\d.]+)", comparison.stderr).group(1))

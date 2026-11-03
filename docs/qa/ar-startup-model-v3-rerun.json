@@ -1,0 +1,126 @@
+{
+  "date": "2026-11-03",
+  "kind": "desktop-chromium-synthetic-camera",
+  "realMindAR": false,
+  "realModel": true,
+  "measurements": [
+    {
+      "page": "book-c1-p03",
+      "popup": "book-c1-p03",
+      "mode": "visual",
+      "shown": true,
+      "shake": false,
+      "trackerFrames": 62,
+      "modelCalls": 2,
+      "qrJobs": 4,
+      "qrWorkers": 0,
+      "starts": 1,
+      "stops": 1,
+      "startedAt": 341.89999997615814,
+      "lastInferenceMs": 101,
+      "phase": "playing",
+      "source": "popup",
+      "mediaState": "ready",
+      "firstFrameMs": "25.0",
+      "detector": {
+        "execution": "worker",
+        "pending": false
+      },
+      "cameraLive": "live",
+      "media": {
+        "url": "/videos/ar/packed/native-v3/GT01.mp4",
+        "time": 5.453535,
+        "width": 2560,
+        "height": 720,
+        "dropped": 0,
+        "total": 1096
+      },
+      "transform": "translate3d(-10000px, -10000px, 0px)",
+      "renders": "1095"
+    },
+    {
+      "page": "book-c1-p03",
+      "popup": "book-c1-p03",
+      "mode": "visual",
+      "shown": false,
+      "shake": true,
+      "trackerFrames": 62,
+      "modelCalls": 2,
+      "qrJobs": 4,
+      "qrWorkers": 0,
+      "starts": 1,
+      "stops": 1,
+      "startedAt": 341.89999997615814,
+      "lastInferenceMs": 101,
+      "phase": "playing",
+      "source": "popup",
+      "mediaState": "ready",
+      "firstFrameMs": "25.0",
+      "detector": {
+        "execution": "worker",
+        "pending": false
+      },
+      "cameraLive": "live",
+      "media": {
+        "url": "/videos/ar/packed/native-v3/GT01.mp4",
+        "time": 8.463064,
+        "width": 2560,
+        "height": 720,
+        "dropped": 0,
+        "total": 1168
+      },
+      "transform": "translate3d(-10000px, -10000px, 0px)",
+      "renders": "1167"
+    },
+    {
+      "page": "book-c1-p03",
+      "popup": "book-c1-p03",
+      "mode": "visual",
+      "shown": false,
+      "shake": true,
+      "trackerFrames": 511,
+      "modelCalls": 32,
+      "qrJobs": 28,
+      "qrWorkers": 0,
+      "starts": 2,
+      "stops": 2,
+      "startedAt": 341.89999997615814,
+      "lastInferenceMs": 94.80000001192093,
+      "phase": "scanning",
+      "source": "",
+      "mediaState": "idle",
+      "firstFrameMs": "25.0",
+      "detector": {
+        "execution": "worker",
+        "pending": false
+      },
+      "cameraLive": "ended",
+      "media": null
+    },
+    {
+      "page": "book-c1-p03",
+      "popup": "book-c1-p03",
+      "mode": "visual",
+      "shown": false,
+      "shake": true,
+      "trackerFrames": 511,
+      "modelCalls": 32,
+      "qrJobs": 28,
+      "qrWorkers": 0,
+      "starts": 2,
+      "stops": 2,
+      "startedAt": 341.89999997615814,
+      "lastInferenceMs": 94.80000001192093,
+      "phase": "idle",
+      "source": "",
+      "mediaState": "idle",
+      "firstFrameMs": "25.0",
+      "detector": {
+        "execution": "idle",
+        "pending": false
+      },
+      "cameraLive": "ended",
+      "media": null
+    }
+  ]
+}

@@ -1,0 +1,76 @@
+{
+  "date": "2026-11-03",
+  "kind": "desktop-chromium-synthetic-camera",
+  "realMindAR": false,
+  "realModel": false,
+  "measurements": [
+    {
+      "page": "book-c1-p03",
+      "mode": "page",
+      "shown": true,
+      "shake": false,
+      "trackerFrames": 1,
+      "modelCalls": 0,
+      "qrJobs": 0,
+      "qrWorkers": 0,
+      "starts": 1,
+      "stops": 1,
+      "startedAt": 22038.5,
+      "phase": "playing",
+      "source": "page",
+      "mediaState": "ready",
+      "firstFrameMs": "437.0",
+      "detector": {
+        "execution": "idle",
+        "pending": false
+      },
+      "cameraLive": "live",
+      "media": {
+        "url": "/videos/ar/packed/hq2/GT01.mp4",
+        "time": 8.099798,
+        "width": 1920,
+        "height": 540,
+        "dropped": 0,
+        "total": 438
+      },
+      "transform": "translate3d(-10000px, -10000px, 0px)",
+      "renders": "439"
+    },
+    {
+      "page": "book-c1-p03",
+      "mode": "page",
+      "shown": true,
+      "shake": false,
+      "trackerFrames": 1,
+      "modelCalls": 0,
+      "qrJobs": 0,
+      "qrWorkers": 0,
+      "starts": 1,
+      "stops": 1,
+      "startedAt": 22038.5,
+      "phase": "playing",
+      "source": "page",
+      "mediaState": "ready",
+      "firstFrameMs": "437.0",
+      "detector": {
+        "execution": "idle",
+        "pending": false
+      },
+      "cameraLive": "live",
+      "media": {
+        "url": "/videos/ar/packed/hq2/GT01.mp4",
+        "time": 7.644333,
+        "width": 1920,
+        "height": 540,
+        "dropped": 0,
+        "total": 1627
+      },
+      "transform": "translate3d(-10000px, -10000px, 0px)",
+      "renders": "1632"
+    }
+  ],
+  "simulatedFaults": [
+    "native-v3 play() rejects with NotSupportedError",
+    "requestVideoFrameCallback never invokes its callback"
+  ]
+}

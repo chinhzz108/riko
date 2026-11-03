@@ -3,6 +3,7 @@ import {
   ArrowLeft,
   Camera,
   Flashlight,
+  LoaderCircle,
   Minus,
   Plus,
   RotateCcw,
@@ -22,6 +23,13 @@ import type {
 } from "three"
 import { installARGestures } from "../lib/arGestures"
 import { configurePackedAlpha } from "../lib/arPackedMaterial"
+import {
+  getARPixelRatio,
+  playARVideo,
+  preferredARSource,
+  setARVideoSource,
+  type ARVideoAsset,
+} from "../lib/arVideoPlayback.js"
 import { createARPlaybackSession, getLockedVideoLayout } from "../lib/arPlaybackSession.js"
 import { createRecognitionPause, type RecognitionController } from "../lib/arRecognitionPause.js"
 import {
@@ -36,9 +44,10 @@ import videoPresentations from "../data/arVideoPresentation.json"
 import {
   detectBookTarget,
   disposeARDetector,
+  warmARDetector,
   type ARDetection,
 } from "../lib/arDetector"
-import { resolveSlotFromLabel, routeSlotFromQR } from "../lib/arScanLogic.js"
+import { PAGE_CONFIRMATION_WINDOW_MS, QR_FALLBACK_DELAY_MS, VISUAL_SCAN_INTERVAL_MS, createVisualConsensus, routeSlotFromQR, shouldWaitForPopupDetection, videoCandidates } from "../lib/arScanLogic.js"
 import {
   DEFAULT_VIDEO_PRESENTATION,
   type VideoPresentation,
@@ -62,15 +71,7 @@ type Selection = {
   score?: number
 }
 type PendingQR = { slot: BookSlot; foundAt: number }
-type VideoAsset = {
-  id: string
-  url: string
-  alpha?: boolean
-  alphaVideoUrl?: string
-  alphaColorUrl?: string
-  alphaMaskUrl?: string
-  previewVideoUrl?: string
-}
+type VideoAsset = ARVideoAsset
 type MindARAnchor = {
   group: Group
   visible: boolean
@@ -99,10 +100,8 @@ type PlaneRecord = {
 type SpatialMedia = {
   video: HTMLVideoElement
   colorVideo: HTMLVideoElement
-  maskVideo: HTMLVideoElement
   texture: Texture
   colorTexture: Texture
-  maskTexture: Texture
   packedAlpha: { value: number }
   material: MeshBasicMaterial
   shadowMaterial: MeshBasicMaterial
@@ -188,18 +187,6 @@ async function requestCameraStream() {
   }
 }
 
-function slotFromDetection(
-  detection: ARDetection,
-  pageContext?: BookSlot | null,
-) {
-  return resolveSlotFromLabel(
-    classNames[detection.classId],
-    pageContext?.id,
-    targets,
-    slots,
-  )
-}
-
 function isSafariOrIOS() {
   const userAgent = navigator.userAgent
   const isIOS =
@@ -215,74 +202,13 @@ function makeVideoElement() {
   const video = document.createElement("video")
   video.crossOrigin = "anonymous"
   video.preload = "auto"
-  video.autoplay = true
+  video.autoplay = false
+  video.muted = true
   video.loop = true
   video.playsInline = true
   video.setAttribute("playsinline", "")
   video.setAttribute("webkit-playsinline", "")
   return video
-}
-
-function waitForVideoFrame(video: HTMLVideoElement, timeoutMs = 8000) {
-  if (video.error) return Promise.reject(video.error)
-  if (
-    typeof video.requestVideoFrameCallback !== "function" &&
-    video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA &&
-    video.videoWidth > 0
-  )
-    return Promise.resolve()
-
-  return new Promise<void>((resolve, reject) => {
-    let timer = 0
-    let frameRequest = 0
-    let settled = false
-    const cleanup = () => {
-      window.clearTimeout(timer)
-      if (frameRequest && video.cancelVideoFrameCallback)
-        video.cancelVideoFrameCallback(frameRequest)
-      video.removeEventListener("loadeddata", check)
-      video.removeEventListener("canplay", check)
-      video.removeEventListener("playing", check)
-      video.removeEventListener("error", fail)
-    }
-    const complete = () => {
-      if (settled) return
-      settled = true
-      cleanup()
-      resolve()
-    }
-    const check = () => {
-      if (
-        video.readyState < HTMLMediaElement.HAVE_CURRENT_DATA ||
-        video.videoWidth <= 0
-      )
-        return
-      if (typeof video.requestVideoFrameCallback === "function") {
-        if (!frameRequest)
-          frameRequest = video.requestVideoFrameCallback(complete)
-        return
-      }
-      complete()
-    }
-    const finishWithError = (error: unknown) => {
-      if (settled) return
-      settled = true
-      cleanup()
-      reject(error)
-    }
-    const fail = () =>
-      finishWithError(video.error || new Error("Video không giải mã được."))
-    timer = window.setTimeout(
-      () =>
-        finishWithError(new Error("Video không tạo được khung hình đầu tiên.")),
-      timeoutMs,
-    )
-    video.addEventListener("loadeddata", check)
-    video.addEventListener("canplay", check)
-    video.addEventListener("playing", check)
-    video.addEventListener("error", fail)
-    check()
-  })
 }
 
 function videoPreservesAlpha(video: HTMLVideoElement) {
@@ -346,6 +272,7 @@ async function startMindARWithStream(
 type ARScanRuntime = {
   loadTracker?: () => Promise<{ MindARThree: unknown }>
   detect?: typeof detectBookTarget
+  warm?: () => Promise<void>
 }
 
 export default function ARScan({ runtime }: { runtime?: ARScanRuntime } = {}) {
@@ -362,6 +289,9 @@ export default function ARScan({ runtime }: { runtime?: ARScanRuntime } = {}) {
   const stageCleanupRef = useRef<(() => void) | null>(null)
   const viewportRef = useRef<StageViewport | null>(null)
   const modelReadyRef = useRef(false)
+  const modelWarmingRef = useRef(false)
+  const modelWarmPromiseRef = useRef<Promise<void> | null>(null)
+  const trackedCandidateRef = useRef<PendingQR | null>(null)
   const activePageSlotRef = useRef<BookSlot | null>(null)
   const pendingQRRef = useRef<PendingQR | null>(null)
   const qrFallbackRef = useRef<string | null>(null)
@@ -370,12 +300,14 @@ export default function ARScan({ runtime }: { runtime?: ARScanRuntime } = {}) {
   const presentationScaleRef = useRef(1)
   const selectionRef = useRef<Selection | null>(null)
   const videoManifestRef = useRef<Promise<VideoAsset[]> | null>(null)
+  const videoAssetCacheRef = useRef<VideoAsset[]>([])
   const playbackSessionRef = useRef(createARPlaybackSession())
   const soundOnRef = useRef(true)
   const recognitionPauseRef = useRef<ReturnType<typeof createRecognitionPause> | null>(null)
   const presentStageRef = useRef<(() => void) | null>(null)
   const followVideoRef = useRef<(() => void) | null>(null)
   const cameraSessionRef = useRef(0)
+  const openedAtRef = useRef(0)
   const dismissedSourceRef = useRef<Selection["source"] | null>(null)
   const [cameraOn, setCameraOn] = useState(false)
   const [starting, setStarting] = useState(false)
@@ -392,6 +324,7 @@ export default function ARScan({ runtime }: { runtime?: ARScanRuntime } = {}) {
   const [torchOn, setTorchOn] = useState(false)
   const [soundOn, setSoundOn] = useState(true)
   const [audioNeedsTap, setAudioNeedsTap] = useState(false)
+  const [mediaStatus, setMediaStatus] = useState<"idle" | "loading" | "ready" | "buffering" | "error">("idle")
   const [scannedQR, setScannedQR] = useState("")
   const [presentationScale, setPresentationScale] = useState(1)
 
@@ -413,12 +346,15 @@ export default function ARScan({ runtime }: { runtime?: ARScanRuntime } = {}) {
     scanLoopRef.current = null
     pendingQRRef.current = null
     recognitionPauseRef.current?.pause()
-    disposeARDetector()
-    modelReadyRef.current = false
+    trackedCandidateRef.current = null
+    // Keep the worker warm: a lifted popup on the next scan may not match
+    // the printed page. Only camera teardown disposes its compiled model.
   }
 
   function openARVideo(next: Selection) {
     if (!next.slot.arVideoUrl || playbackSessionRef.current.open(next.slot.id) === null) return
+    openedAtRef.current = performance.now()
+    if (frameRef.current) delete frameRef.current.dataset.arFirstFrameMs
     activePageSlotRef.current = next.source === "qr" ? null : next.slot
     pendingQRRef.current = null
     setScannedQR("")
@@ -426,18 +362,14 @@ export default function ARScan({ runtime }: { runtime?: ARScanRuntime } = {}) {
     soundOnRef.current = true
     setSoundOn(true)
     setAudioNeedsTap(false)
+    setMediaStatus("loading")
     presentationScaleRef.current = 1
     setPresentationScale(1)
     for (const record of planeRecordsRef.current) record.offset = { x: 0, y: 0 }
     chooseSelection(next)
     pauseRecognition()
     if (next.source !== "qr") void showSpatialVideo(next.slot)
-    else {
-      const generation = playbackSessionRef.current.snapshot().generation
-      void findVideoAsset(next.slot).then(asset => {
-        if (playbackSessionRef.current.isCurrent(next.slot.id, generation)) setSelectedAsset(asset)
-      })
-    }
+    else setSelectedAsset(cachedVideoAsset(next.slot))
   }
 
   async function closeARVideo() {
@@ -451,7 +383,7 @@ export default function ARScan({ runtime }: { runtime?: ARScanRuntime } = {}) {
     const media = spatialRef.current
     if (media) {
       media.ready = false
-      for (const video of [media.video, media.colorVideo, media.maskVideo]) video.pause()
+      for (const video of [media.video, media.colorVideo]) video.pause()
     }
     hideNativeVideoOverlay()
     followVideoRef.current?.()
@@ -459,6 +391,7 @@ export default function ARScan({ runtime }: { runtime?: ARScanRuntime } = {}) {
     pendingQRRef.current = null
     qrFallbackRef.current = null
     setSelectedAsset(null)
+    setMediaStatus("idle")
     setScannedQR("")
     setTrackedPageLabel("")
     setError("")
@@ -477,31 +410,44 @@ export default function ARScan({ runtime }: { runtime?: ARScanRuntime } = {}) {
 
   function videoAssets() {
     if (!videoManifestRef.current) {
-      videoManifestRef.current = fetch("/videos/ar/manifest.json?v=detail-preserved-v2", {
+      videoManifestRef.current = fetch("/videos/ar/manifest.json?v=native-v3", {
         cache: "no-cache",
       }).then(async (response) => {
         if (!response.ok) throw new Error("Could not load AR video manifest")
-        return (await response.json()) as VideoAsset[]
+        const assets = (await response.json()) as VideoAsset[]
+        videoAssetCacheRef.current = assets
+        return assets
+      }).catch((cause) => {
+        videoManifestRef.current = null
+        throw cause
       })
     }
     return videoManifestRef.current
   }
 
-  async function findVideoAsset(slot: BookSlot) {
-    const defaultAsset: VideoAsset = {
-      id: slot.arTargetId || slot.id,
+  function cachedVideoAsset(slot: BookSlot): VideoAsset {
+    const id = slot.arTargetId || slot.arVideoUrl?.split("/").pop()?.replace(/\.webm$/, "") || slot.id
+    const profile = (videoPresentations as Record<string, VideoPresentation>)[id]
+    return videoAssetCacheRef.current.find(item => item.id === id) || {
+      id,
       url: slot.arVideoUrl || "",
+      alpha: Boolean(profile?.packedVideoUrl),
+      packedVideoUrl: profile?.packedVideoUrl,
+      compatiblePackedVideoUrl: profile?.compatiblePackedVideoUrl,
+      previewVideoUrl: profile?.previewVideoUrl,
     }
-    try {
-      const manifest = await videoAssets()
-      return (
-        manifest.find(
-          (item) => item.url === slot.arVideoUrl || item.id === slot.arTargetId,
-        ) || defaultAsset
-      )
-    } catch {
-      return defaultAsset
-    }
+  }
+
+  function preloadCandidate(slot: BookSlot) {
+    const media = spatialRef.current
+    if (!media || !playbackSessionRef.current.canScan() || !slot.arVideoUrl) return
+    const id = slot.arTargetId || slot.arVideoUrl.split("/").pop()?.replace(/\.webm$/, "") || slot.id
+    const profile = (videoPresentations as Record<string, VideoPresentation>)[id]
+    if (!profile) return
+    const source = preferredARSource({ id, url: slot.arVideoUrl, alpha: true }, profile)
+    const video = source.kind === "packed" ? media.colorVideo : media.video
+    // preload=auto decodes the first frame without playing audio or starting a second clock.
+    setARVideoSource(video, source.url, window.location.origin)
   }
 
   function resizePlane(record: PlaneRecord, _aspect: number) {
@@ -550,85 +496,58 @@ export default function ARScan({ runtime }: { runtime?: ARScanRuntime } = {}) {
     if (!media || !slot.arVideoUrl) return
     const requestId = ++spatialPlayRequestRef.current
     media.ready = false
+    setMediaStatus("loading")
     const isCurrentRequest = () =>
       spatialRef.current === media &&
       spatialPlayRequestRef.current === requestId &&
       activePageSlotRef.current?.id === slot.id
     setError("")
-    const asset = await findVideoAsset(slot)
+    // Recognition already identifies the media URL. A slow manifest request
+    // must not block playback of the bundled, versioned source.
+    const asset = cachedVideoAsset(slot)
     if (!isCurrentRequest()) return
     media.profile =
       (videoPresentations as Record<string, VideoPresentation>)[asset.id] ||
       DEFAULT_VIDEO_PRESENTATION
     setSelectedAsset(asset)
     hideNativeVideoOverlay(media)
-    const safari = isSafariOrIOS()
-    const hasSplitAlpha = Boolean(
-      asset.alpha && asset.alphaColorUrl && asset.alphaMaskUrl,
-    )
+    const hasAlpha = Boolean(asset.alpha)
     const nativeScene = media.profile.mode === "scene"
-    media.fallbackActive = Boolean(hasSplitAlpha && safari && !nativeScene)
+    const preferred = preferredARSource(asset, media.profile)
+    media.fallbackActive = preferred.kind === "packed"
     media.packedActive = false
     media.video.pause()
     media.colorVideo.pause()
-    media.maskVideo.pause()
     media.video.muted = !soundOnRef.current
     media.colorVideo.muted = !soundOnRef.current
-    media.maskVideo.muted = true
 
-    const setSource = (video: HTMLVideoElement, url: string) => {
-      const absoluteUrl = new URL(url, window.location.origin).href
-      if (video.src === absoluteUrl) {
-        if (video.error) video.load()
-        return
-      }
-      video.pause()
-      video.src = url
-      video.load()
-    }
     const playTexture = async (
       video: HTMLVideoElement,
       texture: Texture,
       url: string,
     ) => {
-      setSource(video, url)
+      setARVideoSource(video, url, window.location.origin)
       try {
-        await video.play()
+        await playARVideo(video)
       } catch (cause) {
         if (cause instanceof Error && cause.name === "NotAllowedError" && !video.muted) {
           soundOnRef.current = false
           setSoundOn(false)
           setAudioNeedsTap(true)
           video.muted = true
-          await video.play()
+          await playARVideo(video)
         } else {
           throw cause
         }
       }
-      await waitForVideoFrame(video)
       texture.needsUpdate = true
     }
-    const playSplitAlpha = async () => {
-      if (!hasSplitAlpha) throw new Error("Không có video alpha dự phòng.")
-      const colorUrl = asset.alphaColorUrl!
-      const maskUrl = asset.alphaMaskUrl!
-      media.fallbackActive = true
-      media.packedActive = false
-      media.packedAlpha.value = 0
-      media.colorTexture.repeat.set(1, 1)
-      media.material.map = media.colorTexture
-      media.material.alphaMap = media.maskTexture
-      media.material.transparent = true
-      media.currentVideo = media.colorVideo
-      await Promise.all([
-        playTexture(media.colorVideo, media.colorTexture, colorUrl),
-        playTexture(media.maskVideo, media.maskTexture, maskUrl),
-      ])
-    }
     const playCompatibleAlpha = async () => {
-      const packed = media.profile.packedVideoUrl
-      if (!packed) return playSplitAlpha()
-      try {
+      const packed = asset.packedVideoUrl || media.profile.packedVideoUrl
+      if (!packed) throw new Error("Không có video nền trong suốt tương thích.")
+      const sources = [...new Set([packed, asset.compatiblePackedVideoUrl].filter(Boolean))] as string[]
+      let lastError: unknown
+      for (const source of sources) {
         media.fallbackActive = true
         media.packedActive = true
         media.packedAlpha.value = 1
@@ -637,14 +556,16 @@ export default function ARScan({ runtime }: { runtime?: ARScanRuntime } = {}) {
         media.material.alphaMap = null
         media.material.transparent = true
         media.currentVideo = media.colorVideo
-        await playTexture(media.colorVideo, media.colorTexture, packed)
-      } catch (error) {
-        console.warn(
-          "Packed alpha could not play; trying separate matte streams.",
-          error,
-        )
-        await playSplitAlpha()
+        try {
+          await playTexture(media.colorVideo, media.colorTexture, source)
+          return
+        } catch (cause) {
+          if (!isCurrentRequest()) throw cause
+          lastError = cause
+          media.colorVideo.pause()
+        }
       }
+      throw lastError
     }
     const playNative = async () => {
       const source =
@@ -662,16 +583,13 @@ export default function ARScan({ runtime }: { runtime?: ARScanRuntime } = {}) {
       await playTexture(media.video, media.texture, source)
       if (
         asset.alpha &&
-        hasSplitAlpha &&
+        hasAlpha &&
         media.profile.mode !== "scene" &&
         media.profile.mode !== "mixed" &&
         !videoPreservesAlpha(media.video)
       ) {
-        console.warn(
-          "Browser decoded the AR WebM without transparency; switching to the color/matte fallback.",
-        )
         media.video.pause()
-        await playCompatibleAlpha()
+        throw new Error("Trình duyệt giải mã video này không giữ được nền trong suốt.")
       }
     }
 
@@ -686,14 +604,14 @@ export default function ARScan({ runtime }: { runtime?: ARScanRuntime } = {}) {
       )
       media.video.pause()
       media.colorVideo.pause()
-      media.maskVideo.pause()
       try {
-        if (hasSplitAlpha && !media.fallbackActive) await playCompatibleAlpha()
-        else if (hasSplitAlpha && safari) await playNative()
+        if (hasAlpha && !media.fallbackActive) await playCompatibleAlpha()
+        else if (hasAlpha) await playNative()
         else throw playError
       } catch (fallbackError) {
         if (!isCurrentRequest()) return
         console.error("No AR video source could be played.", fallbackError)
+        setMediaStatus("error")
         setError(
           "Video AR chưa phát được trên trình duyệt này. Hãy thử tải lại trang hoặc chạm bắt đầu quét lại.",
         )
@@ -703,6 +621,7 @@ export default function ARScan({ runtime }: { runtime?: ARScanRuntime } = {}) {
     if (!isCurrentRequest()) return
     media.material.needsUpdate = true
     media.ready = true
+    setMediaStatus("ready")
     media.nativeOverlayActive =
       !media.fallbackActive && media.currentVideo === media.video
     if (!media.nativeOverlayActive) hideNativeVideoOverlay(media)
@@ -730,20 +649,14 @@ export default function ARScan({ runtime }: { runtime?: ARScanRuntime } = {}) {
   ) {
     const video = makeVideoElement()
     const colorVideo = makeVideoElement()
-    const maskVideo = makeVideoElement()
     const texture = new THREE.VideoTexture(video)
     const colorTexture = new THREE.VideoTexture(colorVideo)
-    const maskTexture = new THREE.VideoTexture(maskVideo)
     for (const item of [texture, colorTexture]) {
       item.colorSpace = THREE.SRGBColorSpace
       item.minFilter = THREE.LinearFilter
       item.magFilter = THREE.LinearFilter
       item.generateMipmaps = false
     }
-    maskTexture.colorSpace = THREE.NoColorSpace
-    maskTexture.minFilter = THREE.LinearFilter
-    maskTexture.magFilter = THREE.LinearFilter
-    maskTexture.generateMipmaps = false
     const material = new THREE.MeshBasicMaterial({
       map: texture,
       transparent: true,
@@ -793,10 +706,8 @@ export default function ARScan({ runtime }: { runtime?: ARScanRuntime } = {}) {
     const media: SpatialMedia = {
       video,
       colorVideo,
-      maskVideo,
       texture,
       colorTexture,
-      maskTexture,
       packedAlpha,
       material,
       shadowMaterial,
@@ -813,7 +724,6 @@ export default function ARScan({ runtime }: { runtime?: ARScanRuntime } = {}) {
     for (const [element, textureToRefresh] of [
       [video, texture],
       [colorVideo, colorTexture],
-      [maskVideo, maskTexture],
     ] as const) {
       const refreshTexture = () => {
         if (element.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA)
@@ -821,6 +731,14 @@ export default function ARScan({ runtime }: { runtime?: ARScanRuntime } = {}) {
       }
       element.addEventListener("loadeddata", refreshTexture)
       element.addEventListener("playing", refreshTexture)
+      const updatePlaybackStatus = () => {
+        if (spatialRef.current !== media || !media.ready || media.currentVideo !== element) return
+        setMediaStatus(element.readyState < HTMLMediaElement.HAVE_FUTURE_DATA ? "buffering" : "ready")
+      }
+      element.addEventListener("waiting", updatePlaybackStatus)
+      element.addEventListener("stalled", updatePlaybackStatus)
+      element.addEventListener("playing", updatePlaybackStatus)
+      element.addEventListener("canplay", updatePlaybackStatus)
       element.setAttribute("aria-hidden", "true")
       Object.assign(element.style, {
         position: "absolute",
@@ -853,13 +771,12 @@ export default function ARScan({ runtime }: { runtime?: ARScanRuntime } = {}) {
     const recordsById = new Map<string, PlaneRecord>()
     const camera = new THREE.OrthographicCamera(0, 1, 1, 0, .1, 10)
     camera.position.z = 2
-    let disposed = false, pendingPaint = 0, frameRequest = 0, fallbackFrame = 0
+    let disposed = false, pendingPaint = 0, frameRequest = 0, fallbackFrame = 0, frameWatchdog = 0
     let followedVideo: HTMLVideoElement | null = null
     let visibleRecord: PlaneRecord | null = null
     let lastMediaTime = -1
     let renders = 0
     tracker.renderer.setAnimationLoop(null)
-    tracker.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5))
     tracker.renderer.setClearColor(0x000000, 0)
     tracker.renderer.setClearAlpha(0)
 
@@ -873,7 +790,14 @@ export default function ARScan({ runtime }: { runtime?: ARScanRuntime } = {}) {
       if (!frame || !overlay) return
       const rect = frame.getBoundingClientRect()
       viewportRef.current = { frame: rect }
-      tracker.renderer.setSize(rect.width, rect.height, false)
+      const ratio = getARPixelRatio(rect.width, rect.height, window.devicePixelRatio)
+      if (tracker.renderer.getPixelRatio() !== ratio) tracker.renderer.setPixelRatio(ratio)
+      const surface = tracker.renderer.domElement
+      if (surface.width !== Math.floor(rect.width * ratio) || surface.height !== Math.floor(rect.height * ratio))
+        tracker.renderer.setSize(rect.width, rect.height, false)
+      // MindAR sizes its canvas for its perspective camera during start/resize.
+      // This stage uses viewport pixels and must reset that CSS size as well.
+      Object.assign(tracker.renderer.domElement.style, { width: "100%", height: "100%", left: "0", top: "0" })
       camera.right = rect.width; camera.top = rect.height
       camera.updateProjectionMatrix()
       invalidate()
@@ -908,23 +832,23 @@ export default function ARScan({ runtime }: { runtime?: ARScanRuntime } = {}) {
           // Native alpha is composited by the browser. Update its transform only
           // on layout/gesture events; phone movement cannot modify this pose.
           const v = media.video
-          const sw = v.videoWidth*(crop.right-crop.left), sh=v.videoHeight*(crop.bottom-crop.top)
+          const scaleX = layout.width / (v.videoWidth * (crop.right - crop.left))
+          const scaleY = layout.height / (v.videoHeight * (crop.bottom - crop.top))
           Object.assign(media.nativeFrame.style, {
-            width: `${sw}px`, height: `${sh}px`, opacity: "1",
-            transform: `translate3d(${layout.x-layout.width/2}px,${layout.y-layout.height/2}px,0) scale(${layout.width/sw},${layout.height/sh})`,
+            width: `${layout.width}px`, height: `${layout.height}px`, opacity: "1",
+            transform: `translate3d(${layout.x-layout.width/2}px,${layout.y-layout.height/2}px,0)`,
           })
-          Object.assign(v.style, {width:`${v.videoWidth}px`,height:`${v.videoHeight}px`,
-            left:`${-crop.left*v.videoWidth}px`,top:`${-crop.top*v.videoHeight}px`})
+          Object.assign(v.style, {width:`${v.videoWidth * scaleX}px`,height:`${v.videoHeight * scaleY}px`,
+            left:`${-crop.left*v.videoWidth * scaleX}px`,top:`${-crop.top*v.videoHeight * scaleY}px`})
           media.nativeOverlayPositioned = true
         }
         record.mesh.visible = !media.nativeOverlayActive
       } else {
         hideNativeVideoOverlay(media, false)
       }
-      if (media.fallbackActive && !media.packedActive && media.currentVideo &&
-        media.maskVideo.readyState>=2 && Math.abs(media.maskVideo.currentTime-media.currentVideo.currentTime)>.08)
-        media.maskVideo.currentTime=media.currentVideo.currentTime
       tracker.renderer.render(tracker.scene,camera)
+      if (import.meta.env.DEV && record?.root.visible && frameRef.current && !frameRef.current.dataset.arFirstFrameMs)
+        frameRef.current.dataset.arFirstFrameMs = (performance.now() - openedAtRef.current).toFixed(1)
       if (import.meta.env.DEV) tracker.renderer.domElement.dataset.arRenders=String(++renders)
     }
 
@@ -932,7 +856,8 @@ export default function ARScan({ runtime }: { runtime?: ARScanRuntime } = {}) {
       if (frameRequest && followedVideo?.cancelVideoFrameCallback)
         followedVideo.cancelVideoFrameCallback(frameRequest)
       if (fallbackFrame) cancelAnimationFrame(fallbackFrame)
-      frameRequest=fallbackFrame=0
+      if (frameWatchdog) window.clearTimeout(frameWatchdog)
+      frameRequest=fallbackFrame=frameWatchdog=0
       followedVideo=null
     }
     const followVideo = () => {
@@ -941,25 +866,48 @@ export default function ARScan({ runtime }: { runtime?: ARScanRuntime } = {}) {
       const video=media.currentVideo
       if (!media.ready || media.nativeOverlayActive || !video || document.hidden) return
       followedVideo=video; lastMediaTime=-1
+      let lastCallbackAt=performance.now()
+      const frameCurrent=()=>!disposed && followedVideo===video && media.ready && !document.hidden
       const freshFrame = () => {
-        if (disposed || followedVideo!==video || !media.ready || document.hidden) return
+        if (!frameCurrent()) return
+        lastCallbackAt=performance.now()
         invalidate()
         frameRequest=video.requestVideoFrameCallback(freshFrame)
       }
       const compatibleFrame = () => {
-        if (disposed || followedVideo!==video || !media.ready || document.hidden) return
-        if (video.currentTime!==lastMediaTime) {lastMediaTime=video.currentTime;invalidate()}
+        if (!frameCurrent()) return
+        // All delivered clips are 24 fps. Cap the fallback to media frames,
+        // rather than uploading a 720p texture at the display's 60/120 Hz.
+        const mediaFrame=Math.floor(video.currentTime*24)
+        if (mediaFrame!==lastMediaTime) {
+          lastMediaTime=mediaFrame
+          const currentTexture=media.packedActive ? media.colorTexture : media.texture
+          currentTexture.needsUpdate=true
+          invalidate()
+        }
         fallbackFrame=requestAnimationFrame(compatibleFrame)
       }
-      if (typeof video.requestVideoFrameCallback==="function")
+      const watchFrames = () => {
+        frameWatchdog=0
+        if (!frameCurrent()) return
+        if (!video.paused && performance.now()-lastCallbackAt>400) {
+          // Some mobile compositors suppress callbacks for hidden videos even
+          // while their playback clock advances. Keep the texture progressing.
+          if(frameRequest)video.cancelVideoFrameCallback?.(frameRequest)
+          frameRequest=0
+          compatibleFrame()
+        } else frameWatchdog=window.setTimeout(watchFrames,450)
+      }
+      if (typeof video.requestVideoFrameCallback==="function") {
         frameRequest=video.requestVideoFrameCallback(freshFrame)
-      else fallbackFrame=requestAnimationFrame(compatibleFrame)
+        frameWatchdog=window.setTimeout(watchFrames,450)
+      } else compatibleFrame()
     }
     const visibility = () => {
       if (document.hidden) cancelVideoFrames()
       else {updateViewport();followVideo()}
     }
-    presentStageRef.current=invalidate
+    presentStageRef.current=updateViewport
     followVideoRef.current=followVideo
     media.nativeFrame.dataset.arVideoSurface="locked"
 
@@ -977,12 +925,14 @@ export default function ARScan({ runtime }: { runtime?: ARScanRuntime } = {}) {
       records.push(record);recordsById.set(slot.id,record)
       anchor.onTargetFound=()=>{
         if (trackerRef.current!==tracker || !playbackSessionRef.current.canScan()) return
-        openARVideo({slot,box:null,source:"page"})
+        if (!pendingQRRef.current) preloadCandidate(slot)
+        trackedCandidateRef.current={slot,foundAt:performance.now()}
       }
       anchor.onTargetLost=()=>{
         // Loss never closes an open video. It only rearms a dismissed page
         // once that page actually leaves the camera after the user pressed X.
         if (trackerRef.current!==tracker || !playbackSessionRef.current.canScan()) return
+        if (trackedCandidateRef.current?.slot.id===slot.id) trackedCandidateRef.current=null
         playbackSessionRef.current.lost(slot.id)
         if (dismissedSlotRef.current===slot.id) dismissedSlotRef.current=null
       }
@@ -1034,9 +984,12 @@ export default function ARScan({ runtime }: { runtime?: ARScanRuntime } = {}) {
     scanLoopRef.current?.()
     scanLoopRef.current = null
     disposeARDetector()
+    modelWarmPromiseRef.current = null
     stageCleanupRef.current?.()
     stageCleanupRef.current = null
     modelReadyRef.current = false
+    modelWarmingRef.current = false
+    trackedCandidateRef.current = null
     activePageSlotRef.current = null
     pendingQRRef.current = null
     const tracker = trackerRef.current
@@ -1052,7 +1005,7 @@ export default function ARScan({ runtime }: { runtime?: ARScanRuntime } = {}) {
     }
     const media = spatialRef.current
     if (media) {
-      for (const video of [media.video, media.colorVideo, media.maskVideo]) {
+      for (const video of [media.video, media.colorVideo]) {
         video.pause()
         video.removeAttribute("src")
         video.load()
@@ -1061,7 +1014,6 @@ export default function ARScan({ runtime }: { runtime?: ARScanRuntime } = {}) {
       media.material.dispose()
       media.texture.dispose()
       media.colorTexture.dispose()
-      media.maskTexture.dispose()
       media.shadowTexture.dispose()
       media.shadowMaterial.dispose()
       media.nativeFrame.remove()
@@ -1081,7 +1033,35 @@ export default function ARScan({ runtime }: { runtime?: ARScanRuntime } = {}) {
     videoOverlayRef.current?.replaceChildren()
   }
 
-  useEffect(() => () => disposeTracker(), [])
+  function ensureModelWarm() {
+    if (modelWarmPromiseRef.current) return modelWarmPromiseRef.current
+    modelWarmingRef.current = true
+    const request = runtime ? runtime.warm?.() || Promise.resolve() : warmARDetector(classNames.length)
+    const warm = request
+      .then(() => {
+        if (modelWarmPromiseRef.current === warm) {
+          modelReadyRef.current = true
+          modelWarmingRef.current = false
+        }
+      }, cause => {
+        if (modelWarmPromiseRef.current === warm) {
+          modelReadyRef.current = false
+          modelWarmingRef.current = false
+          modelWarmPromiseRef.current = null
+        }
+        throw cause
+      })
+    modelWarmPromiseRef.current = warm
+    return warm
+  }
+
+  useEffect(() => {
+    // Compile the detector as soon as the scanner route mounts. This moves the
+    // expensive TFLite/WASM startup out of the first camera frame, while the
+    // compiled worker remains available for the scan loop.
+    void ensureModelWarm().catch(() => undefined)
+    return () => disposeTracker()
+  }, [])
 
   async function startCamera() {
     const cameraSession = ++cameraSessionRef.current
@@ -1095,6 +1075,18 @@ export default function ARScan({ runtime }: { runtime?: ARScanRuntime } = {}) {
     setTrackerStatus("loading")
     setModelStatus("loading")
     setCameraOn(true)
+    void videoAssets().catch(() => undefined)
+    const warm = ensureModelWarm()
+    void warm.then(() => {
+      if (cameraSessionRef.current!==cameraSession) return
+      modelReadyRef.current=true
+      setModelStatus("ready")
+    }).catch(() => {
+      if (cameraSessionRef.current===cameraSession) {
+        modelReadyRef.current=false
+        setModelStatus("unavailable")
+      }
+    })
     try {
       await new Promise<void>((resolve) =>
         requestAnimationFrame(() => resolve()),
@@ -1159,6 +1151,7 @@ export default function ARScan({ runtime }: { runtime?: ARScanRuntime } = {}) {
       createTrackerScene(tracker, THREE)
       await startMindARWithStream(tracker, stream)
       if (trackerRef.current !== tracker || cameraSessionRef.current !== cameraSession) return
+      presentStageRef.current?.()
       recognitionPauseRef.current = createRecognitionPause(tracker.controller,
         () => new Promise<void>(resolve => requestAnimationFrame(() => resolve())))
       cameraVideoRef.current = tracker.video
@@ -1187,8 +1180,10 @@ export default function ARScan({ runtime }: { runtime?: ARScanRuntime } = {}) {
     scanLoopRef.current?.()
     if (!playbackSessionRef.current.canScan()) return
     let active=true, detecting=false, qrBusy=false, frameId=0
-    let lastDetectionAt=performance.now(), lastQrAt=0, lastQrLocationAt=performance.now()
-    let stableKey="", stableFrames=0, lastDismissedSeen=performance.now()
+    let lastVisualSampleAt=-Infinity, visualUnavailable=false
+    let lastDetectionAt=performance.now()-VISUAL_SCAN_INTERVAL_MS, lastQrAt=0, lastQrLocationAt=performance.now()
+    let lastDismissedSeen=performance.now(), lastIndependentPopupAt=-Infinity
+    const consensus=createVisualConsensus(arTargetManifest.stableFramesRequired)
     const generation=playbackSessionRef.current.snapshot().generation
     const current=()=>active && playbackSessionRef.current.canScan() &&
       playbackSessionRef.current.snapshot().generation===generation
@@ -1207,6 +1202,7 @@ export default function ARScan({ runtime }: { runtime?: ARScanRuntime } = {}) {
             return
           }
           if (slot?.arVideoUrl && pendingQRRef.current?.slot.id!==slot.id) {
+            preloadCandidate(slot)
             pendingQRRef.current={slot,foundAt:now};setScannedQR(slot.id)
           }
         } else if (!event.data.located && now-lastQrLocationAt>1200) {
@@ -1242,42 +1238,55 @@ export default function ARScan({ runtime }: { runtime?: ARScanRuntime } = {}) {
         const pixels=context.getImageData(0,0,width,height).data.buffer
         qrBusy=true;qrWorker.postMessage({pixels,width,height},[pixels])
       }
-      if (!detecting && now-lastDetectionAt>700) {
+      if (!detecting && !modelWarmingRef.current && now-lastDetectionAt>=VISUAL_SCAN_INTERVAL_MS) {
         lastDetectionAt=now;detecting=true
+        const sampleAt=now
         if(!modelReadyRef.current)setModelStatus("loading")
         void (runtime?.detect || detectBookTarget)(camera,classNames.length,detectionConfidence).then(detections=>{
           if(!current())return
+          lastVisualSampleAt=sampleAt;visualUnavailable=false
           modelReadyRef.current=true;setModelStatus("ready")
           const dismissed=playbackSessionRef.current.snapshot().dismissedId
-          const pageDetection=detections.find(item=>classNames[item.classId]?.startsWith("page_"))
-          const pageContext=(pageDetection ? slotFromDetection(pageDetection) : null) ||
-            planeRecordsRef.current.find(record=>record.anchor.visible)?.slot ||
-            slots.find(slot=>slot.id===dismissed) || null
-          const candidates=detections.map(detection=>({detection,slot:slotFromDetection(detection,pageContext)}))
-            .filter(item=>item.slot?.arVideoUrl)
+          const trustedSlot=pendingQRRef.current?.slot ||
+            planeRecordsRef.current.find(record=>record.anchor.visible)?.slot || null
+          const candidates=videoCandidates(detections,classNames,targets,slots,trustedSlot)
+          const firstCandidate=candidates[0]
+          if(firstCandidate && firstCandidate.detection.score>=.5 &&
+            classNames[firstCandidate.detection.classId]?.startsWith("popup_")) lastIndependentPopupAt=performance.now()
           if(dismissed&&candidates.some(item=>item.slot?.id===dismissed))lastDismissedSeen=performance.now()
           else if(dismissed&&dismissedSourceRef.current!=="qr"&&performance.now()-lastDismissedSeen>1600&&
             !planeRecordsRef.current.some(r=>r.slot.id===dismissed&&r.anchor.visible))
             playbackSessionRef.current.lost(dismissed)
           const candidate=candidates.find(item=>item.slot?.id!==playbackSessionRef.current.snapshot().dismissedId)
-          if(!candidate?.slot){stableFrames=0;stableKey="";return}
-          const key=`${candidate.slot.id}:${candidate.detection.classId}`
-          stableFrames=key===stableKey?stableFrames+1:1;stableKey=key
-          if(stableFrames>=arTargetManifest.stableFramesRequired) {
-            const popup=classNames[candidate.detection.classId]?.startsWith("popup_")
-            openARVideo({slot:candidate.slot,box:popup?candidate.detection.box:null,
-              source:popup?"popup":"page",score:candidate.detection.score})
+          const confirmed=consensus.observe(candidate,performance.now())
+          if(!candidate?.slot)return
+          preloadCandidate(candidate.slot)
+          if(confirmed) {
+            const popup=classNames[confirmed.detection.classId]?.startsWith("popup_")
+            openARVideo({slot:confirmed.slot,box:popup?confirmed.detection.box:null,
+              source:popup?"popup":"page",score:confirmed.detection.score})
           }
         }).catch(modelError=>{
           if(!current())return
+          visualUnavailable=true
           modelReadyRef.current=false;setModelStatus("unavailable")
           console.warn("Popup detection unavailable for this frame.",modelError)
         }).finally(()=>{detecting=false})
       }
       const pending=pendingQRRef.current
-      if(pending&&now-pending.foundAt>=800) {
+      const popupRecent=now-lastIndependentPopupAt<1100
+      const awaitingVisual=(candidate:PendingQR)=>shouldWaitForPopupDetection({
+        now,foundAt:candidate.foundAt,lastSampleAt:lastVisualSampleAt,unavailable:visualUnavailable,
+      })
+      if(pending&&!popupRecent&&!awaitingVisual(pending)&&now-pending.foundAt>=QR_FALLBACK_DELAY_MS) {
         qrFallbackRef.current=pending.slot.id;pendingQRRef.current=null
         openARVideo({slot:pending.slot,box:null,source:"qr"})
+      }
+      const tracked=trackedCandidateRef.current
+      if(tracked&&!pending&&!popupRecent&&!awaitingVisual(tracked)&&now-tracked.foundAt>=PAGE_CONFIRMATION_WINDOW_MS &&
+        planeRecordsRef.current.some(record=>record.slot.id===tracked.slot.id&&record.anchor.visible)) {
+        trackedCandidateRef.current=null
+        openARVideo({slot:tracked.slot,box:null,source:"page"})
       }
       if(current())frameId=requestAnimationFrame(frame)
     }
@@ -1290,6 +1299,7 @@ export default function ARScan({ runtime }: { runtime?: ARScanRuntime } = {}) {
     setCameraOn(false)
     chooseSelection(null)
     setSelectedAsset(null)
+    setMediaStatus("idle")
     setTrackedPageLabel("")
     setCameraSize("")
     setTorchSupported(false)
@@ -1349,8 +1359,8 @@ export default function ARScan({ runtime }: { runtime?: ARScanRuntime } = {}) {
       : trackerStatus === "loading"
         ? "Đang nạp mục tiêu ảnh của 54 trang…"
         : modelStatus === "unavailable"
-          ? "Đưa trọn trang vào khung hình · QR là dự phòng"
-          : "Đưa trọn trang vào khung hình · giữ yên 1–2 giây"
+          ? "Đưa trang sách vào khung hình · QR là dự phòng"
+          : "Đưa hình popup hoặc trang sách vào khung · giữ yên 1–2 giây"
   const qrVideoSrc =
     selectedAsset?.previewVideoUrl ||
     (videoPresentations as Record<string, VideoPresentation>)[
@@ -1381,10 +1391,10 @@ export default function ARScan({ runtime }: { runtime?: ARScanRuntime } = {}) {
               <Camera size={15} /> Riko AR
             </span>
             <h1 className="mt-4 text-3xl font-bold text-primary sm:text-4xl">
-              Đưa trọn trang sách vào khung hình
+              Đưa hình popup hoặc trang sách vào khung hình
             </h1>
             <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-[#4A5461] sm:text-base">
-              Đưa trang sách vào khung để mở nhân vật. Khi video mở, nhân vật
+              Đưa hình popup hoặc trang sách vào khung để mở nhân vật. Khi video mở, nhân vật
               giữ ổn định trong khung camera. Kéo để di chuyển, chụm hai ngón
               để thu phóng. Bấm X để đóng video và tự quét trang tiếp theo.
             </p>
@@ -1404,6 +1414,7 @@ export default function ARScan({ runtime }: { runtime?: ARScanRuntime } = {}) {
           data-ar-stage="true"
           data-ar-phase={selection ? "playing" : cameraOn ? "scanning" : "idle"}
           data-ar-source={selection?.source || ""}
+          data-ar-media={mediaStatus}
           style={{
             touchAction: cameraOn ? "none" : "auto",
             userSelect: "none",
@@ -1437,6 +1448,15 @@ export default function ARScan({ runtime }: { runtime?: ARScanRuntime } = {}) {
               </p>
             </div>
           )}
+          {cameraOn && selection && selection.source !== "qr" &&
+            (mediaStatus === "loading" || mediaStatus === "buffering") && (
+              <div role="status" className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center">
+                <div className="flex items-center gap-3 rounded-2xl bg-black/70 px-5 py-4 text-sm font-semibold text-white">
+                  <LoaderCircle size={21} className="animate-spin" />
+                  {mediaStatus === "loading" ? "Đã nhận trang · đang mở video…" : "Đang tải tiếp video…"}
+                </div>
+              </div>
+            )}
           {cameraOn && (
             <>
               <div
@@ -1475,8 +1495,8 @@ export default function ARScan({ runtime }: { runtime?: ARScanRuntime } = {}) {
                   <span className="absolute bottom-0 left-0 h-8 w-8 rounded-bl-2xl border-b-[3px] border-l-[3px] border-white drop-shadow" />
                   <span className="absolute bottom-0 right-0 h-8 w-8 rounded-br-2xl border-b-[3px] border-r-[3px] border-white drop-shadow" />
                   <span className="absolute inset-x-2 bottom-3 rounded-xl bg-black/60 px-3 py-2 text-center text-xs font-semibold text-white sm:text-sm">
-                    Giữ trọn trang sách trong khung · tránh lóa · cách camera
-                    khoảng 25–40 cm
+                    Giữ popup hoặc trọn trang sách trong khung · tránh lóa ·
+                    cách camera khoảng 25–40 cm
                   </span>
                 </div>
               )}
@@ -1609,8 +1629,8 @@ export default function ARScan({ runtime }: { runtime?: ARScanRuntime } = {}) {
                 Khung camera hiển thị toàn màn hình
               </p>
               <p className="mt-2 max-w-md text-sm text-white/75">
-                Cho phép camera sau, đưa trọn một trang sách vào khung và giữ
-                yên để MindAR khóa hình.
+                Cho phép camera sau, đưa popup hoặc trọn một trang sách vào
+                khung và giữ yên để nhận diện khóa hình.
               </p>
               <button
                 type="button"
@@ -1651,6 +1671,8 @@ export default function ARScan({ runtime }: { runtime?: ARScanRuntime } = {}) {
                   playsInline
                   muted={!soundOn}
                   controls
+                  onPlaying={() => setMediaStatus("ready")}
+                  onWaiting={() => setMediaStatus("buffering")}
                   onCanPlay={(event) => {
                     const video = event.currentTarget
                     if (!soundOnRef.current) return
@@ -1694,8 +1716,8 @@ export default function ARScan({ runtime }: { runtime?: ARScanRuntime } = {}) {
         {!cameraOn && (
           <div className="flex flex-wrap items-center justify-between gap-3 bg-white px-4 py-4 sm:px-6">
             <p className="text-xs leading-5 text-[#596575]">
-              Dùng sách thật, giữ trọn trang trong khung hình và tránh ánh phản
-              chiếu. Nhân vật sẽ hiện ra ngay khi trang được nhận diện.
+              Dùng hình popup hoặc sách thật, giữ đối tượng trong khung hình và
+              tránh ánh phản chiếu. Nhân vật sẽ hiện ra ngay khi được nhận diện.
             </p>
             <div className="flex gap-2">
               <Link

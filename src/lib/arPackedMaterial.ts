@@ -13,14 +13,18 @@ export function configurePackedAlpha(
     shader.fragmentShader = shader.fragmentShader.replace(
       "#include <map_fragment>",
       mapFragment.replace(
+        "texture2D( map, vMapUv )",
+        "texture2D( map, rikoPackedAlpha > 0.5 ? clamp(vMapUv, vec2(0.0005), vec2(0.4995, 0.9995)) : vMapUv )",
+      ).replace(
         "diffuseColor *= sampledDiffuseColor;",
         `if (rikoPackedAlpha > 0.5) {
-          sampledDiffuseColor.a *= texture2D(map, vMapUv + vec2(0.5, 0.0)).g;
+          vec2 matteUv = clamp(vMapUv + vec2(0.5, 0.0), vec2(0.5005, 0.0005), vec2(0.9995, 0.9995));
+          sampledDiffuseColor.a *= texture2D(map, matteUv).g;
         }
         diffuseColor *= sampledDiffuseColor;`,
       ),
     )
   }
-  material.customProgramCacheKey = () => "riko-packed-alpha-single-texture-v1"
+  material.customProgramCacheKey = () => "riko-packed-alpha-single-texture-v2"
   return enabled
 }

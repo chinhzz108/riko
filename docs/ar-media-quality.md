@@ -1,5 +1,9 @@
 # AR media detail preservation — 24 October 2026
 
+For the subsequent native-resolution playback and real-model audit, see
+[`ar-video-startup-quality.md`](ar-video-startup-quality.md). The figures below
+describe the retained v2 reference media.
+
 ## Cause and repair
 
 The previous saliency mask was used as per-pixel opacity. It removed supporting

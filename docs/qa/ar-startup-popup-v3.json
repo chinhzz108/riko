@@ -1,0 +1,132 @@
+{
+  "date": "2026-11-03",
+  "kind": "desktop-chromium-synthetic-camera",
+  "realMindAR": false,
+  "realModel": true,
+  "measurements": [
+    {
+      "page": "book-c1-p03",
+      "popup": "book-c1-p03",
+      "mode": "visual",
+      "shown": true,
+      "shake": false,
+      "trackerFrames": 70,
+      "modelCalls": 2,
+      "qrJobs": 4,
+      "qrWorkers": 0,
+      "starts": 1,
+      "stops": 1,
+      "startedAt": 598.6999999880791,
+      "lastInferenceMs": 121,
+      "phase": "playing",
+      "source": "popup",
+      "mediaState": "ready",
+      "firstFrameMs": "113.4",
+      "detector": {
+        "execution": "worker",
+        "pending": false
+      },
+      "cameraLive": "live",
+      "media": {
+        "url": "/videos/ar/packed/native-v3/GT01.mp4",
+        "time": 4.401529,
+        "width": 2560,
+        "height": 720,
+        "dropped": 1,
+        "total": 110
+      },
+      "transform": "translate3d(-10000px, -10000px, 0px)",
+      "renders": "109"
+    },
+    {
+      "page": "book-c1-p03",
+      "popup": "book-c1-p03",
+      "mode": "visual",
+      "shown": false,
+      "shake": true,
+      "trackerFrames": 70,
+      "modelCalls": 2,
+      "qrJobs": 4,
+      "qrWorkers": 0,
+      "starts": 1,
+      "stops": 1,
+      "startedAt": 598.6999999880791,
+      "lastInferenceMs": 121,
+      "phase": "playing",
+      "source": "popup",
+      "mediaState": "ready",
+      "firstFrameMs": "113.4",
+      "detector": {
+        "execution": "worker",
+        "pending": false
+      },
+      "cameraLive": "live",
+      "media": {
+        "url": "/videos/ar/packed/native-v3/GT01.mp4",
+        "time": 6.699342,
+        "width": 2560,
+        "height": 720,
+        "dropped": 2,
+        "total": 406
+      },
+      "transform": "translate3d(-10000px, -10000px, 0px)",
+      "renders": "406"
+    },
+    {
+      "page": "book-c1-p03",
+      "popup": "book-c1-p03",
+      "mode": "visual",
+      "shown": false,
+      "shake": true,
+      "trackerFrames": 110,
+      "modelCalls": 5,
+      "qrJobs": 7,
+      "qrWorkers": 1,
+      "starts": 2,
+      "stops": 1,
+      "startedAt": 598.6999999880791,
+      "lastInferenceMs": 80.89999997615814,
+      "phase": "scanning",
+      "source": "",
+      "mediaState": "idle",
+      "firstFrameMs": "113.4",
+      "detector": {
+        "execution": "worker",
+        "pending": false
+      },
+      "cameraLive": "live",
+      "media": null,
+      "transform": "translate3d(-10000px, -10000px, 0px)",
+      "renders": "414"
+    },
+    {
+      "page": "book-c1-p03",
+      "popup": "book-c1-p03",
+      "mode": "visual",
+      "shown": false,
+      "shake": true,
+      "trackerFrames": 135,
+      "modelCalls": 7,
+      "qrJobs": 8,
+      "qrWorkers": 0,
+      "starts": 2,
+      "stops": 2,
+      "startedAt": 598.6999999880791,
+      "lastInferenceMs": 55.69999998807907,
+      "phase": "idle",
+      "source": "",
+      "mediaState": "idle",
+      "firstFrameMs": "113.4",
+      "detector": {
+        "execution": "idle",
+        "pending": false
+      },
+      "cameraLive": "ended",
+      "media": null
+    }
+  ],
+  "scenario": "?model=1&mode=visual&page=book-c1-p03&image=/output/ar-training/rikokid_ar_mobile_dataset/images/test-mobile/mobile-popup-popup_GT01-00-01.jpg",
+  "modelVersion": "popup-v3",
+  "modelSHA256": "cfc9d82f78dc0c627f933c5c95acc1124de2cf63fb241f6341890ab3a96be53f",
+  "limits": "Desktop Chromium; synthetic camera frames; not physical iOS/Android measurements."
+}

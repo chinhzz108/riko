@@ -1,0 +1,427 @@
+{
+  "version": "native-v3",
+  "date": "2026-11-03",
+  "limits": [
+    "H.264 CRF 12/14/18 is not mathematically lossless.",
+    "Object mattes retain certified v2 edge resolution; native RGB adds detail without inventing new matte edges.",
+    "Effects retain intentional light transparency. Real phone performance requires device testing."
+  ],
+  "assets": [
+    {
+      "id": "GT01",
+      "url": "/videos/ar/packed/native-v3/GT01.mp4",
+      "sha256": "bead6f0c94f2bb4efe90930fb677ecb06e1833ac1c60c293bcecdfa89616c010",
+      "sourceUrl": "/videos/ar/original/hq2/GT01.mp4",
+      "sourceSHA256": "25e8b9aae84546b5eafef9d9356ba15b4ecd6d1f7061941626d904f953fde334",
+      "matteUrl": "/videos/ar/hq2/GT01.webm",
+      "matteSHA256": "0845fc91cc9ca28a334bec2e993110235ba966b5f8d3bb71facdd406fa769c36",
+      "dimensions": [
+        1280,
+        720
+      ],
+      "frames": 240,
+      "bytes": 3072483,
+      "matteSSIM": 0.998865,
+      "sourceColorSSIM": 0.998541
+    },
+    {
+      "id": "GT02",
+      "url": "/videos/ar/packed/native-v3/GT02.mp4",
+      "sha256": "a20f386a86b5d890f7647bb41c8f7dac762bcc56a977ec18dbd802488afa5f37",
+      "sourceUrl": "/videos/ar/original/hq2/GT02.mp4",
+      "sourceSHA256": "98f85d98522d0fcc4825572f041e4fa84ca946a91a2a0410feb30cd9a3a27e13",
+      "matteUrl": "/videos/ar/hq2/GT02.webm",
+      "matteSHA256": "6f7b9d90721059189ddfe07537f9befa4772d8c747146f9c9b2e18ecd68368a2",
+      "dimensions": [
+        960,
+        960
+      ],
+      "frames": 240,
+      "bytes": 4626268,
+      "matteSSIM": 0.999178,
+      "sourceColorSSIM": 0.998482
+    },
+    {
+      "id": "GT03",
+      "url": "/videos/ar/packed/native-v3/GT03.mp4",
+      "sha256": "022b99f29ec7a2624e2764c837eb1bd6c8d9a836a3028bd2eca909f3180d7620",
+      "sourceUrl": "/videos/ar/original/hq2/GT03.mp4",
+      "sourceSHA256": "a39a33f4d81a5e2d3c62fca456814853be050d64c66fb144553afab9d129e8bc",
+      "matteUrl": "/videos/ar/hq2/GT03.webm",
+      "matteSHA256": "bb6a42d627d71e90699f05e1173a3a7b36890961f2cafbbbb6e7fba2f792cd6d",
+      "dimensions": [
+        1280,
+        720
+      ],
+      "frames": 240,
+      "bytes": 2228109,
+      "matteSSIM": 0.998931,
+      "sourceColorSSIM": 0.998996
+    },
+    {
+      "id": "GT04",
+      "url": "/videos/ar/packed/native-v3/GT04.mp4",
+      "sha256": "65f30b95134428a4e30b9673e6d78cc6a3c7bf0d05627912867d61aee591e23b",
+      "sourceUrl": "/videos/ar/original/hq2/GT04.mp4",
+      "sourceSHA256": "387d7f8a38e800b7853ed84a0482cd4db23b9583a4bc984b5ef4de416e87df9b",
+      "matteUrl": "/videos/ar/hq2/GT04.webm",
+      "matteSHA256": "4d7037a0854f8608b2d1e3a2df191a83111e10f4db3bb23aa7d4a697cf8ed863",
+      "dimensions": [
+        1280,
+        720
+      ],
+      "frames": 240,
+      "bytes": 4141299,
+      "matteSSIM": 0.99769,
+      "sourceColorSSIM": 0.998504
+    },
+    {
+      "id": "GT05",
+      "url": "/videos/ar/packed/native-v3/GT05.mp4",
+      "sha256": "06f32cf8ad8e9ea91e15fb1992d0a1c0c901c7535d531eb2c0315091cf467b73",
+      "sourceUrl": "/videos/ar/original/hq2/GT05.mp4",
+      "sourceSHA256": "fd6d0958440e01321c6c2beb8c49e0505d19aa961caf378f29aaa2aa1aee3e36",
+      "matteUrl": "/videos/ar/hq2/GT05.webm",
+      "matteSHA256": "12b82f5294c2afba301020cfb3f74bd70b24e3d50a9af49ded9ba9bcef0c4fcd",
+      "dimensions": [
+        1280,
+        720
+      ],
+      "frames": 240,
+      "bytes": 7535346,
+      "matteSSIM": 0.992358,
+      "sourceColorSSIM": 0.998365
+    },
+    {
+      "id": "GT06",
+      "url": "/videos/ar/packed/native-v3/GT06.mp4",
+      "sha256": "e94a584af00215dd794caf2feebe4908950ffd086c7ddfbb76f4bf692eeabfec",
+      "sourceUrl": "/videos/ar/original/hq2/GT06.mp4",
+      "sourceSHA256": "04c71564ad6e692c4940961b9b1452e58c8a715acba78bb029120c09b3454d5c",
+      "matteUrl": "/videos/ar/hq2/GT06.webm",
+      "matteSHA256": "719d8415a5d5b25117ed0bece86d2e234030fc9f7f523e74613c86881459a3c4",
+      "dimensions": [
+        1280,
+        720
+      ],
+      "frames": 240,
+      "bytes": 4507051,
+      "matteSSIM": 0.998675,
+      "sourceColorSSIM": 0.998281
+    },
+    {
+      "id": "GT07",
+      "url": "/videos/ar/packed/native-v3/GT07.mp4",
+      "sha256": "d0d63c37515bbd848fd544226c71fb3ff46d988939957dbeeeb630e2331a06b5",
+      "sourceUrl": "/videos/ar/original/hq2/GT07.mp4",
+      "sourceSHA256": "3db0fc6349e21239ec2a628c7048e2d9b8fa5128470e3ffea32af5422b974e0f",
+      "matteUrl": "/videos/ar/hq2/GT07.webm",
+      "matteSHA256": "ba66128df172bd72ab87944adc399a2f96fc86be1f78e7be77a06a9522103575",
+      "dimensions": [
+        1280,
+        720
+      ],
+      "frames": 240,
+      "bytes": 2456638,
+      "matteSSIM": 0.999181,
+      "sourceColorSSIM": 0.999156
+    },
+    {
+      "id": "GT08",
+      "url": "/videos/ar/packed/native-v3/GT08.mp4",
+      "sha256": "0eff2477cff15fd51fbfb89f4d06fc13ef77d52a8424f90b7b7b8c8c49cd0eb5",
+      "sourceUrl": "/videos/ar/original/hq2/GT08.mp4",
+      "sourceSHA256": "b138f47b6a1eaf1caa52a5a3e64d89c15300ae8ccc492639f99ea52bd9f71593",
+      "matteUrl": "/videos/ar/hq2/GT08.webm",
+      "matteSHA256": "c5421ee1f52113a3c1c2b0a0b7ef64b9c9f91f767522671292c2b27395b5204e",
+      "dimensions": [
+        1280,
+        720
+      ],
+      "frames": 240,
+      "bytes": 3996879,
+      "matteSSIM": 0.998599,
+      "sourceColorSSIM": 0.998562
+    },
+    {
+      "id": "GT09",
+      "url": "/videos/ar/packed/native-v3/GT09.mp4",
+      "sha256": "dcf459f663cfdc1640ad6c402b31df9717f7a8d34a54c7d0ca992ab5e5f9ae16",
+      "sourceUrl": "/videos/ar/original/hq2/GT09.mp4",
+      "sourceSHA256": "415f9e6faa70d6926ce0a7c6fa027bceecf15e1895aa23b9a58a3f79112d0300",
+      "matteUrl": "/videos/ar/hq2/GT09.webm",
+      "matteSHA256": "a45f1505d91ae2f4de196a05cb1b66bcb60a2b9d7363fdfbb63a18cedf645dcc",
+      "dimensions": [
+        1280,
+        720
+      ],
+      "frames": 240,
+      "bytes": 4807956,
+      "matteSSIM": 0.997438,
+      "sourceColorSSIM": 0.99871
+    },
+    {
+      "id": "GT10",
+      "url": "/videos/ar/packed/native-v3/GT10.mp4",
+      "sha256": "c126a85f2fac00bc6749637943162ef123f5f49ec70cfa49dbbe26e68989d99c",
+      "sourceUrl": "/videos/ar/original/hq2/GT10.mp4",
+      "sourceSHA256": "7d162e57a6227cbb14c2fa302f114269072a312c76612a05654fe162e6550929",
+      "matteUrl": "/videos/ar/hq2/GT10.webm",
+      "matteSHA256": "6f35f0afb2f6aed995cd19ea430f937e847eaf6158bc414559b5bc2140a9dcd0",
+      "dimensions": [
+        1280,
+        720
+      ],
+      "frames": 240,
+      "bytes": 5619785,
+      "matteSSIM": 0.998188,
+      "sourceColorSSIM": 0.997982
+    },
+    {
+      "id": "DV01",
+      "url": "/videos/ar/packed/native-v3/DV01.mp4",
+      "sha256": "00227a83932276ac01b7afb3322f9b09473fd3ab568ff452da653e62cd59dfd6",
+      "sourceUrl": "/videos/ar/original/hq2/DV01.mp4",
+      "sourceSHA256": "9001580deae1da5562fb7fe946461e505218af307fc8eac1aa6356b3feed2222",
+      "matteUrl": "/videos/ar/hq2/DV01.webm",
+      "matteSHA256": "2318332ae8dc8df426be4bf6f055cbb2f87b9ea365d8728c284d95a0dd34903a",
+      "dimensions": [
+        1280,
+        720
+      ],
+      "frames": 240,
+      "bytes": 5969573,
+      "matteSSIM": 0.997028,
+      "sourceColorSSIM": 0.998434
+    },
+    {
+      "id": "DV02",
+      "url": "/videos/ar/packed/native-v3/DV02.mp4",
+      "sha256": "6ef37688c0a34bb7794231b1ad384ecb446c772b1e097a59a662b7e7d0aec7ad",
+      "sourceUrl": "/videos/ar/original/hq2/DV02.mp4",
+      "sourceSHA256": "f4c9d9608697230e66073da21e220d55aad170de0fcc75e0fc4744565330d1b8",
+      "matteUrl": "/videos/ar/hq2/DV02.webm",
+      "matteSHA256": "aaa6c8e2dda4f74a55f7b372289be07ea78b9fe13e73e3177cd032c69caa9955",
+      "dimensions": [
+        1280,
+        720
+      ],
+      "frames": 240,
+      "bytes": 3547972,
+      "matteSSIM": 0.998083,
+      "sourceColorSSIM": 0.998649
+    },
+    {
+      "id": "DV03",
+      "url": "/videos/ar/packed/native-v3/DV03.mp4",
+      "sha256": "913acd44c9b05894303eab604fef04aafba54da02a84a905eddb227ec7b25f68",
+      "sourceUrl": "/videos/ar/original/hq2/DV03.mp4",
+      "sourceSHA256": "9a852b9ff42ece5cd7da7fd5c402bd52be482d2136138b154c2b3398f91f8646",
+      "matteUrl": "/videos/ar/hq2/DV03.webm",
+      "matteSHA256": "eebb8c50a65e1d69e9a9ebe49d25657ac340c919c6c4b6c3b49f2aa9bc4a1f4f",
+      "dimensions": [
+        1280,
+        720
+      ],
+      "frames": 240,
+      "bytes": 4909384,
+      "matteSSIM": 0.998121,
+      "sourceColorSSIM": 0.998708
+    },
+    {
+      "id": "DV04",
+      "url": "/videos/ar/packed/native-v3/DV04.mp4",
+      "sha256": "f1d7e5dc07af54a9423d4fbbf6ab1e7d23212bbc324c1e303f6539a2f228b2f2",
+      "sourceUrl": "/videos/ar/original/hq2/DV04.mp4",
+      "sourceSHA256": "f44688605c105bd7e747b49661585e51a5319d210887e642b520bbd05902ebae",
+      "matteUrl": "/videos/ar/hq2/DV04.webm",
+      "matteSHA256": "67e8374c8b91d94af80320b4e867cd8be8dee80355479ed96d8883daa681d820",
+      "dimensions": [
+        1280,
+        720
+      ],
+      "frames": 240,
+      "bytes": 3732895,
+      "matteSSIM": 0.998525,
+      "sourceColorSSIM": 0.998943
+    },
+    {
+      "id": "DV05",
+      "url": "/videos/ar/packed/native-v3/DV05.mp4",
+      "sha256": "f414d6b3955cd50866a771b4f19605a5f81d6782494e8e3a665ba85b05fb62c7",
+      "sourceUrl": "/videos/ar/original/hq2/DV05.mp4",
+      "sourceSHA256": "e9d18d27d2f355ae9ffc558ee02e22cb708b1c17b8d3fcd0d5a10a2b3bf51089",
+      "matteUrl": "/videos/ar/hq2/DV05.webm",
+      "matteSHA256": "87df1ee71381c2a67c4b59713ce8bab0d21b35f65c988b5152db99a75276682e",
+      "dimensions": [
+        1280,
+        720
+      ],
+      "frames": 240,
+      "bytes": 10433203,
+      "matteSSIM": 0.996657,
+      "sourceColorSSIM": 0.997509
+    },
+    {
+      "id": "DV06",
+      "url": "/videos/ar/packed/native-v3/DV06.mp4",
+      "sha256": "01e147ac5fc4bb26141733adc164b2ce98e7f3fc2965563a74709b4da7dfa55c",
+      "sourceUrl": "/videos/ar/original/hq2/DV06.mp4",
+      "sourceSHA256": "c6ff5d9c2a490d60fa7c89eb2e0de43e4271ea32ae42bb18fa4663c934d2dd30",
+      "matteUrl": "/videos/ar/hq2/DV06.webm",
+      "matteSHA256": "96c656f7b22644b5e4361defe40cf43e79fea7787fb4f01472d5e09b055cba63",
+      "dimensions": [
+        1280,
+        720
+      ],
+      "frames": 240,
+      "bytes": 5244148,
+      "matteSSIM": 0.998099,
+      "sourceColorSSIM": 0.998708
+    },
+    {
+      "id": "DV07",
+      "url": "/videos/ar/packed/native-v3/DV07.mp4",
+      "sha256": "2f8b1ba3271171a5ff8b6eed7693c2df3638f64bba02b33fee70276020e8ee8c",
+      "sourceUrl": "/videos/ar/original/hq2/DV07.mp4",
+      "sourceSHA256": "ebc74300cbee1ca9066db9f14752bcc2c690c281707cb2cb3d505ab3deb313d4",
+      "matteUrl": "/videos/ar/hq2/DV07.webm",
+      "matteSHA256": "70f3094de7c619a37abc0948843ce59462b544f4049482a625df797daa751109",
+      "dimensions": [
+        1280,
+        720
+      ],
+      "frames": 240,
+      "bytes": 3032622,
+      "matteSSIM": 0.998566,
+      "sourceColorSSIM": 0.999094
+    },
+    {
+      "id": "DV08",
+      "url": "/videos/ar/packed/native-v3/DV08.mp4",
+      "sha256": "d403161ce2bc28c71f119e85719d677d3093563b5d15be875bef9df245f5dd4b",
+      "sourceUrl": "/videos/ar/original/hq2/DV08.mp4",
+      "sourceSHA256": "f707ee0096e18357764db919712a0225920999a4e62ad1d4792388cc29e7d66c",
+      "matteUrl": "/videos/ar/hq2/DV08.webm",
+      "matteSHA256": "6cdeb07c7b2f5d0bf243f66b38c373e847c8aa694bf26d7f0b742c92a3f84aee",
+      "dimensions": [
+        1280,
+        720
+      ],
+      "frames": 240,
+      "bytes": 5615780,
+      "matteSSIM": 0.998502,
+      "sourceColorSSIM": 0.997819
+    },
+    {
+      "id": "DV09",
+      "url": "/videos/ar/packed/native-v3/DV09.mp4",
+      "sha256": "2b86a4bc289912e300e9efe1fa4c3e3d6608af2d3e4c6894aa93aaaa07aca8f5",
+      "sourceUrl": "/videos/ar/original/hq2/DV09.mp4",
+      "sourceSHA256": "36aa054aebda635daa9ee09c5354bb365a9093a5d76eff6fff93d87da26657e0",
+      "matteUrl": "/videos/ar/hq2/DV09.webm",
+      "matteSHA256": "d8e3203553045ba8ebf517dd000dfba5b99e7abc47ed1580af51359ecc5e09ad",
+      "dimensions": [
+        1280,
+        720
+      ],
+      "frames": 240,
+      "bytes": 5416404,
+      "matteSSIM": 0.996879,
+      "sourceColorSSIM": 0.998264
+    },
+    {
+      "id": "DV10",
+      "url": "/videos/ar/packed/native-v3/DV10.mp4",
+      "sha256": "eb7e4d1645fe238eeb6044e1faefcd56a70e02d1fd05443f416447a77916ff1d",
+      "sourceUrl": "/videos/ar/original/hq2/DV10.mp4",
+      "sourceSHA256": "d6e7e25d90e3784e7b717c4a337f9e796b70d55b0b0ec914f73e0c246ed1b918",
+      "matteUrl": "/videos/ar/hq2/DV10.webm",
+      "matteSHA256": "858edb93b25b4870b5959fce3be1b5be36d0fd197ee1973e70e4608e3976b6af",
+      "dimensions": [
+        1280,
+        720
+      ],
+      "frames": 240,
+      "bytes": 6478442,
+      "matteSSIM": 0.99622,
+      "sourceColorSSIM": 0.997248
+    },
+    {
+      "id": "HTTN01",
+      "url": "/videos/ar/packed/native-v3/HTTN01.mp4",
+      "sha256": "bfbb2ba1fc8b5e12d2a926f98b386916d9d759a4fe3289053feb1a41da1c2d6e",
+      "sourceUrl": "/videos/ar/original/hq2/HTTN01.mp4",
+      "sourceSHA256": "b98a18e5d2ebbd1aac57bffb1aa36e233eab60de1739387f288a4064ce85e338",
+      "matteUrl": "/videos/ar/hq2/HTTN01.webm",
+      "matteSHA256": "2d6965d36810e48019e7181b447a5dd12e53aae78e7d54db36f9519327ba4746",
+      "dimensions": [
+        1280,
+        720
+      ],
+      "frames": 240,
+      "bytes": 4234273,
+      "matteSSIM": 0.995941,
+      "sourceColorSSIM": null,
+      "sourceReconstructionMAE": 0.0001916207853355445,
+      "encoderVersion": "stable-transparent-rgb-crf18-v3"
+    },
+    {
+      "id": "HTTN07",
+      "url": "/videos/ar/packed/native-v3/HTTN07.mp4",
+      "sha256": "6d7993e3832092c0e0eb0c882db2b314e39eb86c53eb01eff3277a46d63bf211",
+      "sourceUrl": "/videos/ar/original/hq2/HTTN07.mp4",
+      "sourceSHA256": "1ffd8a2f524dcf38d2ebc43141b834db94a28f5304c74ceb2dd0e4bc3f1f1911",
+      "matteUrl": "/videos/ar/hq2/HTTN07.webm",
+      "matteSHA256": "e04f49e0e56e9d3f82f8d0f2a415d5740872a690d9b2fefe7550f0cc899f5196",
+      "dimensions": [
+        1280,
+        720
+      ],
+      "frames": 240,
+      "bytes": 14354844,
+      "matteSSIM": 0.991566,
+      "sourceColorSSIM": null,
+      "sourceReconstructionMAE": 0.00689355592088153,
+      "encoderVersion": "stable-transparent-rgb-crf18-v3"
+    },
+    {
+      "id": "HTTN13",
+      "url": "/videos/ar/packed/native-v3/HTTN13.mp4",
+      "sha256": "b35601b91aada419bb3aa64a972c34fd5260bbae2550d37c1e06a65bb59a17b9",
+      "sourceUrl": "/videos/ar/original/hq2/HTTN13.mp4",
+      "sourceSHA256": "54c9acba800633f61887c7c8a78ab9c0c5a95b2d046abf8920f8b7e1b87a1d60",
+      "matteUrl": "/videos/ar/hq2/HTTN13.webm",
+      "matteSHA256": "2cbbf372dc678f06298be73043eae6a71efedd2b68e7c6d13732e0a597cf5366",
+      "dimensions": [
+        1280,
+        720
+      ],
+      "frames": 240,
+      "bytes": 11301790,
+      "matteSSIM": 0.986531,
+      "sourceColorSSIM": null,
+      "sourceReconstructionMAE": 0.0030197645739077276,
+      "encoderVersion": "stable-transparent-rgb-crf18-v3"
+    },
+    {
+      "id": "HTTN15",
+      "url": "/videos/ar/packed/native-v3/HTTN15.mp4",
+      "sha256": "a10b6a3cc8cb25697dc1c46f0e47c682736c014d5cbe2502f2e6d152778b7a16",
+      "sourceUrl": "/videos/ar/original/hq2/HTTN15.mp4",
+      "sourceSHA256": "e5530b93a9be0826d21264c39e0bda4161143e23de2e08edd24fb39235812fbb",
+      "matteUrl": "/videos/ar/hq2/HTTN15.webm",
+      "matteSHA256": "04a692f241a068cea0058032baaf59256d5a8fae525a017ce1643317da20b11b",
+      "dimensions": [
+        1280,
+        720
+      ],
+      "frames": 240,
+      "bytes": 6397277,
+      "matteSSIM": 0.995755,
+      "sourceColorSSIM": null,
+      "sourceReconstructionMAE": 0.0011620256731879792,
+      "encoderVersion": "stable-transparent-rgb-crf18-v3"
+    }
+  ]
+}
