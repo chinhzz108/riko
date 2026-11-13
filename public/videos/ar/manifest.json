@@ -488,15 +488,17 @@
       "book-c3-p10"
     ],
     "alpha": true,
-    "alphaVideoUrl": "/videos/ar/hq2/HTTN04.webm",
-    "alphaColorUrl": "/videos/ar/fallback/hq2/HTTN04-color.mp4",
-    "alphaMaskUrl": "/videos/ar/fallback/hq2/HTTN04-alpha.mp4",
-    "packedVideoUrl": "/videos/ar/packed/hq2/HTTN04.mp4",
-    "previewVideoUrl": "/videos/ar/original/hq2/HTTN04.mp4",
-    "presentationMode": "scene",
-    "qualityVersion": "detail-preserved-v2",
-    "alphaBytes": 9141260,
-    "fallbackBytes": 9112884
+    "alphaVideoUrl": "/videos/ar/remake-v4/HTTN04.webm",
+    "alphaColorUrl": "/videos/ar/fallback/remake-v4/HTTN04-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/remake-v4/HTTN04-alpha.mp4",
+    "packedVideoUrl": "/videos/ar/packed/remake-v4/HTTN04.mp4",
+    "previewVideoUrl": "/videos/ar/original/remake-v4/HTTN04-keyed.mp4",
+    "presentationMode": "cutout",
+    "qualityVersion": "remake-v4",
+    "alphaBytes": 20531824,
+    "fallbackBytes": 23064269,
+    "compatiblePackedVideoUrl": "/videos/ar/packed/remake-v4/HTTN04-compatible.mp4",
+    "packedQualityVersion": "remake-v4"
   },
   {
     "id": "HTTN05",
@@ -585,15 +587,17 @@
       "book-c3-p11"
     ],
     "alpha": true,
-    "alphaVideoUrl": "/videos/ar/hq2/HTTN09.webm",
-    "alphaColorUrl": "/videos/ar/fallback/hq2/HTTN09-color.mp4",
-    "alphaMaskUrl": "/videos/ar/fallback/hq2/HTTN09-alpha.mp4",
-    "packedVideoUrl": "/videos/ar/packed/hq2/HTTN09.mp4",
-    "previewVideoUrl": "/videos/ar/original/hq2/HTTN09.mp4",
-    "presentationMode": "scene",
-    "qualityVersion": "detail-preserved-v2",
-    "alphaBytes": 1171383,
-    "fallbackBytes": 2518154
+    "alphaVideoUrl": "/videos/ar/remake-v4/HTTN09.webm",
+    "alphaColorUrl": "/videos/ar/fallback/remake-v4/HTTN09-color.mp4",
+    "alphaMaskUrl": "/videos/ar/fallback/remake-v4/HTTN09-alpha.mp4",
+    "packedVideoUrl": "/videos/ar/packed/remake-v4/HTTN09.mp4",
+    "previewVideoUrl": "/videos/ar/original/remake-v4/HTTN09-keyed.mp4",
+    "presentationMode": "cutout",
+    "qualityVersion": "remake-v4",
+    "alphaBytes": 2970153,
+    "fallbackBytes": 3606719,
+    "compatiblePackedVideoUrl": "/videos/ar/packed/remake-v4/HTTN09-compatible.mp4",
+    "packedQualityVersion": "remake-v4"
   },
   {
     "id": "HTTN10",

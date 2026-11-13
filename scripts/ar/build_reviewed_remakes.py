@@ -1,7 +1,7 @@
-"""Build only the two reviewed replacement clips, preserving printed QR routes.
+"""Build reviewed replacement clips, preserving printed QR routes.
 
 This is offline decode/matte QA, not a claim of physical-phone/browser testing.
-The flood/earthquake candidates are intentionally excluded after visual review.
+Flood/earthquake retain their source framing, accepted by the user's request.
 """
 from __future__ import annotations
 
@@ -20,6 +20,13 @@ PUBLIC = ROOT / "public"
 VERSION = "remake-v4"
 FPS = 24
 FRAMES = 240
+SOURCES = {
+    "HTTN04": ("HTTN04_flash_flood_take2.mp4", "8a795ac344cf8abd70e0b666c76a21e05a45676fbe288c9710a1b93ed60c42df"),
+    "HTTN09": ("HTTN09_earthquake_take1_REPAIRED.mp4", "1c2f8a83b227722415dfa2fb18a96aee3aedcffd5c21a6085c68424ca500cf84"),
+    "HTTN12": ("HTTN12_tides_take1_REPAIRED.mp4", "2bc70bc998f4fdf6efd0ac9d819291e72c5aae35c03cf9dd69efbb4048a8b3d4"),
+    "HTTN13": ("HTTN13_aurora_take1.mp4", "c11e3d1f9edfc57ee12249ed6caf0e0ee0dc392875561be4d530502a2f76821b"),
+}
+FLAT_PREVIEWS = {"HTTN04", "HTTN09", "HTTN12"}
 cv2.setNumThreads(1)
 
 
@@ -47,8 +54,12 @@ def matte(rgb, aid):
             rim[:, i] *= i / 4; rim[:, -i-1] *= i / 4
         alpha *= rim
     else:
-        excess = np.minimum(f[:, :, 0], f[:, :, 2]) - f[:, :, 1]
-        alpha = 1 - np.clip((excess - .12) / .48, 0, 1)
+        if aid in {"HTTN04", "HTTN09"}:
+            excess = f[:, :, 1] - np.maximum(f[:, :, 0], f[:, :, 2])
+            alpha = 1 - np.clip((excess - .10) / .65, 0, 1)
+        else:
+            excess = np.minimum(f[:, :, 0], f[:, :, 2]) - f[:, :, 1]
+            alpha = 1 - np.clip((excess - .12) / .48, 0, 1)
         # Keep opaque rock/water interiors intact, including any interior tint.
         candidates = np.uint8(alpha < .999)
         count, labels = cv2.connectedComponents(candidates)
@@ -79,14 +90,14 @@ def decoder(path, width, height, alpha=False):
     ], stdout=subprocess.PIPE)
 
 
-def build_flat_preview(packed, narration, target, width, height):
+def build_flat_preview(packed, narration, target, width, height, crf=14):
     """A normal video player cannot apply the AR matte; composite it on black."""
     pipe = decoder(packed, width * 2, height)
     encoder = subprocess.Popen([
         "ffmpeg", "-v", "error", "-y", "-threads", "1", "-f", "rawvideo",
         "-pix_fmt", "rgb24", "-s", f"{width}x{height}", "-r", str(FPS), "-i", "pipe:0",
         "-i", str(narration), "-map", "0:v:0", "-map", "1:a:0", "-frames:v", str(FRAMES),
-        "-c:v", "libx264", "-threads", "1", "-preset", "fast", "-crf", "14",
+        "-c:v", "libx264", "-threads", "1", "-preset", "fast", "-crf", str(crf),
         "-pix_fmt", "yuv420p", "-c:a", "copy", "-movflags", "+faststart", str(target),
     ], stdin=subprocess.PIPE)
     try:
@@ -106,10 +117,8 @@ def build_flat_preview(packed, narration, target, width, height):
 
 
 def build(aid, incoming, asset, reuse_encoded=False):
-    source = incoming / ("HTTN13_aurora_take1.mp4" if aid == "HTTN13" else "HTTN12_tides_take1_REPAIRED.mp4")
-    expected_sha = {"HTTN13": "c11e3d1f9edfc57ee12249ed6caf0e0ee0dc392875561be4d530502a2f76821b",
-                    "HTTN12": "2bc70bc998f4fdf6efd0ac9d819291e72c5aae35c03cf9dd69efbb4048a8b3d4"}
-    assert sha(source) == expected_sha[aid], "New input requires a fresh review and immutable version"
+    source = incoming / SOURCES[aid][0]
+    assert sha(source) == SOURCES[aid][1], "New input requires a fresh review and immutable version"
     metadata = probe(source)
     video = next(s for s in metadata["streams"] if s["codec_type"] == "video")
     width, height = video["width"], video["height"]
@@ -122,7 +131,7 @@ def build(aid, incoming, asset, reuse_encoded=False):
         "alphaMaskUrl": f"/videos/ar/fallback/{VERSION}/{aid}-alpha.mp4",
         "packedVideoUrl": f"/videos/ar/packed/{VERSION}/{aid}.mp4",
         "compatiblePackedVideoUrl": f"/videos/ar/packed/{VERSION}/{aid}-compatible.mp4",
-        "previewVideoUrl": f"/videos/ar/original/{VERSION}/{aid}{'-keyed' if aid == 'HTTN12' else ''}.mp4",
+        "previewVideoUrl": f"/videos/ar/original/{VERSION}/{aid}{'-keyed' if aid in FLAT_PREVIEWS else ''}.mp4",
     }
     for route in routes.values():
         (PUBLIC / route.lstrip("/")).parent.mkdir(parents=True, exist_ok=True)
@@ -136,15 +145,20 @@ def build(aid, incoming, asset, reuse_encoded=False):
                      "-i", "pipe:0", "-i", str(narration), "-filter_complex", graph]
     command += ["-map", "[w]", "-map", "1:a:0", "-frames:v", str(FRAMES), "-c:v", "libvpx-vp9",
                 "-pix_fmt", "yuva420p", "-auto-alt-ref", "0", "-metadata:s:v:0", "alpha_mode=1",
-                "-deadline", "good", "-cpu-used", "5", "-row-mt", "1", "-threads", "2", "-crf", "20", "-b:v", "0",
+                "-deadline", "good", "-cpu-used", "5", "-row-mt", "1", "-threads", "2", "-crf", "26" if aid == "HTTN04" else "20", "-b:v", "0",
                 "-c:a", "libopus", "-b:a", "96k", str(PUBLIC / routes["alphaVideoUrl"].lstrip("/"))]
     for key, label, crf in [("alphaColorUrl", "color", "14"), ("alphaMaskUrl", "mask", "10"),
                              ("packedVideoUrl", "native", "14"), ("compatiblePackedVideoUrl", "compatible", "16")]:
+        # Dense flood-water texture needs a different rate to fit Pages' 25 MiB
+        # per-file limit. Preserve native pixels and measure the delivered encode.
+        if aid == "HTTN04" and key in {"alphaColorUrl", "packedVideoUrl"}:
+            crf = "18"
         command += ["-map", f"[{label}]"]
         command += ["-an"] if key == "alphaMaskUrl" else ["-map", "1:a:0", "-c:a", "copy"]
         command += ["-frames:v", str(FRAMES), "-c:v", "libx264", "-threads", "1", "-preset", "fast", "-crf", crf,
                     "-pix_fmt", "yuv420p", "-movflags", "+faststart", str(PUBLIC / routes[key].lstrip("/"))]
     reuse_encoded = reuse_encoded and all((PUBLIC / route.lstrip("/")).is_file()
+                                         and 0 < (PUBLIC / route.lstrip("/")).stat().st_size < 25*1024*1024
                                          for key, route in routes.items() if key != "previewVideoUrl")
     encoder = None if reuse_encoded else subprocess.Popen(command, stdin=subprocess.PIPE)
     cap = cv2.VideoCapture(str(source))
@@ -168,9 +182,9 @@ def build(aid, incoming, asset, reuse_encoded=False):
         cap.release()
         if encoder and encoder.poll() is None:
             encoder.terminate(); encoder.wait()
-    if aid == "HTTN12":
+    if aid in FLAT_PREVIEWS:
         build_flat_preview(PUBLIC / routes["packedVideoUrl"].lstrip("/"), narration,
-                           PUBLIC / routes["previewVideoUrl"].lstrip("/"), width, height)
+                           PUBLIC / routes["previewVideoUrl"].lstrip("/"), width, height, 18 if aid == "HTTN04" else 14)
     files = {}
     for key, route in routes.items():
         path = PUBLIC / route.lstrip("/")
@@ -203,6 +217,8 @@ def build(aid, incoming, asset, reuse_encoded=False):
             color_errors.append(max(errors))
             opaque_losses.append(float(np.mean(a[expected > .99] < .97)) if np.any(expected > .99) else 0.)
             blank_edges.append(float(np.max(np.concatenate([a[0], a[-1], a[:, 0], a[:, -1]]))))
+            if i % 60 == 59:
+                print(f"{aid}: packed/alpha checked {i+1}/{FRAMES}", flush=True)
     finally:
         for pipe in pipes:
             pipe.stdout.close(); pipe.terminate(); pipe.wait()
@@ -210,7 +226,7 @@ def build(aid, incoming, asset, reuse_encoded=False):
               "compositeMAE": float(np.mean(color_errors)), "worstCompositeMAE": max(color_errors),
               "worstOpaqueLossFraction": max(opaque_losses), "maxOuterBorderAlpha": max(blank_edges)}
     assert checks["worstAlphaMAE"] < .02 and checks["worstCompositeMAE"] < .03
-    if aid == "HTTN12":
+    if aid in FLAT_PREVIEWS:
         assert checks["worstOpaqueLossFraction"] < .005
     # Aurora is emitted light: its tiny fully-white tips are not solid interiors.
     # Composite fidelity above measures these instead of an opaque-object gate.
@@ -234,21 +250,26 @@ def main():
     parser.add_argument("--incoming", type=Path, required=True)
     parser.add_argument("--publish", action="store_true")
     parser.add_argument("--reuse-encoded", action="store_true", help="Re-decode existing encodes; never skip QA")
+    parser.add_argument("--id", choices=list(SOURCES), nargs="+", help="Build selected clips and retain other reviewed reports")
     args = parser.parse_args()
     manifest_path = PUBLIC / "videos/ar/manifest.json"
     profiles_path = ROOT / "src/data/arVideoPresentation.json"
     assets = json.loads(manifest_path.read_text(encoding="utf-8"))
     profiles = json.loads(profiles_path.read_text(encoding="utf-8"))
+    certificate_path = ROOT / "docs/qa/ar-reviewed-remakes-v4.json"
+    selected = args.id or list(SOURCES)
     reports = []
-    for aid in ["HTTN13", "HTTN12"]:
+    if args.id and certificate_path.is_file():
+        reports = [report for report in json.loads(certificate_path.read_text())["assets"] if report["id"] not in selected]
+    for aid in selected:
         report = build(aid, args.incoming, next(a for a in assets if a["id"] == aid), args.reuse_encoded)
         reports.append(report)
     certificate = {"version": VERSION, "date": "2026-11-13", "kind": "offline-decoded-replacement-QA",
                    "limits": ["No live browser tool was available; no new browser or physical-phone result is claimed.",
                               "Codec agreement is not semantic ground truth for every matted edge.",
                               "Aurora remains intentionally translucent and fades near the end of its source.",
-                              "Flood and earthquake candidates are withheld after visual review."], "assets": reports}
-    (ROOT / "docs/qa/ar-reviewed-remakes-v4.json").write_text(json.dumps(certificate, indent=2)+"\n")
+                              "Flood retains rectangular source framing; earthquake retains an oval scene and weak shaking, accepted by the user."], "assets": reports}
+    certificate_path.write_text(json.dumps(certificate, indent=2)+"\n")
     if args.publish:
         for report in reports:
             asset = next(a for a in assets if a["id"] == report["id"])

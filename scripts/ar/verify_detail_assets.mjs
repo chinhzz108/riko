@@ -9,9 +9,9 @@ const effectsCertificate = await json("docs/qa/ar-native-effects-v3.json")
 const browserCertificate = await json("docs/qa/ar-packed-browser-v3.json")
 const remakes = await json("docs/qa/ar-reviewed-remakes-v4.json")
 const remakeSources = await json("docs/qa/ar-reviewed-remakes-source-v4.json")
-assert.deepEqual(remakes.assets.map(a => a.id).sort(), ["HTTN12", "HTTN13"])
+assert.deepEqual(remakes.assets.map(a => a.id).sort(), ["HTTN04", "HTTN09", "HTTN12", "HTTN13"])
 assert.equal(remakes.kind, "offline-decoded-replacement-QA")
-assert.deepEqual(remakeSources.assets.map(a => a.id).sort(), ["HTTN12", "HTTN13"])
+assert.deepEqual(remakeSources.assets.map(a => a.id).sort(), ["HTTN04", "HTTN09", "HTTN12", "HTTN13"])
 assert.equal(remakeSources.kind, "offline-source-and-fallback-decode")
 assert.equal(browserCertificate.results.length, 45)
 const manifest = await json("public/videos/ar/manifest.json")
@@ -101,9 +101,9 @@ for (const asset of manifest) {
     assert.equal(source.browserTested, false)
     assert.equal(source.phoneTested, false)
     assert.equal(source.framesPerStream, replacement.frames)
-    assert.equal(source.decodedVideoStreams, asset.id === "HTTN12" ? 7 : 6)
-    if (asset.id === "HTTN12") {
-      assert.ok(asset.previewVideoUrl.endsWith("/HTTN12-keyed.mp4"), "QR/plain player must not show the magenta source")
+    assert.equal(source.decodedVideoStreams, asset.id === "HTTN13" ? 6 : 7)
+    if (asset.id !== "HTTN13") {
+      assert.ok(asset.previewVideoUrl.endsWith(`/${asset.id}-keyed.mp4`), "QR/plain player must not show the key background")
       assert.ok(source.checks.flatPreviewBlackCompositeMAE)
       assert.equal(createHash("sha256").update(await readFile(`public${replacement.sourceReferenceUrl}`)).digest("hex"), replacement.sourceReferenceSHA256)
     }
@@ -143,4 +143,4 @@ for (const asset of manifest) {
   }
 }
 assert.equal(nativeCertificate.assets.length, 24)
-console.log(`AR detail media passed: ${manifest.length} retained baseline proofs, ${fileCount} media hashes, 2 offline-decoded remakes, 54 unchanged page routes. New browser/phone QA remains untested.`)
+console.log(`AR detail media passed: ${manifest.length} retained baseline proofs, ${fileCount} media hashes, ${remakes.assets.length} offline-decoded remakes, 54 unchanged page routes. New browser/phone QA remains untested.`)

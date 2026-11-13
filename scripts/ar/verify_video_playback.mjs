@@ -42,7 +42,7 @@ for (const slot of slots.filter(item => item.arVideoUrl)) {
 }
 assert.throws(() => nativeARSource({ url: "/videos/ar/HTTN12.webm", alpha: true }, { mode: "cutout" }),
   /phiên bản hiện tại/, "missing current alpha must fail instead of silently showing legacy media")
-for (const id of ["HTTN12", "HTTN13"]) {
+for (const id of ["HTTN04", "HTTN09", "HTTN12", "HTTN13"]) {
   const slot = slots.find(item => item.arTargetId === id)
   const profile = profiles[id]
   const fallback = resolveARVideoAsset(slot, profile, [])
@@ -51,4 +51,4 @@ for (const id of ["HTTN12", "HTTN13"]) {
   assert.equal(resolveARVideoAsset(slot, profile, [newer]), newer, "revalidated catalog takes precedence over the bundle")
 }
 console.log("AR video startup passed: decoded frames, preload reuse, cancellation, bounded wait, single-clock source and Retina resolution.")
-console.log("Release fallback passed: 54 routes select the same release before/after manifest fetch; tide/aurora cannot fall back to legacy canonical files.")
+console.log("Release fallback passed: 54 routes select the same release before/after manifest fetch; all four remakes cannot fall back to legacy canonical files.")

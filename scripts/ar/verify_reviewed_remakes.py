@@ -13,7 +13,7 @@ import cv2
 import numpy as np
 from PIL import Image, ImageDraw
 
-from build_reviewed_remakes import decoder, matte, read_frame, sha
+from build_reviewed_remakes import FLAT_PREVIEWS, SOURCES, decoder, matte, read_frame, sha
 
 ROOT = Path(__file__).resolve().parents[2]
 PUBLIC = ROOT / "public"
@@ -43,12 +43,12 @@ def verify(asset):
         "color": (files["alphaColorUrl"], width, height),
         "mask": (files["alphaMaskUrl"], width, height),
     }
-    if aid == "HTTN12":
+    if aid in FLAT_PREVIEWS:
         streams["preview"] = (files["previewVideoUrl"], width, height)
     pipes = {key: decoder(path, w, h) for key, (path, w, h) in streams.items()}
     errors = {key: [] for key in ["sourceOpaqueRGBMAE", "sourceBlackCompositeMAE",
                                   "compatibleCompositeMAE", "splitFallbackCompositeMAE"]}
-    if aid == "HTTN12":
+    if aid in FLAT_PREVIEWS:
         errors["flatPreviewBlackCompositeMAE"] = []
     samples = []
     sample_indices = [0, 24, 72, 120, 168, 216, 239]
@@ -62,12 +62,12 @@ def verify(asset):
             packed = frames["packed"]
             color = packed[:, :width].astype(np.float32) / 255
             alpha = packed[:, width:, 1].astype(np.float32) / 255
-            if aid == "HTTN12":
+            if aid in FLAT_PREVIEWS:
                 errors["flatPreviewBlackCompositeMAE"].append(float(np.abs(
                     frames["preview"].astype(np.float32)/255 - color*alpha[..., None]).mean()))
             foreground = cv2.erode(np.uint8(expected_alpha == 255), np.ones((5, 5), np.uint8)) > 0
-            if aid == "HTTN12":
-                assert foreground.sum() > width * height * .1, "Tide must retain an opaque interior"
+            if aid in FLAT_PREVIEWS:
+                assert foreground.sum() > width * height * .1, f"{aid}: retain an opaque scene interior"
                 errors["sourceOpaqueRGBMAE"].append(float(np.abs(color[foreground] - rgb[foreground] / 255).mean()))
             else:
                 errors["sourceBlackCompositeMAE"].append(float(np.abs(color * alpha[..., None] - rgb / 255).mean()))
@@ -130,14 +130,14 @@ def verify(asset):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--id", choices=["HTTN12", "HTTN13"])
+    parser.add_argument("--id", choices=list(SOURCES), nargs="+")
     args = parser.parse_args()
     certificate = json.loads((ROOT / "docs/qa/ar-reviewed-remakes-v4.json").read_text())
     report_path = ROOT / "docs/qa/ar-reviewed-remakes-source-v4.json"
     retained = []
     if args.id:
-        retained = [asset for asset in json.loads(report_path.read_text())["assets"] if asset["id"] != args.id]
+        retained = [asset for asset in json.loads(report_path.read_text())["assets"] if asset["id"] not in args.id]
     report = {"version": "remake-v4", "kind": "offline-source-and-fallback-decode",
-              "assets": retained + [verify(asset) for asset in certificate["assets"] if not args.id or asset["id"] == args.id]}
+              "assets": retained + [verify(asset) for asset in certificate["assets"] if not args.id or asset["id"] in args.id]}
     report_path.write_text(json.dumps(report, indent=2) + "\n")
     print(json.dumps(report, indent=2), flush=True)

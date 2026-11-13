@@ -113,6 +113,122 @@
       ],
       "browserTested": false,
       "phoneTested": false
+    },
+    {
+      "id": "HTTN09",
+      "framesPerStream": 240,
+      "decodedVideoStreams": 7,
+      "files": {
+        "alphaVideoUrl": {
+          "url": "/videos/ar/remake-v4/HTTN09.webm",
+          "sha256": "c8e1ef621f04be7f0805978f286775fa563b9bce14bef17de35fb8a094f99350"
+        },
+        "alphaColorUrl": {
+          "url": "/videos/ar/fallback/remake-v4/HTTN09-color.mp4",
+          "sha256": "c950d0b215823067869d904bd31b2f44739cb039062718af593479ed30bd509f"
+        },
+        "alphaMaskUrl": {
+          "url": "/videos/ar/fallback/remake-v4/HTTN09-alpha.mp4",
+          "sha256": "978037341cf2d7a0b83a66517e7b9ca18aa9167715ee88eaaa6ff0187dc1844f"
+        },
+        "packedVideoUrl": {
+          "url": "/videos/ar/packed/remake-v4/HTTN09.mp4",
+          "sha256": "85e6c778f804a7447e4f9d2255b5e15f45a4fbee5f4f194799654f75417de1c1"
+        },
+        "compatiblePackedVideoUrl": {
+          "url": "/videos/ar/packed/remake-v4/HTTN09-compatible.mp4",
+          "sha256": "3e7b1367a48acf7c063ab2969e9296ed66267c0e8606a268cdf41b0cf0e43485"
+        },
+        "previewVideoUrl": {
+          "url": "/videos/ar/original/remake-v4/HTTN09-keyed.mp4",
+          "sha256": "41c033fe28eb72d19fe4bd613819838a8bdef316f275a7854950cda11c210618"
+        }
+      },
+      "checks": {
+        "sourceOpaqueRGBMAE": {
+          "mean": 0.006588850982981351,
+          "worst": 0.009745804656963088
+        },
+        "compatibleCompositeMAE": {
+          "mean": 0.004124730926317473,
+          "worst": 0.004639203194528818
+        },
+        "splitFallbackCompositeMAE": {
+          "mean": 0.00164615087560378,
+          "worst": 0.00228916946798563
+        },
+        "flatPreviewBlackCompositeMAE": {
+          "mean": 0.0019169375872782743,
+          "worst": 0.0024219767656177282
+        }
+      },
+      "aacNarrationSHA256": "faa800be683f5415dce6936b0cf49927b0478e8ced891282daa10beca0165348",
+      "aacNarrationMatches": [
+        "previewVideoUrl",
+        "packedVideoUrl",
+        "compatiblePackedVideoUrl",
+        "alphaColorUrl"
+      ],
+      "browserTested": false,
+      "phoneTested": false
+    },
+    {
+      "id": "HTTN04",
+      "framesPerStream": 240,
+      "decodedVideoStreams": 7,
+      "files": {
+        "alphaVideoUrl": {
+          "url": "/videos/ar/remake-v4/HTTN04.webm",
+          "sha256": "648773e7d6474e95969de0f3904d20c14b2c497344b0fa06f67125ef733c53ff"
+        },
+        "alphaColorUrl": {
+          "url": "/videos/ar/fallback/remake-v4/HTTN04-color.mp4",
+          "sha256": "f1ff0c252395494d36520d8bff0179c3985886409ea9d181c2f8fcc1deb26ec4"
+        },
+        "alphaMaskUrl": {
+          "url": "/videos/ar/fallback/remake-v4/HTTN04-alpha.mp4",
+          "sha256": "def7eba3cef5aa8c93405a22a90e234c4fe620c12c25260a8ed483e877cf6d92"
+        },
+        "packedVideoUrl": {
+          "url": "/videos/ar/packed/remake-v4/HTTN04.mp4",
+          "sha256": "8bd579ba5c02f642661ea54a9ae269135b055c3f5ac5f56613a7ae8e4c917cdc"
+        },
+        "compatiblePackedVideoUrl": {
+          "url": "/videos/ar/packed/remake-v4/HTTN04-compatible.mp4",
+          "sha256": "5c25e683fae1f70a89f1a0b16fbd04e3258eaf8c80d6c073cf2af3a1264ea97f"
+        },
+        "previewVideoUrl": {
+          "url": "/videos/ar/original/remake-v4/HTTN04-keyed.mp4",
+          "sha256": "3530101fe0b07ddb0a0883a0b4abf947bf81c07c8b3daffaeb4f6e756aa341a2"
+        }
+      },
+      "checks": {
+        "sourceOpaqueRGBMAE": {
+          "mean": 0.008632582389131825,
+          "worst": 0.010550834531413233
+        },
+        "compatibleCompositeMAE": {
+          "mean": 0.011616574750708727,
+          "worst": 0.013283781707286835
+        },
+        "splitFallbackCompositeMAE": {
+          "mean": 0.006462089101114543,
+          "worst": 0.008098279125988483
+        },
+        "flatPreviewBlackCompositeMAE": {
+          "mean": 0.006540215032873675,
+          "worst": 0.007231123745441437
+        }
+      },
+      "aacNarrationSHA256": "d85ba1e54377a0338bddcc22a0e0ae6f20f433b02e1b15ffaf9468720dbfb1a4",
+      "aacNarrationMatches": [
+        "previewVideoUrl",
+        "packedVideoUrl",
+        "compatiblePackedVideoUrl",
+        "alphaColorUrl"
+      ],
+      "browserTested": false,
+      "phoneTested": false
     }
   ]
 }
