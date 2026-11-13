@@ -9,6 +9,18 @@
 /videos/ar/packed/native-v3/*
   Cache-Control: public, max-age=31536000, immutable
 
+/videos/ar/remake-v4/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/videos/ar/packed/remake-v4/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/videos/ar/fallback/remake-v4/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/videos/ar/original/remake-v4/*
+  Cache-Control: public, max-age=31536000, immutable
+
 /models/riko-ar-detector.tflite
   Cache-Control: public, max-age=31536000, immutable
 

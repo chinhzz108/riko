@@ -1,0 +1,193 @@
+{
+  "version": "remake-v4",
+  "date": "2026-11-13",
+  "kind": "offline-decoded-replacement-QA",
+  "limits": [
+    "No live browser tool was available; no new browser or physical-phone result is claimed.",
+    "Codec agreement is not semantic ground truth for every matted edge.",
+    "Aurora remains intentionally translucent and fades near the end of its source.",
+    "Flood and earthquake candidates are withheld after visual review."
+  ],
+  "assets": [
+    {
+      "id": "HTTN13",
+      "canonicalUrl": "/videos/ar/HTTN13.webm",
+      "mode": "glow",
+      "frames": 240,
+      "sourceSHA256": "c11e3d1f9edfc57ee12249ed6caf0e0ee0dc392875561be4d530502a2f76821b",
+      "narrationSourceUrl": "/videos/ar/original/hq2/HTTN13.mp4",
+      "narrationSourceSHA256": "54c9acba800633f61887c7c8a78ab9c0c5a95b2d046abf8920f8b7e1b87a1d60",
+      "files": {
+        "alphaVideoUrl": {
+          "url": "/videos/ar/remake-v4/HTTN13.webm",
+          "sha256": "16f5ef471abd0d33b3c57f77179a353d4ba8728fc17373cdf6bf5dec1ea757ce",
+          "bytes": 7739429,
+          "dimensions": [
+            1248,
+            704
+          ]
+        },
+        "alphaColorUrl": {
+          "url": "/videos/ar/fallback/remake-v4/HTTN13-color.mp4",
+          "sha256": "9784324c533717603677c1247c9b7f238e9da2d47589d60eece77bba962c78ef",
+          "bytes": 9805331,
+          "dimensions": [
+            1248,
+            704
+          ]
+        },
+        "alphaMaskUrl": {
+          "url": "/videos/ar/fallback/remake-v4/HTTN13-alpha.mp4",
+          "sha256": "4a32af6e441158efb7fddad541b7a49b930a3367d2649716a3e601d987be88ef",
+          "bytes": 3307083,
+          "dimensions": [
+            1248,
+            704
+          ]
+        },
+        "packedVideoUrl": {
+          "url": "/videos/ar/packed/remake-v4/HTTN13.mp4",
+          "sha256": "9c28b00dee0f3df34f2359877605b7cc58a599b84c80397ce698a57b9f7404bb",
+          "bytes": 11550286,
+          "dimensions": [
+            2496,
+            704
+          ]
+        },
+        "compatiblePackedVideoUrl": {
+          "url": "/videos/ar/packed/remake-v4/HTTN13-compatible.mp4",
+          "sha256": "4554f00ab250c2153d23a12f29f57ce3cfe8567a447672fb24858d761175d8c9",
+          "bytes": 6443504,
+          "dimensions": [
+            1920,
+            542
+          ]
+        },
+        "previewVideoUrl": {
+          "url": "/videos/ar/original/remake-v4/HTTN13.mp4",
+          "sha256": "1caa7d5ae31c0d52a16114c1fc3082cc9e99f6310a91df9b5faf94eee95777f0",
+          "bytes": 1038916,
+          "dimensions": [
+            1248,
+            704
+          ]
+        }
+      },
+      "profile": {
+        "bounds": {
+          "left": 0.05448717948717949,
+          "top": 0.0,
+          "right": 0.9567307692307693,
+          "bottom": 0.8920454545454546
+        },
+        "grounded": false,
+        "mode": "glow",
+        "measuredFrames": 240,
+        "packedVideoUrl": "/videos/ar/packed/remake-v4/HTTN13.mp4",
+        "compatiblePackedVideoUrl": "/videos/ar/packed/remake-v4/HTTN13-compatible.mp4",
+        "previewVideoUrl": "/videos/ar/original/remake-v4/HTTN13.mp4"
+      },
+      "checks": {
+        "frames": 240,
+        "alphaMAE": 0.001955870580180393,
+        "worstAlphaMAE": 0.002327114576473832,
+        "compositeMAE": 0.001830919858184643,
+        "worstCompositeMAE": 0.0023163510486483574,
+        "worstOpaqueLossFraction": 0.09302325581395349,
+        "maxOuterBorderAlpha": 0.007843137718737125
+      },
+      "browserTested": false,
+      "phoneTested": false
+    },
+    {
+      "id": "HTTN12",
+      "canonicalUrl": "/videos/ar/HTTN12.webm",
+      "mode": "cutout",
+      "frames": 240,
+      "sourceSHA256": "2bc70bc998f4fdf6efd0ac9d819291e72c5aae35c03cf9dd69efbb4048a8b3d4",
+      "narrationSourceUrl": "/videos/ar/original/hq2/HTTN12.mp4",
+      "narrationSourceSHA256": "35bd95f15121443da43c801a89e7bcb15fa0f09270d4660d8f078da32d0f4e72",
+      "files": {
+        "alphaVideoUrl": {
+          "url": "/videos/ar/remake-v4/HTTN12.webm",
+          "sha256": "bff70241006b7d463324b1040623ddae45481496ef379a3647548fdd267c4ee6",
+          "bytes": 6990070,
+          "dimensions": [
+            1248,
+            704
+          ]
+        },
+        "alphaColorUrl": {
+          "url": "/videos/ar/fallback/remake-v4/HTTN12-color.mp4",
+          "sha256": "5cbdcd50967788b83b848dc2d24841d6b9a336839c2109a1b021b3313b8c97e0",
+          "bytes": 6628942,
+          "dimensions": [
+            1248,
+            704
+          ]
+        },
+        "alphaMaskUrl": {
+          "url": "/videos/ar/fallback/remake-v4/HTTN12-alpha.mp4",
+          "sha256": "85ee4fdfa7417199801b3bed8c15b282a679863323f7401894873f95b1edfa29",
+          "bytes": 436278,
+          "dimensions": [
+            1248,
+            704
+          ]
+        },
+        "packedVideoUrl": {
+          "url": "/videos/ar/packed/remake-v4/HTTN12.mp4",
+          "sha256": "25846309b0f6f466e8483af9b1c5e1ada0a13d1247d58e47846f3668f0d84861",
+          "bytes": 7013817,
+          "dimensions": [
+            2496,
+            704
+          ]
+        },
+        "compatiblePackedVideoUrl": {
+          "url": "/videos/ar/packed/remake-v4/HTTN12-compatible.mp4",
+          "sha256": "d7cedf5751ee93ee762093d85cbd41117c030e39a576f61f7fc996c9ee288d82",
+          "bytes": 5157254,
+          "dimensions": [
+            1920,
+            542
+          ]
+        },
+        "previewVideoUrl": {
+          "url": "/videos/ar/original/remake-v4/HTTN12.mp4",
+          "sha256": "ba13ca6bf2e37382957dd7bcf685bae2c087952d32486bc2285e9a14c278e241",
+          "bytes": 3518755,
+          "dimensions": [
+            1248,
+            704
+          ]
+        }
+      },
+      "profile": {
+        "bounds": {
+          "left": 0.1346153846153846,
+          "top": 0.18181818181818182,
+          "right": 0.8701923076923077,
+          "bottom": 0.8721590909090909
+        },
+        "grounded": false,
+        "mode": "cutout",
+        "measuredFrames": 240,
+        "packedVideoUrl": "/videos/ar/packed/remake-v4/HTTN12.mp4",
+        "compatiblePackedVideoUrl": "/videos/ar/packed/remake-v4/HTTN12-compatible.mp4",
+        "previewVideoUrl": "/videos/ar/original/remake-v4/HTTN12.mp4"
+      },
+      "checks": {
+        "frames": 240,
+        "alphaMAE": 0.0001263328469879828,
+        "worstAlphaMAE": 0.00016230958863161504,
+        "compositeMAE": 0.002951759515174975,
+        "worstCompositeMAE": 0.0035989524330943823,
+        "worstOpaqueLossFraction": 0.00020704606165912912,
+        "maxOuterBorderAlpha": 0.0
+      },
+      "browserTested": false,
+      "phoneTested": false
+    }
+  ]
+}

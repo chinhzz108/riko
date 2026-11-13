@@ -7,6 +7,12 @@ const certificate = await json("docs/qa/ar-media-detail-v2.json")
 const nativeCertificate = await json("docs/qa/ar-native-packed-v3.json")
 const effectsCertificate = await json("docs/qa/ar-native-effects-v3.json")
 const browserCertificate = await json("docs/qa/ar-packed-browser-v3.json")
+const remakes = await json("docs/qa/ar-reviewed-remakes-v4.json")
+const remakeSources = await json("docs/qa/ar-reviewed-remakes-source-v4.json")
+assert.deepEqual(remakes.assets.map(a => a.id).sort(), ["HTTN12", "HTTN13"])
+assert.equal(remakes.kind, "offline-decoded-replacement-QA")
+assert.deepEqual(remakeSources.assets.map(a => a.id).sort(), ["HTTN12", "HTTN13"])
+assert.equal(remakeSources.kind, "offline-source-and-fallback-decode")
 assert.equal(browserCertificate.results.length, 45)
 const manifest = await json("public/videos/ar/manifest.json")
 const profiles = await json("src/data/arVideoPresentation.json")
@@ -22,24 +28,25 @@ let fileCount = 0
 for (const asset of manifest) {
   const proof = certificate.assets.find(item => item.id === asset.id)
   const native = nativeCertificate.assets.find(item => item.id === asset.id)
+  const replacement = remakes.assets.find(item => item.id === asset.id)
   const browser = browserCertificate.results.find(item => item.id === asset.id)
   assert.equal(browser?.pass, true, `${asset.id}: actual decode/shader/frame advancement must pass`)
   assert.equal(browser.packedSHA256, native?.sha256 || proof.files.packedVideoUrl.sha256)
   const profile = profiles[asset.id]
   assert.ok(proof, asset.id)
-  assert.equal(asset.qualityVersion, certificate.qualityVersion)
+  assert.equal(asset.qualityVersion, replacement ? remakes.version : certificate.qualityVersion)
   assert.equal(asset.url, proof.canonicalUrl, `${asset.id}: keep printed QR routing stable`)
-  assert.equal(asset.presentationMode, proof.mode)
-  assert.equal(profile.mode, proof.mode)
+  assert.equal(asset.presentationMode, replacement?.mode || proof.mode)
+  assert.equal(profile.mode, replacement?.mode || proof.mode)
   assert.equal(profile.measuredFrames, proof.frames)
   assert.equal(profile.packedVideoUrl, asset.packedVideoUrl)
   assert.equal(profile.previewVideoUrl, asset.previewVideoUrl)
-  if (proof.mode === "scene" || proof.mode === "mixed") {
+  if (!replacement && (proof.mode === "scene" || proof.mode === "mixed")) {
     assert.deepEqual(profile.bounds, { left: 0, top: 0, right: 1, bottom: 1 })
     assert.equal(profile.grounded, false)
   }
   for (const [key, file] of Object.entries(proof.files)) {
-    assert.equal(asset[key], key === "packedVideoUrl" && native ? native.url : file.url)
+    assert.equal(asset[key], replacement ? replacement.files[key].url : key === "packedVideoUrl" && native ? native.url : file.url)
     assert.ok(file.url.includes("/hq2/"), `${asset.id}: avoid stale immutable cache URLs`)
     const path = `public${file.url}`
     const info = await stat(path)
@@ -49,9 +56,11 @@ for (const asset of manifest) {
     fileCount++
   }
   if (native) {
-    assert.equal(asset.packedQualityVersion, "native-v3")
-    assert.equal(asset.compatiblePackedVideoUrl, proof.files.packedVideoUrl.url)
-    assert.equal(profile.compatiblePackedVideoUrl, asset.compatiblePackedVideoUrl)
+    if (!replacement) {
+      assert.equal(asset.packedQualityVersion, "native-v3")
+      assert.equal(asset.compatiblePackedVideoUrl, proof.files.packedVideoUrl.url)
+      assert.equal(profile.compatiblePackedVideoUrl, asset.compatiblePackedVideoUrl)
+    }
     assert.ok(native.url.startsWith("/videos/ar/packed/native-v3/"))
     const path = `public${native.url}`
     const info = await stat(path)
@@ -82,6 +91,50 @@ for (const asset of manifest) {
     assert.equal(proof.sourceCheck.frames, proof.frames)
     assert.equal(proof.sourceCheck.unexpectedSceneTransparentPixels, 0)
   }
+  if (replacement) {
+    // Preserve all historical media/browser proofs above. Replacement evidence
+    // is separately scoped to actual offline decode, never relabeled browser QA.
+    assert.equal(replacement.browserTested, false)
+    assert.equal(replacement.phoneTested, false)
+    const source = remakeSources.assets.find(item => item.id === asset.id)
+    assert.equal(source.browserTested, false)
+    assert.equal(source.phoneTested, false)
+    assert.equal(source.framesPerStream, replacement.frames)
+    assert.equal(source.decodedVideoStreams, 6)
+    for (const check of Object.values(source.checks)) {
+      assert.ok(Number.isFinite(check.mean) && check.mean >= 0)
+      assert.ok(Number.isFinite(check.worst) && check.worst < .03)
+    }
+    assert.ok(source.checks.compatibleCompositeMAE)
+    assert.ok(source.checks.splitFallbackCompositeMAE)
+    assert.ok(source.checks[replacement.mode === "glow" ? "sourceBlackCompositeMAE" : "sourceOpaqueRGBMAE"])
+    assert.match(source.aacNarrationSHA256, /^[a-f0-9]{64}$/)
+    assert.deepEqual(source.aacNarrationMatches, ["previewVideoUrl", "packedVideoUrl", "compatiblePackedVideoUrl", "alphaColorUrl"])
+    assert.equal(replacement.canonicalUrl, asset.url)
+    assert.deepEqual(profile, replacement.profile)
+    assert.equal(asset.packedQualityVersion, remakes.version)
+    assert.equal(replacement.frames, 240)
+    assert.equal(replacement.checks.frames, replacement.frames)
+    assert.ok(replacement.checks.worstAlphaMAE < .02)
+    assert.ok(replacement.checks.worstCompositeMAE < .03)
+    if (replacement.mode !== "glow") assert.ok(replacement.checks.worstOpaqueLossFraction < .005)
+    assert.ok(replacement.checks.maxOuterBorderAlpha < .04)
+    assert.notEqual(asset.packedVideoUrl, asset.compatiblePackedVideoUrl)
+    for (const [key, file] of Object.entries(replacement.files)) {
+      assert.equal(source.files[key].url, file.url)
+      assert.equal(source.files[key].sha256, file.sha256)
+      assert.equal(asset[key], file.url)
+      assert.ok(file.url.includes(`/${remakes.version}/`))
+      const path = `public${file.url}`
+      const info = await stat(path)
+      assert.equal(info.size, file.bytes)
+      assert.ok(info.size > 0 && info.size < 25 * 1024 * 1024)
+      assert.equal(createHash("sha256").update(await readFile(path)).digest("hex"), file.sha256)
+      fileCount++
+    }
+    const narration = `public${replacement.narrationSourceUrl}`
+    assert.equal(createHash("sha256").update(await readFile(narration)).digest("hex"), replacement.narrationSourceSHA256)
+  }
 }
 assert.equal(nativeCertificate.assets.length, 24)
-console.log(`AR detail media passed: ${manifest.length} verified clips, ${fileCount} media hashes, 24 native RGB upgrades, 54 unchanged page routes.`)
+console.log(`AR detail media passed: ${manifest.length} retained baseline proofs, ${fileCount} media hashes, 2 offline-decoded remakes, 54 unchanged page routes. New browser/phone QA remains untested.`)
