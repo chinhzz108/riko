@@ -17,6 +17,10 @@ Color and matte are encoded side-by-side in one H.264 stream to share a clock.
 A smaller packed encode and VP9 alpha file are available as decode fallbacks.
 The existing Vietnamese narration is copied from the previous audio-bearing
 source; generated audio from the new take is excluded.
+The tide preview for the QR overlay and ordinary watch page is separately
+composited onto black at `/original/remake-v4/HTTN12-keyed.mp4`; neither plain
+player can apply the AR shader. The raw magenta take remains a source reference
+only. Existing immutable media URLs are preserved.
 
 `scripts/ar/build_reviewed_remakes.py` accepts only the reviewed input hashes.
 It decodes and compares all 240 frames per clip, checks packed matte/composites
@@ -53,7 +57,8 @@ Pre-release validation passed: the production Vite build, TypeScript, scan
 routing, playback sessions, decoded-frame startup, presentation and motion
 checks, and the detail-asset hash gate. Both delivered packed contact sheets
 were visually reviewed at seven times on three backgrounds. The additional
-decode pass covered all six variants per clip, 240 video frames each. Maximum
+decode pass covered all six variants per clip and the raw tide reference,
+240 video frames each. Maximum
 compatible/native composite MAE was 0.00180 for aurora and 0.00447 for tides;
 the maximum tide opaque-interior RGB MAE against source was 0.00799 (0–1 scale).
 All four AAC-bearing MP4 variants per clip preserve the old narration bytes.

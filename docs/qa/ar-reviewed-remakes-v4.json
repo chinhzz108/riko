@@ -154,9 +154,9 @@
           ]
         },
         "previewVideoUrl": {
-          "url": "/videos/ar/original/remake-v4/HTTN12.mp4",
-          "sha256": "ba13ca6bf2e37382957dd7bcf685bae2c087952d32486bc2285e9a14c278e241",
-          "bytes": 3518755,
+          "url": "/videos/ar/original/remake-v4/HTTN12-keyed.mp4",
+          "sha256": "95b6f637431429247214e883151637254a474c799f91919ebfbb69180741d7dc",
+          "bytes": 6112030,
           "dimensions": [
             1248,
             704
@@ -175,7 +175,7 @@
         "measuredFrames": 240,
         "packedVideoUrl": "/videos/ar/packed/remake-v4/HTTN12.mp4",
         "compatiblePackedVideoUrl": "/videos/ar/packed/remake-v4/HTTN12-compatible.mp4",
-        "previewVideoUrl": "/videos/ar/original/remake-v4/HTTN12.mp4"
+        "previewVideoUrl": "/videos/ar/original/remake-v4/HTTN12-keyed.mp4"
       },
       "checks": {
         "frames": 240,
@@ -187,7 +187,9 @@
         "maxOuterBorderAlpha": 0.0
       },
       "browserTested": false,
-      "phoneTested": false
+      "phoneTested": false,
+      "sourceReferenceUrl": "/videos/ar/original/remake-v4/HTTN12.mp4",
+      "sourceReferenceSHA256": "ba13ca6bf2e37382957dd7bcf685bae2c087952d32486bc2285e9a14c278e241"
     }
   ]
 }

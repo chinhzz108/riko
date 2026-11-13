@@ -59,7 +59,7 @@
     {
       "id": "HTTN12",
       "framesPerStream": 240,
-      "decodedVideoStreams": 6,
+      "decodedVideoStreams": 7,
       "files": {
         "alphaVideoUrl": {
           "url": "/videos/ar/remake-v4/HTTN12.webm",
@@ -82,8 +82,8 @@
           "sha256": "d7cedf5751ee93ee762093d85cbd41117c030e39a576f61f7fc996c9ee288d82"
         },
         "previewVideoUrl": {
-          "url": "/videos/ar/original/remake-v4/HTTN12.mp4",
-          "sha256": "ba13ca6bf2e37382957dd7bcf685bae2c087952d32486bc2285e9a14c278e241"
+          "url": "/videos/ar/original/remake-v4/HTTN12-keyed.mp4",
+          "sha256": "95b6f637431429247214e883151637254a474c799f91919ebfbb69180741d7dc"
         }
       },
       "checks": {
@@ -98,6 +98,10 @@
         "splitFallbackCompositeMAE": {
           "mean": 0.001715255997260101,
           "worst": 0.002043258398771286
+        },
+        "flatPreviewBlackCompositeMAE": {
+          "mean": 0.0018656762185855769,
+          "worst": 0.0020414800383150578
         }
       },
       "aacNarrationSHA256": "e0d6fa0d56178299e30eff4ccf5109473cbb3b476af4e538fc5a11b62f3bb7a6",

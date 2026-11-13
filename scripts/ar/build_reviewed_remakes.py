@@ -79,6 +79,32 @@ def decoder(path, width, height, alpha=False):
     ], stdout=subprocess.PIPE)
 
 
+def build_flat_preview(packed, narration, target, width, height):
+    """A normal video player cannot apply the AR matte; composite it on black."""
+    pipe = decoder(packed, width * 2, height)
+    encoder = subprocess.Popen([
+        "ffmpeg", "-v", "error", "-y", "-threads", "1", "-f", "rawvideo",
+        "-pix_fmt", "rgb24", "-s", f"{width}x{height}", "-r", str(FPS), "-i", "pipe:0",
+        "-i", str(narration), "-map", "0:v:0", "-map", "1:a:0", "-frames:v", str(FRAMES),
+        "-c:v", "libx264", "-threads", "1", "-preset", "fast", "-crf", "14",
+        "-pix_fmt", "yuv420p", "-c:a", "copy", "-movflags", "+faststart", str(target),
+    ], stdin=subprocess.PIPE)
+    try:
+        for i in range(FRAMES):
+            frame = read_frame(pipe, width * 2, height, 3)
+            assert frame is not None
+            black = frame[:, :width].astype(np.float32) * (frame[:, width:, 1:2].astype(np.float32) / 255)
+            encoder.stdin.write(np.uint8(black).tobytes())
+        encoder.stdin.close()
+        assert encoder.wait() == 0
+        assert pipe.stdout.read(1) == b"" and pipe.wait() == 0
+    finally:
+        pipe.stdout.close()
+        for process in [pipe, encoder]:
+            if process.poll() is None:
+                process.terminate(); process.wait()
+
+
 def build(aid, incoming, asset, reuse_encoded=False):
     source = incoming / ("HTTN13_aurora_take1.mp4" if aid == "HTTN13" else "HTTN12_tides_take1_REPAIRED.mp4")
     expected_sha = {"HTTN13": "c11e3d1f9edfc57ee12249ed6caf0e0ee0dc392875561be4d530502a2f76821b",
@@ -96,14 +122,15 @@ def build(aid, incoming, asset, reuse_encoded=False):
         "alphaMaskUrl": f"/videos/ar/fallback/{VERSION}/{aid}-alpha.mp4",
         "packedVideoUrl": f"/videos/ar/packed/{VERSION}/{aid}.mp4",
         "compatiblePackedVideoUrl": f"/videos/ar/packed/{VERSION}/{aid}-compatible.mp4",
-        "previewVideoUrl": f"/videos/ar/original/{VERSION}/{aid}.mp4",
+        "previewVideoUrl": f"/videos/ar/original/{VERSION}/{aid}{'-keyed' if aid == 'HTTN12' else ''}.mp4",
     }
     for route in routes.values():
         (PUBLIC / route.lstrip("/")).parent.mkdir(parents=True, exist_ok=True)
     run = ["ffmpeg", "-v", "error", "-y", "-threads", "1", "-filter_complex_threads", "1"]
+    reference_url = f"/videos/ar/original/{VERSION}/{aid}.mp4"
     subprocess.run(run + ["-i", str(source), "-i", str(narration), "-map", "0:v:0", "-map", "1:a:0",
                          "-c", "copy", "-t", "10", "-movflags", "+faststart",
-                         str(PUBLIC / routes["previewVideoUrl"].lstrip("/"))], check=True)
+                         str(PUBLIC / reference_url.lstrip("/"))], check=True)
     graph = "[0:v]split=4[w][c][m][p];[m]alphaextract,format=yuv420p[mask];[c]format=yuv420p[color];[p]split[pc][pa];[pc]format=yuv420p[rgb];[pa]alphaextract,format=yuv420p[a];[rgb][a]hstack=inputs=2[packed];[packed]split[native][small];[small]scale=1920:-2:flags=lanczos[compatible]"
     command = run + ["-f", "rawvideo", "-pix_fmt", "rgba", "-s", f"{width}x{height}", "-r", str(FPS),
                      "-i", "pipe:0", "-i", str(narration), "-filter_complex", graph]
@@ -117,7 +144,8 @@ def build(aid, incoming, asset, reuse_encoded=False):
         command += ["-an"] if key == "alphaMaskUrl" else ["-map", "1:a:0", "-c:a", "copy"]
         command += ["-frames:v", str(FRAMES), "-c:v", "libx264", "-threads", "1", "-preset", "fast", "-crf", crf,
                     "-pix_fmt", "yuv420p", "-movflags", "+faststart", str(PUBLIC / routes[key].lstrip("/"))]
-    reuse_encoded = reuse_encoded and all((PUBLIC / route.lstrip("/")).is_file() for route in routes.values())
+    reuse_encoded = reuse_encoded and all((PUBLIC / route.lstrip("/")).is_file()
+                                         for key, route in routes.items() if key != "previewVideoUrl")
     encoder = None if reuse_encoded else subprocess.Popen(command, stdin=subprocess.PIPE)
     cap = cv2.VideoCapture(str(source))
     bounds = [width, height, 0, 0]
@@ -140,6 +168,9 @@ def build(aid, incoming, asset, reuse_encoded=False):
         cap.release()
         if encoder and encoder.poll() is None:
             encoder.terminate(); encoder.wait()
+    if aid == "HTTN12":
+        build_flat_preview(PUBLIC / routes["packedVideoUrl"].lstrip("/"), narration,
+                           PUBLIC / routes["previewVideoUrl"].lstrip("/"), width, height)
     files = {}
     for key, route in routes.items():
         path = PUBLIC / route.lstrip("/")
@@ -191,6 +222,7 @@ def build(aid, incoming, asset, reuse_encoded=False):
                **{key: routes[key] for key in ["packedVideoUrl", "compatiblePackedVideoUrl", "previewVideoUrl"]}}
     report = {"id": aid, "canonicalUrl": asset["url"], "mode": profile["mode"], "frames": FRAMES,
               "sourceSHA256": sha(source), "narrationSourceUrl": f"/videos/ar/original/hq2/{aid}.mp4",
+              "sourceReferenceUrl": reference_url, "sourceReferenceSHA256": sha(PUBLIC / reference_url.lstrip("/")),
               "narrationSourceSHA256": sha(narration), "files": files, "profile": profile, "checks": checks,
               "browserTested": False, "phoneTested": False}
     print(f"{aid}: encoded and checked {FRAMES} frames; {checks}", flush=True)

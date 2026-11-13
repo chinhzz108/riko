@@ -100,7 +100,12 @@ for (const asset of manifest) {
     assert.equal(source.browserTested, false)
     assert.equal(source.phoneTested, false)
     assert.equal(source.framesPerStream, replacement.frames)
-    assert.equal(source.decodedVideoStreams, 6)
+    assert.equal(source.decodedVideoStreams, asset.id === "HTTN12" ? 7 : 6)
+    if (asset.id === "HTTN12") {
+      assert.ok(asset.previewVideoUrl.endsWith("/HTTN12-keyed.mp4"), "QR/plain player must not show the magenta source")
+      assert.ok(source.checks.flatPreviewBlackCompositeMAE)
+      assert.equal(createHash("sha256").update(await readFile(`public${replacement.sourceReferenceUrl}`)).digest("hex"), replacement.sourceReferenceSHA256)
+    }
     for (const check of Object.values(source.checks)) {
       assert.ok(Number.isFinite(check.mean) && check.mean >= 0)
       assert.ok(Number.isFinite(check.worst) && check.worst < .03)
