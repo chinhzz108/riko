@@ -62,3 +62,19 @@ decode pass covered all six variants per clip and the raw tide reference,
 compatible/native composite MAE was 0.00180 for aurora and 0.00447 for tides;
 the maximum tide opaque-interior RGB MAE against source was 0.00799 (0–1 scale).
 All four AAC-bearing MP4 variants per clip preserve the old narration bytes.
+
+Release routing follow-up: while the manifest was pending, the bundled asset
+omitted `alphaVideoUrl`. If both packed MP4 decodes failed, native playback could
+therefore select the legacy canonical WebM. All 45 bundled profiles now include
+their current alpha URL, and native alpha playback rejects a missing current
+source instead of silently selecting a legacy URL. A regression check exercises
+this pending-manifest/packed-failure combination for all 54 routes. This is a
+confirmed code path; there is no client trace proving it was the user's path.
+
+Each new camera session revalidates its manifest rather than reusing one
+fulfilled promise indefinitely; stale requests cannot replace a newer result.
+QR selection is refreshed when that response arrives. Watch pages revalidate
+their preview URLs on entry and when returning to the tab. The application
+shell, scanner and watch routes use `no-store`; immutable media URLs stay
+immutable. The live AR stage and QR video expose the chosen asset ID and URL as
+data attributes so future client reports can be checked against actual playback.

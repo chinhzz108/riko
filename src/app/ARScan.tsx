@@ -27,6 +27,8 @@ import {
   getARPixelRatio,
   playARVideo,
   preferredARSource,
+  nativeARSource,
+  resolveARVideoAsset,
   setARVideoSource,
   type ARVideoAsset,
 } from "../lib/arVideoPlayback.js"
@@ -399,17 +401,22 @@ export default function ARScan({ runtime }: { runtime?: ARScanRuntime } = {}) {
 
   function videoAssets() {
     if (!videoManifestRef.current) {
-      videoManifestRef.current = fetch("/videos/ar/manifest.json?v=native-v3", {
+      const request: Promise<VideoAsset[]> = fetch("/videos/ar/manifest.json?v=remake-v4", {
         cache: "no-cache",
       }).then(async (response) => {
         if (!response.ok) throw new Error("Could not load AR video manifest")
         const assets = (await response.json()) as VideoAsset[]
-        videoAssetCacheRef.current = assets
+        if (videoManifestRef.current === request) {
+          videoAssetCacheRef.current = assets
+          const current = selectionRef.current
+          if (current?.source === "qr") setSelectedAsset(cachedVideoAsset(current.slot))
+        }
         return assets
       }).catch((cause) => {
-        videoManifestRef.current = null
+        if (videoManifestRef.current === request) videoManifestRef.current = null
         throw cause
       })
+      videoManifestRef.current = request
     }
     return videoManifestRef.current
   }
@@ -417,14 +424,7 @@ export default function ARScan({ runtime }: { runtime?: ARScanRuntime } = {}) {
   function cachedVideoAsset(slot: BookSlot): VideoAsset {
     const id = slot.arTargetId || slot.arVideoUrl?.split("/").pop()?.replace(/\.webm$/, "") || slot.id
     const profile = (videoPresentations as Record<string, VideoPresentation>)[id]
-    return videoAssetCacheRef.current.find(item => item.id === id) || {
-      id,
-      url: slot.arVideoUrl || "",
-      alpha: Boolean(profile?.packedVideoUrl),
-      packedVideoUrl: profile?.packedVideoUrl,
-      compatiblePackedVideoUrl: profile?.compatiblePackedVideoUrl,
-      previewVideoUrl: profile?.previewVideoUrl,
-    }
+    return resolveARVideoAsset(slot, profile, videoAssetCacheRef.current)
   }
 
   function preloadCandidate(slot: BookSlot) {
@@ -433,7 +433,8 @@ export default function ARScan({ runtime }: { runtime?: ARScanRuntime } = {}) {
     const id = slot.arTargetId || slot.arVideoUrl.split("/").pop()?.replace(/\.webm$/, "") || slot.id
     const profile = (videoPresentations as Record<string, VideoPresentation>)[id]
     if (!profile) return
-    const source = preferredARSource({ id, url: slot.arVideoUrl, alpha: true }, profile)
+    const asset = cachedVideoAsset(slot)
+    const source = preferredARSource(asset, { ...profile, mode: asset.presentationMode || profile.mode })
     const video = source.kind === "packed" ? media.colorVideo : media.video
     // preload=auto decodes the first frame without playing audio or starting a second clock.
     setARVideoSource(video, source.url, window.location.origin)
@@ -498,10 +499,10 @@ export default function ARScan({ runtime }: { runtime?: ARScanRuntime } = {}) {
     media.profile =
       (videoPresentations as Record<string, VideoPresentation>)[asset.id] ||
       DEFAULT_VIDEO_PRESENTATION
+    if (asset.presentationMode) media.profile = { ...media.profile, mode: asset.presentationMode }
     setSelectedAsset(asset)
     hideNativeVideoOverlay(media)
     const hasAlpha = Boolean(asset.alpha)
-    const nativeScene = media.profile.mode === "scene"
     const preferred = preferredARSource(asset, media.profile)
     media.fallbackActive = preferred.kind === "packed"
     media.packedActive = false
@@ -515,6 +516,10 @@ export default function ARScan({ runtime }: { runtime?: ARScanRuntime } = {}) {
       texture: Texture,
       url: string,
     ) => {
+      if (frameRef.current) {
+        frameRef.current.dataset.arVideoId = asset.id
+        frameRef.current.dataset.arVideoUrl = url
+      }
       setARVideoSource(video, url, window.location.origin)
       try {
         await playARVideo(video)
@@ -556,10 +561,7 @@ export default function ARScan({ runtime }: { runtime?: ARScanRuntime } = {}) {
       throw lastError
     }
     const playNative = async () => {
-      const source =
-        nativeScene
-          ? asset.previewVideoUrl || asset.alphaColorUrl || asset.alphaVideoUrl || asset.url
-          : asset.alpha && asset.alphaVideoUrl ? asset.alphaVideoUrl : asset.url
+      const source = nativeARSource(asset, media.profile)
       if (!source) throw new Error("Thiếu đường dẫn video AR.")
       media.fallbackActive = false
       media.packedActive = false
@@ -1061,6 +1063,8 @@ export default function ARScan({ runtime }: { runtime?: ARScanRuntime } = {}) {
     setTrackerStatus("loading")
     setModelStatus("loading")
     setCameraOn(true)
+    videoManifestRef.current = null
+    videoAssetCacheRef.current = []
     void videoAssets().catch(() => undefined)
     const warm = ensureModelWarm()
     void warm.then(() => {
@@ -1364,6 +1368,8 @@ export default function ARScan({ runtime }: { runtime?: ARScanRuntime } = {}) {
                 <div className="ar-qr-video" data-ar-controls="true">
                   <video
                     key={`${selection.slot.id}:${qrVideoSrc}`}
+                    data-ar-video-id={selectedAsset?.id}
+                    data-ar-video-url={qrVideoSrc}
                     src={qrVideoSrc}
                     autoPlay loop playsInline muted={!soundOn} controls
                     onPlaying={() => setMediaStatus("ready")}

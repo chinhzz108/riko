@@ -1,5 +1,6 @@
 import assert from "node:assert/strict"
-import { getARPixelRatio, playARVideo, preferredARSource, setARVideoSource, waitForDecodedVideoFrame } from "../../src/lib/arVideoPlayback.js"
+import { readFile } from "node:fs/promises"
+import { getARPixelRatio, nativeARSource, playARVideo, preferredARSource, resolveARVideoAsset, setARVideoSource, waitForDecodedVideoFrame } from "../../src/lib/arVideoPlayback.js"
 
 class Video extends EventTarget {
   readyState = 0; videoWidth = 0; seeking = false; error = null; src = ""; loads = 0
@@ -28,4 +29,26 @@ assert.equal(preferredARSource({ alpha: true, url: "/old.webm", packedVideoUrl: 
 assert.equal(preferredARSource({ alpha: true, previewVideoUrl: "/original.mp4" }, { mode: "scene", packedVideoUrl: "/packed.mp4" }).kind, "scene")
 assert.equal(getARPixelRatio(390, 844, 3), 3, "a Retina phone must not be limited to 1.5x")
 assert.ok(3840 * 2160 * getARPixelRatio(3840, 2160, 2) ** 2 <= 4_194_305)
+const manifest = JSON.parse(await readFile("public/videos/ar/manifest.json", "utf8"))
+const profiles = JSON.parse(await readFile("src/data/arVideoPresentation.json", "utf8"))
+const { slots } = JSON.parse(await readFile("src/data/bookVideoSlots.json", "utf8"))
+for (const slot of slots.filter(item => item.arVideoUrl)) {
+  const id = slot.arTargetId || slot.arVideoUrl.split("/").pop().replace(/\.webm$/, "")
+  const current = manifest.find(item => item.id === id)
+  const fallback = resolveARVideoAsset(slot, profiles[id], [])
+  assert.equal(nativeARSource(fallback, profiles[id]), nativeARSource(current, profiles[id]),
+    `${slot.id}: a pending/failed manifest and failed packed decode must not select an old clip`)
+  assert.deepEqual(preferredARSource(fallback, profiles[id]), preferredARSource(current, profiles[id]))
+}
+assert.throws(() => nativeARSource({ url: "/videos/ar/HTTN12.webm", alpha: true }, { mode: "cutout" }),
+  /phiên bản hiện tại/, "missing current alpha must fail instead of silently showing legacy media")
+for (const id of ["HTTN12", "HTTN13"]) {
+  const slot = slots.find(item => item.arTargetId === id)
+  const profile = profiles[id]
+  const fallback = resolveARVideoAsset(slot, profile, [])
+  assert.equal(nativeARSource(fallback, profile), `/videos/ar/remake-v4/${id}.webm`)
+  const newer = { ...fallback, packedVideoUrl: "/videos/ar/packed/future/clip.mp4", alphaVideoUrl: "/videos/ar/future/clip.webm" }
+  assert.equal(resolveARVideoAsset(slot, profile, [newer]), newer, "revalidated catalog takes precedence over the bundle")
+}
 console.log("AR video startup passed: decoded frames, preload reuse, cancellation, bounded wait, single-clock source and Retina resolution.")
+console.log("Release fallback passed: 54 routes select the same release before/after manifest fetch; tide/aurora cannot fall back to legacy canonical files.")

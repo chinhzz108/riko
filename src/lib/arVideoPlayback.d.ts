@@ -9,7 +9,10 @@ export type ARVideoAsset = {
   packedVideoUrl?: string
   compatiblePackedVideoUrl?: string
   previewVideoUrl?: string
+  presentationMode?: string
 }
+export function resolveARVideoAsset(slot: { id: string; arTargetId?: string | null; arVideoUrl?: string | null }, profile: VideoPresentation | undefined, cachedAssets: ARVideoAsset[]): ARVideoAsset
+export function nativeARSource(asset: ARVideoAsset, profile: VideoPresentation): string
 export function waitForDecodedVideoFrame(video: HTMLVideoElement, timeoutMs?: number): Promise<void>
 export function playARVideo(video: HTMLVideoElement, timeoutMs?: number): Promise<void>
 export function setARVideoSource(video: HTMLVideoElement, url: string, origin: string): void

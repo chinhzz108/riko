@@ -11,7 +11,8 @@
     "measuredFrames": 240,
     "packedVideoUrl": "/videos/ar/packed/native-v3/GT01.mp4",
     "previewVideoUrl": "/videos/ar/original/hq2/GT01.mp4",
-    "compatiblePackedVideoUrl": "/videos/ar/packed/hq2/GT01.mp4"
+    "compatiblePackedVideoUrl": "/videos/ar/packed/hq2/GT01.mp4",
+    "alphaVideoUrl": "/videos/ar/hq2/GT01.webm"
   },
   "GT02": {
     "bounds": {
@@ -25,7 +26,8 @@
     "measuredFrames": 240,
     "packedVideoUrl": "/videos/ar/packed/native-v3/GT02.mp4",
     "previewVideoUrl": "/videos/ar/original/hq2/GT02.mp4",
-    "compatiblePackedVideoUrl": "/videos/ar/packed/hq2/GT02.mp4"
+    "compatiblePackedVideoUrl": "/videos/ar/packed/hq2/GT02.mp4",
+    "alphaVideoUrl": "/videos/ar/hq2/GT02.webm"
   },
   "GT03": {
     "bounds": {
@@ -39,7 +41,8 @@
     "measuredFrames": 240,
     "packedVideoUrl": "/videos/ar/packed/native-v3/GT03.mp4",
     "previewVideoUrl": "/videos/ar/original/hq2/GT03.mp4",
-    "compatiblePackedVideoUrl": "/videos/ar/packed/hq2/GT03.mp4"
+    "compatiblePackedVideoUrl": "/videos/ar/packed/hq2/GT03.mp4",
+    "alphaVideoUrl": "/videos/ar/hq2/GT03.webm"
   },
   "GT04": {
     "bounds": {
@@ -53,7 +56,8 @@
     "measuredFrames": 240,
     "packedVideoUrl": "/videos/ar/packed/native-v3/GT04.mp4",
     "previewVideoUrl": "/videos/ar/original/hq2/GT04.mp4",
-    "compatiblePackedVideoUrl": "/videos/ar/packed/hq2/GT04.mp4"
+    "compatiblePackedVideoUrl": "/videos/ar/packed/hq2/GT04.mp4",
+    "alphaVideoUrl": "/videos/ar/hq2/GT04.webm"
   },
   "GT05": {
     "bounds": {
@@ -67,7 +71,8 @@
     "measuredFrames": 240,
     "packedVideoUrl": "/videos/ar/packed/native-v3/GT05.mp4",
     "previewVideoUrl": "/videos/ar/original/hq2/GT05.mp4",
-    "compatiblePackedVideoUrl": "/videos/ar/packed/hq2/GT05.mp4"
+    "compatiblePackedVideoUrl": "/videos/ar/packed/hq2/GT05.mp4",
+    "alphaVideoUrl": "/videos/ar/hq2/GT05.webm"
   },
   "GT06": {
     "bounds": {
@@ -81,7 +86,8 @@
     "measuredFrames": 240,
     "packedVideoUrl": "/videos/ar/packed/native-v3/GT06.mp4",
     "previewVideoUrl": "/videos/ar/original/hq2/GT06.mp4",
-    "compatiblePackedVideoUrl": "/videos/ar/packed/hq2/GT06.mp4"
+    "compatiblePackedVideoUrl": "/videos/ar/packed/hq2/GT06.mp4",
+    "alphaVideoUrl": "/videos/ar/hq2/GT06.webm"
   },
   "GT07": {
     "bounds": {
@@ -95,7 +101,8 @@
     "measuredFrames": 240,
     "packedVideoUrl": "/videos/ar/packed/native-v3/GT07.mp4",
     "previewVideoUrl": "/videos/ar/original/hq2/GT07.mp4",
-    "compatiblePackedVideoUrl": "/videos/ar/packed/hq2/GT07.mp4"
+    "compatiblePackedVideoUrl": "/videos/ar/packed/hq2/GT07.mp4",
+    "alphaVideoUrl": "/videos/ar/hq2/GT07.webm"
   },
   "GT08": {
     "bounds": {
@@ -109,7 +116,8 @@
     "measuredFrames": 240,
     "packedVideoUrl": "/videos/ar/packed/native-v3/GT08.mp4",
     "previewVideoUrl": "/videos/ar/original/hq2/GT08.mp4",
-    "compatiblePackedVideoUrl": "/videos/ar/packed/hq2/GT08.mp4"
+    "compatiblePackedVideoUrl": "/videos/ar/packed/hq2/GT08.mp4",
+    "alphaVideoUrl": "/videos/ar/hq2/GT08.webm"
   },
   "GT09": {
     "bounds": {
@@ -123,7 +131,8 @@
     "measuredFrames": 240,
     "packedVideoUrl": "/videos/ar/packed/native-v3/GT09.mp4",
     "previewVideoUrl": "/videos/ar/original/hq2/GT09.mp4",
-    "compatiblePackedVideoUrl": "/videos/ar/packed/hq2/GT09.mp4"
+    "compatiblePackedVideoUrl": "/videos/ar/packed/hq2/GT09.mp4",
+    "alphaVideoUrl": "/videos/ar/hq2/GT09.webm"
   },
   "GT10": {
     "bounds": {
@@ -137,7 +146,8 @@
     "measuredFrames": 240,
     "packedVideoUrl": "/videos/ar/packed/native-v3/GT10.mp4",
     "previewVideoUrl": "/videos/ar/original/hq2/GT10.mp4",
-    "compatiblePackedVideoUrl": "/videos/ar/packed/hq2/GT10.mp4"
+    "compatiblePackedVideoUrl": "/videos/ar/packed/hq2/GT10.mp4",
+    "alphaVideoUrl": "/videos/ar/hq2/GT10.webm"
   },
   "DV01": {
     "bounds": {
@@ -151,7 +161,8 @@
     "measuredFrames": 240,
     "packedVideoUrl": "/videos/ar/packed/native-v3/DV01.mp4",
     "previewVideoUrl": "/videos/ar/original/hq2/DV01.mp4",
-    "compatiblePackedVideoUrl": "/videos/ar/packed/hq2/DV01.mp4"
+    "compatiblePackedVideoUrl": "/videos/ar/packed/hq2/DV01.mp4",
+    "alphaVideoUrl": "/videos/ar/hq2/DV01.webm"
   },
   "DV02": {
     "bounds": {
@@ -165,7 +176,8 @@
     "measuredFrames": 240,
     "packedVideoUrl": "/videos/ar/packed/native-v3/DV02.mp4",
     "previewVideoUrl": "/videos/ar/original/hq2/DV02.mp4",
-    "compatiblePackedVideoUrl": "/videos/ar/packed/hq2/DV02.mp4"
+    "compatiblePackedVideoUrl": "/videos/ar/packed/hq2/DV02.mp4",
+    "alphaVideoUrl": "/videos/ar/hq2/DV02.webm"
   },
   "DV03": {
     "bounds": {
@@ -179,7 +191,8 @@
     "measuredFrames": 240,
     "packedVideoUrl": "/videos/ar/packed/native-v3/DV03.mp4",
     "previewVideoUrl": "/videos/ar/original/hq2/DV03.mp4",
-    "compatiblePackedVideoUrl": "/videos/ar/packed/hq2/DV03.mp4"
+    "compatiblePackedVideoUrl": "/videos/ar/packed/hq2/DV03.mp4",
+    "alphaVideoUrl": "/videos/ar/hq2/DV03.webm"
   },
   "DV04": {
     "bounds": {
@@ -193,7 +206,8 @@
     "measuredFrames": 240,
     "packedVideoUrl": "/videos/ar/packed/native-v3/DV04.mp4",
     "previewVideoUrl": "/videos/ar/original/hq2/DV04.mp4",
-    "compatiblePackedVideoUrl": "/videos/ar/packed/hq2/DV04.mp4"
+    "compatiblePackedVideoUrl": "/videos/ar/packed/hq2/DV04.mp4",
+    "alphaVideoUrl": "/videos/ar/hq2/DV04.webm"
   },
   "DV05": {
     "bounds": {
@@ -207,7 +221,8 @@
     "measuredFrames": 240,
     "packedVideoUrl": "/videos/ar/packed/native-v3/DV05.mp4",
     "previewVideoUrl": "/videos/ar/original/hq2/DV05.mp4",
-    "compatiblePackedVideoUrl": "/videos/ar/packed/hq2/DV05.mp4"
+    "compatiblePackedVideoUrl": "/videos/ar/packed/hq2/DV05.mp4",
+    "alphaVideoUrl": "/videos/ar/hq2/DV05.webm"
   },
   "DV06": {
     "bounds": {
@@ -221,7 +236,8 @@
     "measuredFrames": 240,
     "packedVideoUrl": "/videos/ar/packed/native-v3/DV06.mp4",
     "previewVideoUrl": "/videos/ar/original/hq2/DV06.mp4",
-    "compatiblePackedVideoUrl": "/videos/ar/packed/hq2/DV06.mp4"
+    "compatiblePackedVideoUrl": "/videos/ar/packed/hq2/DV06.mp4",
+    "alphaVideoUrl": "/videos/ar/hq2/DV06.webm"
   },
   "DV07": {
     "bounds": {
@@ -235,7 +251,8 @@
     "measuredFrames": 240,
     "packedVideoUrl": "/videos/ar/packed/native-v3/DV07.mp4",
     "previewVideoUrl": "/videos/ar/original/hq2/DV07.mp4",
-    "compatiblePackedVideoUrl": "/videos/ar/packed/hq2/DV07.mp4"
+    "compatiblePackedVideoUrl": "/videos/ar/packed/hq2/DV07.mp4",
+    "alphaVideoUrl": "/videos/ar/hq2/DV07.webm"
   },
   "DV08": {
     "bounds": {
@@ -249,7 +266,8 @@
     "measuredFrames": 240,
     "packedVideoUrl": "/videos/ar/packed/native-v3/DV08.mp4",
     "previewVideoUrl": "/videos/ar/original/hq2/DV08.mp4",
-    "compatiblePackedVideoUrl": "/videos/ar/packed/hq2/DV08.mp4"
+    "compatiblePackedVideoUrl": "/videos/ar/packed/hq2/DV08.mp4",
+    "alphaVideoUrl": "/videos/ar/hq2/DV08.webm"
   },
   "DV09": {
     "bounds": {
@@ -263,7 +281,8 @@
     "measuredFrames": 240,
     "packedVideoUrl": "/videos/ar/packed/native-v3/DV09.mp4",
     "previewVideoUrl": "/videos/ar/original/hq2/DV09.mp4",
-    "compatiblePackedVideoUrl": "/videos/ar/packed/hq2/DV09.mp4"
+    "compatiblePackedVideoUrl": "/videos/ar/packed/hq2/DV09.mp4",
+    "alphaVideoUrl": "/videos/ar/hq2/DV09.webm"
   },
   "DV10": {
     "bounds": {
@@ -277,7 +296,8 @@
     "measuredFrames": 240,
     "packedVideoUrl": "/videos/ar/packed/native-v3/DV10.mp4",
     "previewVideoUrl": "/videos/ar/original/hq2/DV10.mp4",
-    "compatiblePackedVideoUrl": "/videos/ar/packed/hq2/DV10.mp4"
+    "compatiblePackedVideoUrl": "/videos/ar/packed/hq2/DV10.mp4",
+    "alphaVideoUrl": "/videos/ar/hq2/DV10.webm"
   },
   "HTTN01": {
     "bounds": {
@@ -291,7 +311,8 @@
     "measuredFrames": 240,
     "packedVideoUrl": "/videos/ar/packed/native-v3/HTTN01.mp4",
     "previewVideoUrl": "/videos/ar/original/hq2/HTTN01.mp4",
-    "compatiblePackedVideoUrl": "/videos/ar/packed/hq2/HTTN01.mp4"
+    "compatiblePackedVideoUrl": "/videos/ar/packed/hq2/HTTN01.mp4",
+    "alphaVideoUrl": "/videos/ar/hq2/HTTN01.webm"
   },
   "HTTN02": {
     "bounds": {
@@ -304,7 +325,8 @@
     "mode": "scene",
     "measuredFrames": 240,
     "packedVideoUrl": "/videos/ar/packed/hq2/HTTN02.mp4",
-    "previewVideoUrl": "/videos/ar/original/hq2/HTTN02.mp4"
+    "previewVideoUrl": "/videos/ar/original/hq2/HTTN02.mp4",
+    "alphaVideoUrl": "/videos/ar/hq2/HTTN02.webm"
   },
   "HTTN03": {
     "bounds": {
@@ -317,7 +339,8 @@
     "mode": "scene",
     "measuredFrames": 240,
     "packedVideoUrl": "/videos/ar/packed/hq2/HTTN03.mp4",
-    "previewVideoUrl": "/videos/ar/original/hq2/HTTN03.mp4"
+    "previewVideoUrl": "/videos/ar/original/hq2/HTTN03.mp4",
+    "alphaVideoUrl": "/videos/ar/hq2/HTTN03.webm"
   },
   "HTTN04": {
     "bounds": {
@@ -330,7 +353,8 @@
     "mode": "scene",
     "measuredFrames": 240,
     "packedVideoUrl": "/videos/ar/packed/hq2/HTTN04.mp4",
-    "previewVideoUrl": "/videos/ar/original/hq2/HTTN04.mp4"
+    "previewVideoUrl": "/videos/ar/original/hq2/HTTN04.mp4",
+    "alphaVideoUrl": "/videos/ar/hq2/HTTN04.webm"
   },
   "HTTN05": {
     "bounds": {
@@ -343,7 +367,8 @@
     "mode": "scene",
     "measuredFrames": 240,
     "packedVideoUrl": "/videos/ar/packed/hq2/HTTN05.mp4",
-    "previewVideoUrl": "/videos/ar/original/hq2/HTTN05.mp4"
+    "previewVideoUrl": "/videos/ar/original/hq2/HTTN05.mp4",
+    "alphaVideoUrl": "/videos/ar/hq2/HTTN05.webm"
   },
   "HTTN06": {
     "bounds": {
@@ -356,7 +381,8 @@
     "mode": "scene",
     "measuredFrames": 240,
     "packedVideoUrl": "/videos/ar/packed/hq2/HTTN06.mp4",
-    "previewVideoUrl": "/videos/ar/original/hq2/HTTN06.mp4"
+    "previewVideoUrl": "/videos/ar/original/hq2/HTTN06.mp4",
+    "alphaVideoUrl": "/videos/ar/hq2/HTTN06.webm"
   },
   "HTTN07": {
     "bounds": {
@@ -370,7 +396,8 @@
     "measuredFrames": 240,
     "packedVideoUrl": "/videos/ar/packed/native-v3/HTTN07.mp4",
     "previewVideoUrl": "/videos/ar/original/hq2/HTTN07.mp4",
-    "compatiblePackedVideoUrl": "/videos/ar/packed/hq2/HTTN07.mp4"
+    "compatiblePackedVideoUrl": "/videos/ar/packed/hq2/HTTN07.mp4",
+    "alphaVideoUrl": "/videos/ar/hq2/HTTN07.webm"
   },
   "HTTN08": {
     "bounds": {
@@ -383,7 +410,8 @@
     "mode": "scene",
     "measuredFrames": 240,
     "packedVideoUrl": "/videos/ar/packed/hq2/HTTN08.mp4",
-    "previewVideoUrl": "/videos/ar/original/hq2/HTTN08.mp4"
+    "previewVideoUrl": "/videos/ar/original/hq2/HTTN08.mp4",
+    "alphaVideoUrl": "/videos/ar/hq2/HTTN08.webm"
   },
   "HTTN09": {
     "bounds": {
@@ -396,7 +424,8 @@
     "mode": "scene",
     "measuredFrames": 240,
     "packedVideoUrl": "/videos/ar/packed/hq2/HTTN09.mp4",
-    "previewVideoUrl": "/videos/ar/original/hq2/HTTN09.mp4"
+    "previewVideoUrl": "/videos/ar/original/hq2/HTTN09.mp4",
+    "alphaVideoUrl": "/videos/ar/hq2/HTTN09.webm"
   },
   "HTTN10": {
     "bounds": {
@@ -409,7 +438,8 @@
     "mode": "scene",
     "measuredFrames": 240,
     "packedVideoUrl": "/videos/ar/packed/hq2/HTTN10.mp4",
-    "previewVideoUrl": "/videos/ar/original/hq2/HTTN10.mp4"
+    "previewVideoUrl": "/videos/ar/original/hq2/HTTN10.mp4",
+    "alphaVideoUrl": "/videos/ar/hq2/HTTN10.webm"
   },
   "HTTN11": {
     "bounds": {
@@ -422,7 +452,8 @@
     "mode": "scene",
     "measuredFrames": 240,
     "packedVideoUrl": "/videos/ar/packed/hq2/HTTN11.mp4",
-    "previewVideoUrl": "/videos/ar/original/hq2/HTTN11.mp4"
+    "previewVideoUrl": "/videos/ar/original/hq2/HTTN11.mp4",
+    "alphaVideoUrl": "/videos/ar/hq2/HTTN11.webm"
   },
   "HTTN12": {
     "bounds": {
@@ -436,12 +467,13 @@
     "measuredFrames": 240,
     "packedVideoUrl": "/videos/ar/packed/remake-v4/HTTN12.mp4",
     "compatiblePackedVideoUrl": "/videos/ar/packed/remake-v4/HTTN12-compatible.mp4",
-    "previewVideoUrl": "/videos/ar/original/remake-v4/HTTN12-keyed.mp4"
+    "previewVideoUrl": "/videos/ar/original/remake-v4/HTTN12-keyed.mp4",
+    "alphaVideoUrl": "/videos/ar/remake-v4/HTTN12.webm"
   },
   "HTTN13": {
     "bounds": {
       "left": 0.05448717948717949,
-      "top": 0.0,
+      "top": 0,
       "right": 0.9567307692307693,
       "bottom": 0.8920454545454546
     },
@@ -450,7 +482,8 @@
     "measuredFrames": 240,
     "packedVideoUrl": "/videos/ar/packed/remake-v4/HTTN13.mp4",
     "compatiblePackedVideoUrl": "/videos/ar/packed/remake-v4/HTTN13-compatible.mp4",
-    "previewVideoUrl": "/videos/ar/original/remake-v4/HTTN13.mp4"
+    "previewVideoUrl": "/videos/ar/original/remake-v4/HTTN13.mp4",
+    "alphaVideoUrl": "/videos/ar/remake-v4/HTTN13.webm"
   },
   "HTTN14": {
     "bounds": {
@@ -463,7 +496,8 @@
     "mode": "scene",
     "measuredFrames": 240,
     "packedVideoUrl": "/videos/ar/packed/hq2/HTTN14.mp4",
-    "previewVideoUrl": "/videos/ar/original/hq2/HTTN14.mp4"
+    "previewVideoUrl": "/videos/ar/original/hq2/HTTN14.mp4",
+    "alphaVideoUrl": "/videos/ar/hq2/HTTN14.webm"
   },
   "HTTN15": {
     "bounds": {
@@ -477,7 +511,8 @@
     "measuredFrames": 240,
     "packedVideoUrl": "/videos/ar/packed/native-v3/HTTN15.mp4",
     "previewVideoUrl": "/videos/ar/original/hq2/HTTN15.mp4",
-    "compatiblePackedVideoUrl": "/videos/ar/packed/hq2/HTTN15.mp4"
+    "compatiblePackedVideoUrl": "/videos/ar/packed/hq2/HTTN15.mp4",
+    "alphaVideoUrl": "/videos/ar/hq2/HTTN15.webm"
   },
   "RIKO": {
     "bounds": {
@@ -490,7 +525,8 @@
     "mode": "cutout",
     "measuredFrames": 228,
     "packedVideoUrl": "/videos/ar/packed/hq2/RIKO.mp4",
-    "previewVideoUrl": "/videos/ar/original/hq2/RIKO.mp4"
+    "previewVideoUrl": "/videos/ar/original/hq2/RIKO.mp4",
+    "alphaVideoUrl": "/videos/ar/hq2/RIKO.webm"
   },
   "RECAP_GT": {
     "bounds": {
@@ -503,7 +539,8 @@
     "mode": "mixed",
     "measuredFrames": 280,
     "packedVideoUrl": "/videos/ar/packed/hq2/RECAP_GT.mp4",
-    "previewVideoUrl": "/videos/ar/original/hq2/RECAP_GT.mp4"
+    "previewVideoUrl": "/videos/ar/original/hq2/RECAP_GT.mp4",
+    "alphaVideoUrl": "/videos/ar/hq2/RECAP_GT.webm"
   },
   "RECAP_DV_MAMMALS": {
     "bounds": {
@@ -516,7 +553,8 @@
     "mode": "mixed",
     "measuredFrames": 56,
     "packedVideoUrl": "/videos/ar/packed/hq2/RECAP_DV_MAMMALS.mp4",
-    "previewVideoUrl": "/videos/ar/original/hq2/RECAP_DV_MAMMALS.mp4"
+    "previewVideoUrl": "/videos/ar/original/hq2/RECAP_DV_MAMMALS.mp4",
+    "alphaVideoUrl": "/videos/ar/hq2/RECAP_DV_MAMMALS.webm"
   },
   "RECAP_DV_BIRDS": {
     "bounds": {
@@ -529,7 +567,8 @@
     "mode": "mixed",
     "measuredFrames": 56,
     "packedVideoUrl": "/videos/ar/packed/hq2/RECAP_DV_BIRDS.mp4",
-    "previewVideoUrl": "/videos/ar/original/hq2/RECAP_DV_BIRDS.mp4"
+    "previewVideoUrl": "/videos/ar/original/hq2/RECAP_DV_BIRDS.mp4",
+    "alphaVideoUrl": "/videos/ar/hq2/RECAP_DV_BIRDS.webm"
   },
   "RECAP_DV_REPTILES": {
     "bounds": {
@@ -542,7 +581,8 @@
     "mode": "mixed",
     "measuredFrames": 56,
     "packedVideoUrl": "/videos/ar/packed/hq2/RECAP_DV_REPTILES.mp4",
-    "previewVideoUrl": "/videos/ar/original/hq2/RECAP_DV_REPTILES.mp4"
+    "previewVideoUrl": "/videos/ar/original/hq2/RECAP_DV_REPTILES.mp4",
+    "alphaVideoUrl": "/videos/ar/hq2/RECAP_DV_REPTILES.webm"
   },
   "RECAP_DV_AMPHIBIANS": {
     "bounds": {
@@ -555,7 +595,8 @@
     "mode": "mixed",
     "measuredFrames": 56,
     "packedVideoUrl": "/videos/ar/packed/hq2/RECAP_DV_AMPHIBIANS.mp4",
-    "previewVideoUrl": "/videos/ar/original/hq2/RECAP_DV_AMPHIBIANS.mp4"
+    "previewVideoUrl": "/videos/ar/original/hq2/RECAP_DV_AMPHIBIANS.mp4",
+    "alphaVideoUrl": "/videos/ar/hq2/RECAP_DV_AMPHIBIANS.webm"
   },
   "RECAP_DV_INSECTS": {
     "bounds": {
@@ -568,7 +609,8 @@
     "mode": "mixed",
     "measuredFrames": 56,
     "packedVideoUrl": "/videos/ar/packed/hq2/RECAP_DV_INSECTS.mp4",
-    "previewVideoUrl": "/videos/ar/original/hq2/RECAP_DV_INSECTS.mp4"
+    "previewVideoUrl": "/videos/ar/original/hq2/RECAP_DV_INSECTS.mp4",
+    "alphaVideoUrl": "/videos/ar/hq2/RECAP_DV_INSECTS.webm"
   },
   "RECAP_DV": {
     "bounds": {
@@ -581,7 +623,8 @@
     "mode": "mixed",
     "measuredFrames": 280,
     "packedVideoUrl": "/videos/ar/packed/hq2/RECAP_DV.mp4",
-    "previewVideoUrl": "/videos/ar/original/hq2/RECAP_DV.mp4"
+    "previewVideoUrl": "/videos/ar/original/hq2/RECAP_DV.mp4",
+    "alphaVideoUrl": "/videos/ar/hq2/RECAP_DV.webm"
   },
   "RECAP_HTTN_A": {
     "bounds": {
@@ -594,7 +637,8 @@
     "mode": "mixed",
     "measuredFrames": 280,
     "packedVideoUrl": "/videos/ar/packed/hq2/RECAP_HTTN_A.mp4",
-    "previewVideoUrl": "/videos/ar/original/hq2/RECAP_HTTN_A.mp4"
+    "previewVideoUrl": "/videos/ar/original/hq2/RECAP_HTTN_A.mp4",
+    "alphaVideoUrl": "/videos/ar/hq2/RECAP_HTTN_A.webm"
   },
   "RECAP_HTTN_B": {
     "bounds": {
@@ -607,6 +651,7 @@
     "mode": "mixed",
     "measuredFrames": 140,
     "packedVideoUrl": "/videos/ar/packed/hq2/RECAP_HTTN_B.mp4",
-    "previewVideoUrl": "/videos/ar/original/hq2/RECAP_HTTN_B.mp4"
+    "previewVideoUrl": "/videos/ar/original/hq2/RECAP_HTTN_B.mp4",
+    "alphaVideoUrl": "/videos/ar/hq2/RECAP_HTTN_B.webm"
   }
 }

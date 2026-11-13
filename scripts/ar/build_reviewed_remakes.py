@@ -219,7 +219,7 @@ def build(aid, incoming, asset, reuse_encoded=False):
     profile = {"bounds": {"left": max(0, bounds[0]-pad)/width, "top": max(0, bounds[1]-pad)/height,
                            "right": min(width, bounds[2]+pad)/width, "bottom": min(height, bounds[3]+pad)/height},
                "grounded": False, "mode": "glow" if aid == "HTTN13" else "cutout", "measuredFrames": FRAMES,
-               **{key: routes[key] for key in ["packedVideoUrl", "compatiblePackedVideoUrl", "previewVideoUrl"]}}
+               **{key: routes[key] for key in ["alphaVideoUrl", "packedVideoUrl", "compatiblePackedVideoUrl", "previewVideoUrl"]}}
     report = {"id": aid, "canonicalUrl": asset["url"], "mode": profile["mode"], "frames": FRAMES,
               "sourceSHA256": sha(source), "narrationSourceUrl": f"/videos/ar/original/hq2/{aid}.mp4",
               "sourceReferenceUrl": reference_url, "sourceReferenceSHA256": sha(PUBLIC / reference_url.lstrip("/")),

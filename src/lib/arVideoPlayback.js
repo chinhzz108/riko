@@ -47,12 +47,40 @@ export function setARVideoSource(video, url, origin) {
   video.load()
 }
 
+/** The bundled fallback must point to the same release as the manifest. */
+export function resolveARVideoAsset(slot, profile, cachedAssets) {
+  const id = slot.arTargetId || slot.arVideoUrl?.split("/").pop()?.replace(/\.webm$/, "") || slot.id
+  return cachedAssets.find(asset => asset.id === id) || {
+    id,
+    url: slot.arVideoUrl || "",
+    alpha: Boolean(profile?.packedVideoUrl),
+    alphaVideoUrl: profile?.alphaVideoUrl,
+    packedVideoUrl: profile?.packedVideoUrl,
+    compatiblePackedVideoUrl: profile?.compatiblePackedVideoUrl,
+    previewVideoUrl: profile?.previewVideoUrl,
+  }
+}
+
+/** Never use a legacy canonical file as the fallback for a transparent asset. */
+export function nativeARSource(asset, profile) {
+  if (profile.mode === "scene") {
+    const scene = asset.previewVideoUrl || profile.previewVideoUrl
+    if (scene) return scene
+  }
+  if (asset.alpha) {
+    const alpha = asset.alphaVideoUrl || profile.alphaVideoUrl
+    if (!alpha) throw new Error("Thiếu video nền trong suốt của phiên bản hiện tại.")
+    return alpha
+  }
+  return asset.url
+}
+
 export function preferredARSource(asset, profile) {
   if (profile.mode === "scene" && (asset.previewVideoUrl || profile.previewVideoUrl))
     return { kind: "scene", url: asset.previewVideoUrl || profile.previewVideoUrl }
   const packed = asset.packedVideoUrl || profile.packedVideoUrl
   if (packed) return { kind: "packed", url: packed }
-  return { kind: "native", url: asset.alphaVideoUrl || asset.url }
+  return { kind: "native", url: nativeARSource(asset, profile) }
 }
 
 /** Retina phones retain their display resolution without allocating huge desktop buffers. */

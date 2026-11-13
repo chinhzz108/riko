@@ -3,6 +3,7 @@ export type VideoPresentation = {
   grounded: boolean
   mode: string
   packedVideoUrl?: string
+  alphaVideoUrl?: string
   compatiblePackedVideoUrl?: string
   previewVideoUrl?: string
 }

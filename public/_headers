@@ -6,6 +6,15 @@
 /videos/ar/manifest.json
   Cache-Control: no-cache
 
+/index.html
+  Cache-Control: no-store
+
+/scan
+  Cache-Control: no-store
+
+/watch/*
+  Cache-Control: no-store
+
 /videos/ar/packed/native-v3/*
   Cache-Control: public, max-age=31536000, immutable
 

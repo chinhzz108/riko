@@ -76,7 +76,7 @@
       "profile": {
         "bounds": {
           "left": 0.05448717948717949,
-          "top": 0.0,
+          "top": 0,
           "right": 0.9567307692307693,
           "bottom": 0.8920454545454546
         },
@@ -85,7 +85,8 @@
         "measuredFrames": 240,
         "packedVideoUrl": "/videos/ar/packed/remake-v4/HTTN13.mp4",
         "compatiblePackedVideoUrl": "/videos/ar/packed/remake-v4/HTTN13-compatible.mp4",
-        "previewVideoUrl": "/videos/ar/original/remake-v4/HTTN13.mp4"
+        "previewVideoUrl": "/videos/ar/original/remake-v4/HTTN13.mp4",
+        "alphaVideoUrl": "/videos/ar/remake-v4/HTTN13.webm"
       },
       "checks": {
         "frames": 240,
@@ -175,7 +176,8 @@
         "measuredFrames": 240,
         "packedVideoUrl": "/videos/ar/packed/remake-v4/HTTN12.mp4",
         "compatiblePackedVideoUrl": "/videos/ar/packed/remake-v4/HTTN12-compatible.mp4",
-        "previewVideoUrl": "/videos/ar/original/remake-v4/HTTN12-keyed.mp4"
+        "previewVideoUrl": "/videos/ar/original/remake-v4/HTTN12-keyed.mp4",
+        "alphaVideoUrl": "/videos/ar/remake-v4/HTTN12.webm"
       },
       "checks": {
         "frames": 240,
@@ -184,7 +186,7 @@
         "compositeMAE": 0.002951759515174975,
         "worstCompositeMAE": 0.0035989524330943823,
         "worstOpaqueLossFraction": 0.00020704606165912912,
-        "maxOuterBorderAlpha": 0.0
+        "maxOuterBorderAlpha": 0
       },
       "browserTested": false,
       "phoneTested": false,

@@ -102,6 +102,7 @@ import rikoActivity from "../assets/riko/activity.png"
 import rikoExplaining from "../assets/riko/explaining.png"
 import bookVideoManifest from "../data/bookVideoSlots.json"
 import arVideoPresentations from "../data/arVideoPresentation.json"
+import type { ARVideoAsset } from "../lib/arVideoPlayback.js"
 import { bookProducts, getBookProduct } from "../data/bookProducts"
 import HomeBookSection from "./HomeBookSection"
 import BookShop from "./BookShop"
@@ -1879,7 +1880,26 @@ function Watch() {
   const videoId = location.pathname.split("/").pop() || ""
   const slot = qrVideoSlots.find((videoSlot) => videoSlot.id === videoId)
   const arAssetId = slot?.arVideoUrl?.split("/").pop()?.replace(/\.webm$/, "")
-  const arPreviewUrl = arAssetId
+  const [remoteARPreview, setRemoteARPreview] = useState<{ id: string; url: string } | null>(null)
+  useEffect(() => {
+    if (!arAssetId) return
+    let active = true
+    const refresh = () => {
+      if (document.visibilityState === "hidden") return
+      void fetch("/videos/ar/manifest.json?v=remake-v4", { cache: "no-cache" })
+        .then(response => {
+          if (!response.ok) throw new Error("Could not refresh video manifest")
+          return response.json() as Promise<ARVideoAsset[]>
+        }).then(assets => {
+          const asset = assets.find(item => item.id === arAssetId)
+          if (active && asset?.previewVideoUrl) setRemoteARPreview({ id: arAssetId, url: asset.previewVideoUrl })
+        }).catch(() => undefined)
+    }
+    refresh()
+    document.addEventListener("visibilitychange", refresh)
+    return () => { active = false; document.removeEventListener("visibilitychange", refresh) }
+  }, [arAssetId])
+  const arPreviewUrl = remoteARPreview && remoteARPreview.id === arAssetId ? remoteARPreview.url : arAssetId
     ? (arVideoPresentations as Record<string, { previewVideoUrl?: string }>)[arAssetId]?.previewVideoUrl
     : undefined
   const localARVideo: VideoItem | null = slot?.arVideoUrl
@@ -1987,12 +2007,14 @@ function Watch() {
           <>
             <video
               src={item.url}
+              data-ar-video-id={arAssetId}
+              data-ar-video-url={arAssetId ? item.url : undefined}
               controls
               autoPlay={Boolean(slot?.arVideoUrl)}
               muted={Boolean(slot?.arVideoUrl)}
               playsInline
               poster={item.thumbnail}
-              onLoadStart={() => setLoading(true)}
+              onLoadStart={() => { setLoading(true); setMediaError(false) }}
               onLoadedData={() => setLoading(false)}
               onPlay={() => setPlaying(true)}
               onEnded={() => setFinished(true)}
