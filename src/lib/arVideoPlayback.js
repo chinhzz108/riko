@@ -63,7 +63,7 @@ export function resolveARVideoAsset(slot, profile, cachedAssets) {
 
 /** Never use a legacy canonical file as the fallback for a transparent asset. */
 export function nativeARSource(asset, profile) {
-  if (profile.mode === "scene") {
+  if ((asset.presentationMode || profile.mode) === "scene") {
     const scene = asset.previewVideoUrl || profile.previewVideoUrl
     if (scene) return scene
   }
@@ -76,7 +76,7 @@ export function nativeARSource(asset, profile) {
 }
 
 export function preferredARSource(asset, profile) {
-  if (profile.mode === "scene" && (asset.previewVideoUrl || profile.previewVideoUrl))
+  if ((asset.presentationMode || profile.mode) === "scene" && (asset.previewVideoUrl || profile.previewVideoUrl))
     return { kind: "scene", url: asset.previewVideoUrl || profile.previewVideoUrl }
   const packed = asset.packedVideoUrl || profile.packedVideoUrl
   if (packed) return { kind: "packed", url: packed }

@@ -301,46 +301,48 @@
   },
   "HTTN01": {
     "bounds": {
-      "left": 0,
-      "top": 0,
-      "right": 1,
-      "bottom": 1
+      "left": 0.0,
+      "top": 0.0,
+      "right": 1.0,
+      "bottom": 1.0
     },
     "grounded": false,
     "mode": "cutout",
     "measuredFrames": 240,
-    "packedVideoUrl": "/videos/ar/packed/native-v3/HTTN01.mp4",
-    "previewVideoUrl": "/videos/ar/original/hq2/HTTN01.mp4",
-    "compatiblePackedVideoUrl": "/videos/ar/packed/hq2/HTTN01.mp4",
-    "alphaVideoUrl": "/videos/ar/hq2/HTTN01.webm"
+    "alphaVideoUrl": "/videos/ar/remake-v4/HTTN01.webm",
+    "packedVideoUrl": "/videos/ar/packed/remake-v4/HTTN01.mp4",
+    "compatiblePackedVideoUrl": "/videos/ar/packed/remake-v4/HTTN01-compatible.mp4",
+    "previewVideoUrl": "/videos/ar/original/remake-v4/HTTN01-keyed.mp4"
   },
   "HTTN02": {
     "bounds": {
-      "left": 0,
-      "top": 0,
-      "right": 1,
-      "bottom": 1
+      "left": 0.0,
+      "top": 0.0,
+      "right": 1.0,
+      "bottom": 1.0
     },
     "grounded": false,
-    "mode": "scene",
+    "mode": "cutout",
     "measuredFrames": 240,
-    "packedVideoUrl": "/videos/ar/packed/hq2/HTTN02.mp4",
-    "previewVideoUrl": "/videos/ar/original/hq2/HTTN02.mp4",
-    "alphaVideoUrl": "/videos/ar/hq2/HTTN02.webm"
+    "alphaVideoUrl": "/videos/ar/remake-v4/HTTN02.webm",
+    "packedVideoUrl": "/videos/ar/packed/remake-v4/HTTN02.mp4",
+    "compatiblePackedVideoUrl": "/videos/ar/packed/remake-v4/HTTN02-compatible.mp4",
+    "previewVideoUrl": "/videos/ar/original/remake-v4/HTTN02-keyed.mp4"
   },
   "HTTN03": {
     "bounds": {
-      "left": 0,
-      "top": 0,
-      "right": 1,
-      "bottom": 1
+      "left": 0.0,
+      "top": 0.0,
+      "right": 1.0,
+      "bottom": 1.0
     },
     "grounded": false,
-    "mode": "scene",
+    "mode": "cutout",
     "measuredFrames": 240,
-    "packedVideoUrl": "/videos/ar/packed/hq2/HTTN03.mp4",
-    "previewVideoUrl": "/videos/ar/original/hq2/HTTN03.mp4",
-    "alphaVideoUrl": "/videos/ar/hq2/HTTN03.webm"
+    "alphaVideoUrl": "/videos/ar/remake-v4/HTTN03.webm",
+    "packedVideoUrl": "/videos/ar/packed/remake-v4/HTTN03.mp4",
+    "compatiblePackedVideoUrl": "/videos/ar/packed/remake-v4/HTTN03-compatible.mp4",
+    "previewVideoUrl": "/videos/ar/original/remake-v4/HTTN03-keyed.mp4"
   },
   "HTTN04": {
     "bounds": {
@@ -359,60 +361,63 @@
   },
   "HTTN05": {
     "bounds": {
-      "left": 0,
-      "top": 0,
-      "right": 1,
-      "bottom": 1
+      "left": 0.0,
+      "top": 0.0,
+      "right": 1.0,
+      "bottom": 1.0
     },
     "grounded": false,
-    "mode": "scene",
+    "mode": "cutout",
     "measuredFrames": 240,
-    "packedVideoUrl": "/videos/ar/packed/hq2/HTTN05.mp4",
-    "previewVideoUrl": "/videos/ar/original/hq2/HTTN05.mp4",
-    "alphaVideoUrl": "/videos/ar/hq2/HTTN05.webm"
+    "alphaVideoUrl": "/videos/ar/remake-v4/HTTN05.webm",
+    "packedVideoUrl": "/videos/ar/packed/remake-v4/HTTN05.mp4",
+    "compatiblePackedVideoUrl": "/videos/ar/packed/remake-v4/HTTN05-compatible.mp4",
+    "previewVideoUrl": "/videos/ar/original/remake-v4/HTTN05-keyed.mp4"
   },
   "HTTN06": {
     "bounds": {
-      "left": 0,
-      "top": 0,
-      "right": 1,
-      "bottom": 1
-    },
-    "grounded": false,
-    "mode": "scene",
-    "measuredFrames": 240,
-    "packedVideoUrl": "/videos/ar/packed/hq2/HTTN06.mp4",
-    "previewVideoUrl": "/videos/ar/original/hq2/HTTN06.mp4",
-    "alphaVideoUrl": "/videos/ar/hq2/HTTN06.webm"
-  },
-  "HTTN07": {
-    "bounds": {
-      "left": 0,
-      "top": 0,
-      "right": 1,
-      "bottom": 1
+      "left": 0.0,
+      "top": 0.0,
+      "right": 1.0,
+      "bottom": 1.0
     },
     "grounded": false,
     "mode": "glow",
     "measuredFrames": 240,
-    "packedVideoUrl": "/videos/ar/packed/native-v3/HTTN07.mp4",
-    "previewVideoUrl": "/videos/ar/original/hq2/HTTN07.mp4",
-    "compatiblePackedVideoUrl": "/videos/ar/packed/hq2/HTTN07.mp4",
-    "alphaVideoUrl": "/videos/ar/hq2/HTTN07.webm"
+    "alphaVideoUrl": "/videos/ar/remake-v4/HTTN06.webm",
+    "packedVideoUrl": "/videos/ar/packed/remake-v4/HTTN06.mp4",
+    "compatiblePackedVideoUrl": "/videos/ar/packed/remake-v4/HTTN06-compatible.mp4",
+    "previewVideoUrl": "/videos/ar/original/remake-v4/HTTN06-keyed.mp4"
+  },
+  "HTTN07": {
+    "bounds": {
+      "left": 0.0,
+      "top": 0.0,
+      "right": 1.0,
+      "bottom": 1.0
+    },
+    "grounded": false,
+    "mode": "glow",
+    "measuredFrames": 240,
+    "alphaVideoUrl": "/videos/ar/remake-v4/HTTN07.webm",
+    "packedVideoUrl": "/videos/ar/packed/remake-v4/HTTN07.mp4",
+    "compatiblePackedVideoUrl": "/videos/ar/packed/remake-v4/HTTN07-compatible.mp4",
+    "previewVideoUrl": "/videos/ar/original/remake-v4/HTTN07-keyed.mp4"
   },
   "HTTN08": {
     "bounds": {
-      "left": 0,
-      "top": 0,
-      "right": 1,
-      "bottom": 1
+      "left": 0.05078125,
+      "top": 0.0,
+      "right": 0.92578125,
+      "bottom": 1.0
     },
     "grounded": false,
-    "mode": "scene",
+    "mode": "cutout",
     "measuredFrames": 240,
-    "packedVideoUrl": "/videos/ar/packed/hq2/HTTN08.mp4",
-    "previewVideoUrl": "/videos/ar/original/hq2/HTTN08.mp4",
-    "alphaVideoUrl": "/videos/ar/hq2/HTTN08.webm"
+    "alphaVideoUrl": "/videos/ar/remake-v4/HTTN08.webm",
+    "packedVideoUrl": "/videos/ar/packed/remake-v4/HTTN08.mp4",
+    "compatiblePackedVideoUrl": "/videos/ar/packed/remake-v4/HTTN08-compatible.mp4",
+    "previewVideoUrl": "/videos/ar/original/remake-v4/HTTN08-keyed.mp4"
   },
   "HTTN09": {
     "bounds": {
@@ -431,31 +436,33 @@
   },
   "HTTN10": {
     "bounds": {
-      "left": 0,
-      "top": 0,
-      "right": 1,
-      "bottom": 1
+      "left": 0.0,
+      "top": 0.0,
+      "right": 1.0,
+      "bottom": 1.0
     },
     "grounded": false,
-    "mode": "scene",
+    "mode": "cutout",
     "measuredFrames": 240,
-    "packedVideoUrl": "/videos/ar/packed/hq2/HTTN10.mp4",
-    "previewVideoUrl": "/videos/ar/original/hq2/HTTN10.mp4",
-    "alphaVideoUrl": "/videos/ar/hq2/HTTN10.webm"
+    "alphaVideoUrl": "/videos/ar/remake-v4/HTTN10.webm",
+    "packedVideoUrl": "/videos/ar/packed/remake-v4/HTTN10.mp4",
+    "compatiblePackedVideoUrl": "/videos/ar/packed/remake-v4/HTTN10-compatible.mp4",
+    "previewVideoUrl": "/videos/ar/original/remake-v4/HTTN10-keyed.mp4"
   },
   "HTTN11": {
     "bounds": {
-      "left": 0,
-      "top": 0,
-      "right": 1,
-      "bottom": 1
+      "left": 0.0,
+      "top": 0.0,
+      "right": 1.0,
+      "bottom": 1.0
     },
     "grounded": false,
-    "mode": "scene",
+    "mode": "cutout",
     "measuredFrames": 240,
-    "packedVideoUrl": "/videos/ar/packed/hq2/HTTN11.mp4",
-    "previewVideoUrl": "/videos/ar/original/hq2/HTTN11.mp4",
-    "alphaVideoUrl": "/videos/ar/hq2/HTTN11.webm"
+    "alphaVideoUrl": "/videos/ar/remake-v4/HTTN11.webm",
+    "packedVideoUrl": "/videos/ar/packed/remake-v4/HTTN11.mp4",
+    "compatiblePackedVideoUrl": "/videos/ar/packed/remake-v4/HTTN11-compatible.mp4",
+    "previewVideoUrl": "/videos/ar/original/remake-v4/HTTN11-keyed.mp4"
   },
   "HTTN12": {
     "bounds": {
@@ -489,17 +496,18 @@
   },
   "HTTN14": {
     "bounds": {
-      "left": 0,
-      "top": 0,
-      "right": 1,
-      "bottom": 1
+      "left": 0.0484375,
+      "top": 0.0,
+      "right": 1.0,
+      "bottom": 1.0
     },
     "grounded": false,
-    "mode": "scene",
+    "mode": "cutout",
     "measuredFrames": 240,
-    "packedVideoUrl": "/videos/ar/packed/hq2/HTTN14.mp4",
-    "previewVideoUrl": "/videos/ar/original/hq2/HTTN14.mp4",
-    "alphaVideoUrl": "/videos/ar/hq2/HTTN14.webm"
+    "alphaVideoUrl": "/videos/ar/remake-v4/HTTN14.webm",
+    "packedVideoUrl": "/videos/ar/packed/remake-v4/HTTN14.mp4",
+    "compatiblePackedVideoUrl": "/videos/ar/packed/remake-v4/HTTN14-compatible.mp4",
+    "previewVideoUrl": "/videos/ar/original/remake-v4/HTTN14-keyed.mp4"
   },
   "HTTN15": {
     "bounds": {

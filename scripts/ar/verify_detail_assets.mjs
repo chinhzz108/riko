@@ -9,9 +9,13 @@ const effectsCertificate = await json("docs/qa/ar-native-effects-v3.json")
 const browserCertificate = await json("docs/qa/ar-packed-browser-v3.json")
 const remakes = await json("docs/qa/ar-reviewed-remakes-v4.json")
 const remakeSources = await json("docs/qa/ar-reviewed-remakes-source-v4.json")
-assert.deepEqual(remakes.assets.map(a => a.id).sort(), ["HTTN04", "HTTN09", "HTTN12", "HTTN13"])
+const chapter3 = await json("docs/qa/ar-chapter3-backgrounds-v1.json")
+assert.equal(chapter3.kind, "offline-full-chapter-packed-transparency")
+assert.deepEqual(chapter3.assets.map(a => a.id), Array.from({ length: 15 }, (_, i) => `HTTN${String(i+1).padStart(2, "0")}`))
+const reviewedIds = ["HTTN01", "HTTN02", "HTTN03", "HTTN04", "HTTN05", "HTTN06", "HTTN07", "HTTN08", "HTTN09", "HTTN10", "HTTN11", "HTTN12", "HTTN13", "HTTN14"]
+assert.deepEqual(remakes.assets.map(a => a.id).sort(), reviewedIds)
 assert.equal(remakes.kind, "offline-decoded-replacement-QA")
-assert.deepEqual(remakeSources.assets.map(a => a.id).sort(), ["HTTN04", "HTTN09", "HTTN12", "HTTN13"])
+assert.deepEqual(remakeSources.assets.map(a => a.id).sort(), reviewedIds)
 assert.equal(remakeSources.kind, "offline-source-and-fallback-decode")
 assert.equal(browserCertificate.results.length, 45)
 const manifest = await json("public/videos/ar/manifest.json")
@@ -42,6 +46,22 @@ for (const asset of manifest) {
   assert.equal(profile.packedVideoUrl, asset.packedVideoUrl)
   assert.equal(profile.previewVideoUrl, asset.previewVideoUrl)
   assert.equal(profile.alphaVideoUrl, asset.alphaVideoUrl, `${asset.id}: offline decode fallback must use the current release`)
+  if (asset.id.startsWith("HTTN")) {
+    const review = chapter3.assets.find(a => a.id === asset.id)
+    assert.ok(["cutout", "glow"].includes(asset.presentationMode), `${asset.id}: no opaque scene bypass`)
+    assert.equal(review.mode, profile.mode)
+    assert.equal(review.pass, true)
+    assert.equal(review.packedVideoUrl, asset.packedVideoUrl)
+    assert.equal(review.alphaVideoUrl, asset.alphaVideoUrl)
+    assert.equal(review.frames, 240)
+    assert.ok(review.framesWithTransparentAreaAboveOnePercent >= 120)
+    assert.ok(review.maximumMeanAlpha > .001)
+    assert.equal(review.browserTested, false)
+    assert.equal(review.phoneTested, false)
+    for (const [key, hash] of [["packedVideoUrl", review.packedSHA256], ["alphaVideoUrl", review.alphaSHA256]]) {
+      assert.equal(createHash("sha256").update(await readFile(`public${asset[key]}`)).digest("hex"), hash)
+    }
+  }
   if (!replacement && (proof.mode === "scene" || proof.mode === "mixed")) {
     assert.deepEqual(profile.bounds, { left: 0, top: 0, right: 1, bottom: 1 })
     assert.equal(profile.grounded, false)
@@ -113,7 +133,9 @@ for (const asset of manifest) {
     }
     assert.ok(source.checks.compatibleCompositeMAE)
     assert.ok(source.checks.splitFallbackCompositeMAE)
-    assert.ok(source.checks[replacement.mode === "glow" ? "sourceBlackCompositeMAE" : "sourceOpaqueRGBMAE"])
+    const sourceCheck = ["HTTN06", "HTTN07"].includes(asset.id) ? "keyedSourceCompositeMAE" : replacement.mode === "glow" ? "sourceBlackCompositeMAE" : "sourceOpaqueRGBMAE"
+    assert.ok(source.checks[sourceCheck])
+    if (asset.id === "HTTN08") assert.ok(source.checks.independentPalmInteriorAlphaLossFraction)
     assert.match(source.aacNarrationSHA256, /^[a-f0-9]{64}$/)
     assert.deepEqual(source.aacNarrationMatches, ["previewVideoUrl", "packedVideoUrl", "compatiblePackedVideoUrl", "alphaColorUrl"])
     assert.equal(replacement.canonicalUrl, asset.url)
@@ -124,7 +146,12 @@ for (const asset of manifest) {
     assert.ok(replacement.checks.worstAlphaMAE < .02)
     assert.ok(replacement.checks.worstCompositeMAE < .03)
     if (replacement.mode !== "glow") assert.ok(replacement.checks.worstOpaqueLossFraction < .005)
-    assert.ok(replacement.checks.maxOuterBorderAlpha < .04)
+    if (asset.id === "HTTN10") {
+      assert.ok(replacement.checks.maxKnownBackgroundAlpha < .04)
+      assert.ok(replacement.checks.minKnownBackgroundFraction > 0)
+      assert.ok(replacement.checks.knownBackgroundFrames >= 120)
+      assert.ok(replacement.checks.worstBottomWaterLossFraction < .005)
+    } else assert.ok(replacement.checks.maxOuterBorderAlpha < .04)
     assert.notEqual(asset.packedVideoUrl, asset.compatiblePackedVideoUrl)
     for (const [key, file] of Object.entries(replacement.files)) {
       assert.equal(source.files[key].url, file.url)

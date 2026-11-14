@@ -21,12 +21,25 @@ VERSION = "remake-v4"
 FPS = 24
 FRAMES = 240
 SOURCES = {
+    "HTTN01": ("HTTN01_rainbow.mp4", "431299123245dbe8829caca2418f8fe5c6d174a95102e5fed0678310e9a8c560"),
+    "HTTN02": ("HTTN02_hail.mp4", "1e947b621c081b504bf4c89ff27e300c87363d7ca880ed0d0df1f04d52a1feb6"),
+    "HTTN03": ("HTTN03_tornado.mp4", "e5f08caf4df8768a598756cf361a4b0b6fe565d0c805910d681e4ec1b15ddcfc"),
     "HTTN04": ("HTTN04_flash_flood_take2.mp4", "8a795ac344cf8abd70e0b666c76a21e05a45676fbe288c9710a1b93ed60c42df"),
+    "HTTN05": ("HTTN05_volcano.mp4", "9bcf0e0950e255e818d9448c797f2c683577b7af940f3c55ec7c8bfb555f27b6"),
+    "HTTN06": ("HTTN06_lightning.mp4", "dec60008ed7907c7f7f2ee88684e5729f5de1a393bce303feb2f26505f1dd65a"),
+    "HTTN07": ("HTTN07_snow.mp4", "a8419fc4e1bd9d62ec05302f027b7a20b7099fa42d42b8bccb007f40888ef945"),
+    "HTTN08": ("HTTN08_tropical_cyclone.mp4", "29d5424620c4d652f848ceaac4f184bb0c93ac76c23888d580b7e06e1613fd20"),
     "HTTN09": ("HTTN09_earthquake_take1_REPAIRED.mp4", "1c2f8a83b227722415dfa2fb18a96aee3aedcffd5c21a6085c68424ca500cf84"),
+    "HTTN10": ("HTTN10_tsunami.mp4", "5cafc68b0f916eff143bfac6944fa02bec79ab12370fe6fedba9f645c5a7c781"),
+    "HTTN11": ("HTTN11_geyser.mp4", "f02e057453234dc24c44e8a53f6d133bd9c4cc505ed3dd40e97aef02a85ed632"),
     "HTTN12": ("HTTN12_tides_take1_REPAIRED.mp4", "2bc70bc998f4fdf6efd0ac9d819291e72c5aae35c03cf9dd69efbb4048a8b3d4"),
     "HTTN13": ("HTTN13_aurora_take1.mp4", "c11e3d1f9edfc57ee12249ed6caf0e0ee0dc392875561be4d530502a2f76821b"),
+    "HTTN14": ("HTTN14_solar_eclipse.mp4", "0ed1ec486d0f89ea57904cab83a957f5d6e049b919605dcfb062fdc5885a19ef"),
 }
-FLAT_PREVIEWS = {"HTTN04", "HTTN09", "HTTN12"}
+CHAPTER3_REPAIRS = {"HTTN01", "HTTN02", "HTTN03", "HTTN05", "HTTN06", "HTTN07", "HTTN08", "HTTN11", "HTTN14"}
+GLOWS = {"HTTN06", "HTTN07", "HTTN13"}
+DENSE_TEXTURES = {"HTTN02", "HTTN04", "HTTN07", "HTTN08", "HTTN11"}
+FLAT_PREVIEWS = set(SOURCES) - {"HTTN13"}
 cv2.setNumThreads(1)
 
 
@@ -41,8 +54,30 @@ def probe(path):
 
 
 def matte(rgb, aid):
+    if aid in CHAPTER3_REPAIRS:
+        from chapter3_matte import matte as chapter3_matte
+        return chapter3_matte(rgb, aid)
     f = rgb.astype(np.float32) / 255
-    if aid == "HTTN13":
+    if aid == "HTTN10":
+        # The backdrop is fixed neutral RGB32. Estimating it from each frame's
+        # top edge mistakes the rising wave/spray for background later in time.
+        background = np.full(3, 32 / 255, np.float32)
+        distance = np.max(np.abs(f - background), axis=2)
+        alpha = np.clip((distance - .015) / .25, 0, 1)
+        # Preserve the dark water below connected cyan water / bright foam.
+        # A gray-distance key alone makes dark troughs transparent.
+        core = np.uint8((f[:, :, 2] - f[:, :, 0] > .13)
+                        | (f[:, :, 1] - f[:, :, 0] > .13) | (f.max(2) > .65))
+        core = cv2.morphologyEx(core, cv2.MORPH_OPEN, np.ones((9, 9), np.uint8))
+        _, labels = cv2.connectedComponents(core)
+        ids = np.unique(labels[-1])
+        solid = np.maximum.accumulate(np.isin(labels, ids[ids != 0]), axis=0)
+        solid = cv2.dilate(np.uint8(solid), np.ones((3, 3), np.uint8))
+        body = cv2.GaussianBlur(solid.astype(np.float32), (41, 41), 8)
+        alpha = np.maximum(cv2.GaussianBlur(np.maximum(alpha, body), (3, 3), .6), body)
+        color = np.divide(f - (1 - alpha[..., None]) * background, alpha[..., None],
+                          out=np.zeros_like(f), where=alpha[..., None] > .001)
+    elif aid == "HTTN13":
         alpha = f.max(2)
         alpha[alpha < 3 / 255] = 0
         color = np.divide(f, alpha[..., None], out=np.zeros_like(f), where=alpha[..., None] > 0)
@@ -145,13 +180,13 @@ def build(aid, incoming, asset, reuse_encoded=False):
                      "-i", "pipe:0", "-i", str(narration), "-filter_complex", graph]
     command += ["-map", "[w]", "-map", "1:a:0", "-frames:v", str(FRAMES), "-c:v", "libvpx-vp9",
                 "-pix_fmt", "yuva420p", "-auto-alt-ref", "0", "-metadata:s:v:0", "alpha_mode=1",
-                "-deadline", "good", "-cpu-used", "5", "-row-mt", "1", "-threads", "2", "-crf", "26" if aid == "HTTN04" else "20", "-b:v", "0",
+                "-deadline", "good", "-cpu-used", "5", "-row-mt", "1", "-threads", "2", "-crf", "30" if aid == "HTTN07" else "28" if aid == "HTTN11" else "26" if aid in DENSE_TEXTURES else "20", "-b:v", "0",
                 "-c:a", "libopus", "-b:a", "96k", str(PUBLIC / routes["alphaVideoUrl"].lstrip("/"))]
     for key, label, crf in [("alphaColorUrl", "color", "14"), ("alphaMaskUrl", "mask", "10"),
                              ("packedVideoUrl", "native", "14"), ("compatiblePackedVideoUrl", "compatible", "16")]:
         # Dense flood-water texture needs a different rate to fit Pages' 25 MiB
         # per-file limit. Preserve native pixels and measure the delivered encode.
-        if aid == "HTTN04" and key in {"alphaColorUrl", "packedVideoUrl"}:
+        if aid in DENSE_TEXTURES and key in {"alphaColorUrl", "packedVideoUrl"}:
             crf = "18"
         command += ["-map", f"[{label}]"]
         command += ["-an"] if key == "alphaMaskUrl" else ["-map", "1:a:0", "-c:a", "copy"]
@@ -184,7 +219,7 @@ def build(aid, incoming, asset, reuse_encoded=False):
             encoder.terminate(); encoder.wait()
     if aid in FLAT_PREVIEWS:
         build_flat_preview(PUBLIC / routes["packedVideoUrl"].lstrip("/"), narration,
-                           PUBLIC / routes["previewVideoUrl"].lstrip("/"), width, height, 18 if aid == "HTTN04" else 14)
+                           PUBLIC / routes["previewVideoUrl"].lstrip("/"), width, height, 18 if aid in DENSE_TEXTURES else 14)
     files = {}
     for key, route in routes.items():
         path = PUBLIC / route.lstrip("/")
@@ -199,7 +234,10 @@ def build(aid, incoming, asset, reuse_encoded=False):
     # using the green channel sampled by the actual packed-alpha shader.
     pipes = [decoder(PUBLIC/routes["packedVideoUrl"].lstrip("/"), width*2, height),
              decoder(PUBLIC/routes["alphaVideoUrl"].lstrip("/"), width, height, True)]
+    if aid == "HTTN10":
+        pipes.append(decoder(source, width, height))
     alpha_errors, color_errors, opaque_losses, blank_edges = [], [], [], []
+    background_alphas, water_losses, background_fractions = [], [], []
     try:
         for i in range(FRAMES):
             packed = read_frame(pipes[0], width*2, height, 3)
@@ -217,6 +255,17 @@ def build(aid, incoming, asset, reuse_encoded=False):
             color_errors.append(max(errors))
             opaque_losses.append(float(np.mean(a[expected > .99] < .97)) if np.any(expected > .99) else 0.)
             blank_edges.append(float(np.max(np.concatenate([a[0], a[-1], a[:, 0], a[:, -1]]))))
+            if aid == "HTTN10":
+                original = read_frame(pipes[2], width, height, 3)
+                assert original is not None
+                # Independent source-color samples, eroded away from mixed spray.
+                neutral = np.uint8(np.max(np.abs(original.astype(np.float32) - 32), axis=2) <= 2)
+                neutral = cv2.erode(neutral, np.ones((41, 41), np.uint8)) > 0
+                # Some late frames are entirely covered by water/spray.
+                if neutral.sum() > 500:
+                    background_alphas.append(float(a[neutral].max()))
+                    background_fractions.append(float(neutral.mean()))
+                water_losses.append(float(np.mean(a[int(height*.85):] < .97)))
             if i % 60 == 59:
                 print(f"{aid}: packed/alpha checked {i+1}/{FRAMES}", flush=True)
     finally:
@@ -225,16 +274,28 @@ def build(aid, incoming, asset, reuse_encoded=False):
     checks = {"frames": FRAMES, "alphaMAE": float(np.mean(alpha_errors)), "worstAlphaMAE": max(alpha_errors),
               "compositeMAE": float(np.mean(color_errors)), "worstCompositeMAE": max(color_errors),
               "worstOpaqueLossFraction": max(opaque_losses), "maxOuterBorderAlpha": max(blank_edges)}
+    print(f"{aid}: decoded checks {checks}", flush=True)
     assert checks["worstAlphaMAE"] < .02 and checks["worstCompositeMAE"] < .03
-    if aid in FLAT_PREVIEWS:
+    if aid not in GLOWS:
         assert checks["worstOpaqueLossFraction"] < .005
     # Aurora is emitted light: its tiny fully-white tips are not solid interiors.
     # Composite fidelity above measures these instead of an opaque-object gate.
-    assert checks["maxOuterBorderAlpha"] < .04
+    if aid == "HTTN10":
+        # Water intentionally reaches the bottom/sides; demanding transparent
+        # borders here would erase real water. Other assets keep their gate.
+        checks.update({"maxKnownBackgroundAlpha": max(background_alphas),
+                       "minKnownBackgroundFraction": min(background_fractions),
+                       "knownBackgroundFrames": len(background_alphas),
+                       "worstBottomWaterLossFraction": max(water_losses)})
+        assert checks["knownBackgroundFrames"] >= 120
+        assert checks["maxKnownBackgroundAlpha"] < .04
+        assert checks["worstBottomWaterLossFraction"] < .005
+    else:
+        assert checks["maxOuterBorderAlpha"] < .04
     pad = 20
     profile = {"bounds": {"left": max(0, bounds[0]-pad)/width, "top": max(0, bounds[1]-pad)/height,
                            "right": min(width, bounds[2]+pad)/width, "bottom": min(height, bounds[3]+pad)/height},
-               "grounded": False, "mode": "glow" if aid == "HTTN13" else "cutout", "measuredFrames": FRAMES,
+               "grounded": False, "mode": "glow" if aid in GLOWS else "cutout", "measuredFrames": FRAMES,
                **{key: routes[key] for key in ["alphaVideoUrl", "packedVideoUrl", "compatiblePackedVideoUrl", "previewVideoUrl"]}}
     report = {"id": aid, "canonicalUrl": asset["url"], "mode": profile["mode"], "frames": FRAMES,
               "sourceSHA256": sha(source), "narrationSourceUrl": f"/videos/ar/original/hq2/{aid}.mp4",
@@ -242,6 +303,9 @@ def build(aid, incoming, asset, reuse_encoded=False):
               "narrationSourceSHA256": sha(narration), "files": files, "profile": profile, "checks": checks,
               "browserTested": False, "phoneTested": False}
     print(f"{aid}: encoded and checked {FRAMES} frames; {checks}", flush=True)
+    checkpoint = ROOT / f"output/qa/reviewed-remakes-v4/{aid}-build.json"
+    checkpoint.parent.mkdir(parents=True, exist_ok=True)
+    checkpoint.write_text(json.dumps(report, indent=2) + "\n")
     return report
 
 
@@ -264,10 +328,11 @@ def main():
     for aid in selected:
         report = build(aid, args.incoming, next(a for a in assets if a["id"] == aid), args.reuse_encoded)
         reports.append(report)
-    certificate = {"version": VERSION, "date": "2026-11-13", "kind": "offline-decoded-replacement-QA",
+    certificate = {"version": VERSION, "date": "2026-11-14", "kind": "offline-decoded-replacement-QA",
                    "limits": ["No live browser tool was available; no new browser or physical-phone result is claimed.",
                               "Codec agreement is not semantic ground truth for every matted edge.",
                               "Aurora remains intentionally translucent and fades near the end of its source.",
+                              "Tsunami gray backdrop is removed; fine spray remains approximate and water retains cropped bottom/side source framing.",
                               "Flood retains rectangular source framing; earthquake retains an oval scene and weak shaking, accepted by the user."], "assets": reports}
     certificate_path.write_text(json.dumps(certificate, indent=2)+"\n")
     if args.publish:

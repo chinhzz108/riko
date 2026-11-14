@@ -13,7 +13,7 @@ import cv2
 import numpy as np
 from PIL import Image, ImageDraw
 
-from build_reviewed_remakes import FLAT_PREVIEWS, SOURCES, decoder, matte, read_frame, sha
+from build_reviewed_remakes import FLAT_PREVIEWS, SOURCES, GLOWS, decoder, matte, read_frame, sha
 
 ROOT = Path(__file__).resolve().parents[2]
 PUBLIC = ROOT / "public"
@@ -46,10 +46,12 @@ def verify(asset):
     if aid in FLAT_PREVIEWS:
         streams["preview"] = (files["previewVideoUrl"], width, height)
     pipes = {key: decoder(path, w, h) for key, (path, w, h) in streams.items()}
-    errors = {key: [] for key in ["sourceOpaqueRGBMAE", "sourceBlackCompositeMAE",
+    errors = {key: [] for key in ["sourceOpaqueRGBMAE", "sourceBlackCompositeMAE", "keyedSourceCompositeMAE",
                                   "compatibleCompositeMAE", "splitFallbackCompositeMAE"]}
     if aid in FLAT_PREVIEWS:
         errors["flatPreviewBlackCompositeMAE"] = []
+    if aid == "HTTN08":
+        errors["independentPalmInteriorAlphaLossFraction"] = []
     samples = []
     sample_indices = [0, 24, 72, 120, 168, 216, 239]
     try:
@@ -58,19 +60,44 @@ def verify(asset):
                       for key, (_, w, h) in streams.items()}
             assert all(value is not None for value in frames.values()), f"{aid}: truncated frame {i}"
             rgb = frames["source"]
-            _, expected_alpha = matte(rgb, aid)
+            if aid == "HTTN08":
+                # Independent opaque vegetation/soil evidence from source color,
+                # rather than rerunning the same segmentation as ground truth.
+                f = rgb.astype(np.float32) / 255
+                y = np.arange(height)[:, None] / height
+                core = ((f[:, :, 1] - f[:, :, 2] > .035) & (f[:, :, 1] - f[:, :, 0] > .02)) | ((f[:, :, 0] - f[:, :, 2] > .03) & (y > .75))
+                foreground = cv2.erode(np.uint8(core), np.ones((5, 5), np.uint8)) > 0
+                # Cropped source edges deliberately fade into the camera;
+                # sample only the object interior when testing opaque RGB.
+                foreground[:32] = False
+                foreground[-32:] = False
+                foreground[:, :32] = False
+                foreground[:, -32:] = False
+                assert foreground.mean() > .01, "Need independent visible palm/soil samples"
+            else:
+                expected_color, expected_alpha = matte(rgb, aid)
+                foreground = cv2.erode(np.uint8(expected_alpha == 255), np.ones((5, 5), np.uint8)) > 0
             packed = frames["packed"]
             color = packed[:, :width].astype(np.float32) / 255
             alpha = packed[:, width:, 1].astype(np.float32) / 255
+            if aid == "HTTN08":
+                errors["independentPalmInteriorAlphaLossFraction"].append(float((alpha[foreground] < .95).mean()))
             if aid in FLAT_PREVIEWS:
                 errors["flatPreviewBlackCompositeMAE"].append(float(np.abs(
                     frames["preview"].astype(np.float32)/255 - color*alpha[..., None]).mean()))
-            foreground = cv2.erode(np.uint8(expected_alpha == 255), np.ones((5, 5), np.uint8)) > 0
-            if aid in FLAT_PREVIEWS:
-                assert foreground.sum() > width * height * .1, f"{aid}: retain an opaque scene interior"
-                errors["sourceOpaqueRGBMAE"].append(float(np.abs(color[foreground] - rgb[foreground] / 255).mean()))
-            else:
+            if aid not in GLOWS:
+                if aid != "HTTN01":
+                    assert foreground.mean() > (.01 if aid == "HTTN08" else .1), f"{aid}: retain an opaque scene interior"
+                # Rainbow draws itself in over an initially empty source frame.
+                if foreground.sum() > 500:
+                    errors["sourceOpaqueRGBMAE"].append(float(np.abs(color[foreground] - rgb[foreground] / 255).mean()))
+            elif aid == "HTTN13":
                 errors["sourceBlackCompositeMAE"].append(float(np.abs(color * alpha[..., None] - rgb / 255).mean()))
+            else:
+                # Snow/clouds deliberately remove the photographed dark sky.
+                # Compare with the reviewed isolation, not the rejected backdrop.
+                wanted = expected_color.astype(np.float32)/255 * (expected_alpha[..., None]/255)
+                errors["keyedSourceCompositeMAE"].append(float(np.abs(color * alpha[..., None] - wanted).mean()))
             small = frames["compatible"]
             small_color = small[:, :cw//2].astype(np.float32) / 255
             small_alpha = small[:, cw//2:, 1].astype(np.float32) / 255
@@ -101,6 +128,8 @@ def verify(asset):
                 pipe.wait()
     checks = {key: {"mean": float(np.mean(values)), "worst": max(values)}
               for key, values in errors.items() if values}
+    if aid == "HTTN01":
+        assert len(errors["sourceOpaqueRGBMAE"]) >= 120
     for key, values in checks.items():
         assert values["worst"] < .03, f"{aid}: {key}: {values}"
     narration = PUBLIC / asset["narrationSourceUrl"].lstrip("/")
@@ -138,6 +167,13 @@ if __name__ == "__main__":
     if args.id:
         retained = [asset for asset in json.loads(report_path.read_text())["assets"] if asset["id"] not in args.id]
     report = {"version": "remake-v4", "kind": "offline-source-and-fallback-decode",
-              "assets": retained + [verify(asset) for asset in certificate["assets"] if not args.id or asset["id"] in args.id]}
-    report_path.write_text(json.dumps(report, indent=2) + "\n")
-    print(json.dumps(report, indent=2), flush=True)
+              "assets": retained}
+    for asset in certificate["assets"]:
+        if args.id and asset["id"] not in args.id:
+            continue
+        result = verify(asset)
+        report["assets"].append(result)
+        # Preserve completed full-stream checks if a later asset fails.
+        report_path.write_text(json.dumps(report, indent=2) + "\n")
+        print(f"{asset['id']}: source/fallback proof saved", flush=True)
+    print(f"Source/fallback QA passed: {len(report['assets'])} certified assets.", flush=True)

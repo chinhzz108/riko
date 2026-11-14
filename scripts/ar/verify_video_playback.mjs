@@ -27,6 +27,9 @@ video.play = () => new Promise(() => {})
 await assert.rejects(playARVideo(video, 5), /khung hình đầu tiên/, "a pending play() must allow a compatible-source retry")
 assert.equal(preferredARSource({ alpha: true, url: "/old.webm", packedVideoUrl: "/packed.mp4" }, { mode: "cutout" }).url, "/packed.mp4")
 assert.equal(preferredARSource({ alpha: true, previewVideoUrl: "/original.mp4" }, { mode: "scene", packedVideoUrl: "/packed.mp4" }).kind, "scene")
+const repairedAsset = { alpha: true, presentationMode: "cutout", previewVideoUrl: "/flat.mp4", packedVideoUrl: "/new-packed.mp4", alphaVideoUrl: "/new-alpha.webm" }
+assert.equal(preferredARSource(repairedAsset, { mode: "scene" }).kind, "packed", "revalidated transparent catalog must override an old scene profile")
+assert.equal(nativeARSource(repairedAsset, { mode: "scene" }), "/new-alpha.webm", "a stale scene profile must not bypass the repaired alpha fallback")
 assert.equal(getARPixelRatio(390, 844, 3), 3, "a Retina phone must not be limited to 1.5x")
 assert.ok(3840 * 2160 * getARPixelRatio(3840, 2160, 2) ** 2 <= 4_194_305)
 const manifest = JSON.parse(await readFile("public/videos/ar/manifest.json", "utf8"))
@@ -42,7 +45,7 @@ for (const slot of slots.filter(item => item.arVideoUrl)) {
 }
 assert.throws(() => nativeARSource({ url: "/videos/ar/HTTN12.webm", alpha: true }, { mode: "cutout" }),
   /phiên bản hiện tại/, "missing current alpha must fail instead of silently showing legacy media")
-for (const id of ["HTTN04", "HTTN09", "HTTN12", "HTTN13"]) {
+for (const id of ["HTTN01", "HTTN02", "HTTN03", "HTTN04", "HTTN05", "HTTN06", "HTTN07", "HTTN08", "HTTN09", "HTTN10", "HTTN11", "HTTN12", "HTTN13", "HTTN14"]) {
   const slot = slots.find(item => item.arTargetId === id)
   const profile = profiles[id]
   const fallback = resolveARVideoAsset(slot, profile, [])
@@ -51,4 +54,4 @@ for (const id of ["HTTN04", "HTTN09", "HTTN12", "HTTN13"]) {
   assert.equal(resolveARVideoAsset(slot, profile, [newer]), newer, "revalidated catalog takes precedence over the bundle")
 }
 console.log("AR video startup passed: decoded frames, preload reuse, cancellation, bounded wait, single-clock source and Retina resolution.")
-console.log("Release fallback passed: 54 routes select the same release before/after manifest fetch; all four remakes cannot fall back to legacy canonical files.")
+console.log("Release fallback passed: 54 routes select the same release before/after manifest fetch; all 14 replacements cannot fall back to legacy canonical files.")
