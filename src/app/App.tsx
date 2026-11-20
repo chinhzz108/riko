@@ -42,7 +42,6 @@ import {
   Copy,
   Trash2,
   LayoutDashboard,
-  House,
   Video,
   QrCode,
   Settings,
@@ -789,61 +788,9 @@ function Header() {
     </header>
   )
 }
-function MobileBottomNav() {
-  const location = useLocation()
-  const { quizUser } = useStore()
-  const items = [
-    { label: "Trang chủ", to: "/", icon: House, exact: true },
-    { label: "Sách", to: "/book", icon: BookOpen },
-    { label: "AR", to: "/scan", icon: ScanLine, ar: true },
-    { label: "Video", to: "/videos", icon: Video },
-    { label: quizUser ? "Tài khoản" : "Hồ sơ", to: "/tai-khoan", icon: UserRound },
-  ]
-  return (
-    <nav className="mobile-bottom-nav" aria-label="Điều hướng chính">
-      <div className="mobile-bottom-nav-inner">
-        {items.map((item) => {
-          const active = item.exact
-            ? location.pathname === item.to
-            : location.pathname === item.to ||
-              (item.to === "/book" && location.pathname === "/preview") ||
-              (item.to === "/videos" && location.pathname.startsWith("/watch/")) ||
-              (item.to === "/tai-khoan" && ["/login", "/recovery"].includes(location.pathname))
-          const Icon = item.icon
-          if (item.ar) {
-            return (
-              <Link
-                key={item.to}
-                to={item.to}
-                aria-current={active ? "page" : undefined}
-                className="mobile-bottom-nav-ar"
-              >
-                <span className="mobile-bottom-nav-ar-bubble">
-                  <Icon size={25} strokeWidth={2.4} aria-hidden="true" />
-                </span>
-                <span>{item.label}</span>
-              </Link>
-            )
-          }
-          return (
-            <Link
-              key={item.to}
-              to={item.to}
-              aria-current={active ? "page" : undefined}
-              className={`mobile-bottom-nav-item ${active ? "is-active" : ""}`}
-            >
-              <Icon size={21} strokeWidth={active ? 2.4 : 1.9} aria-hidden="true" />
-              <span>{item.label}</span>
-            </Link>
-          )
-        })}
-      </div>
-    </nav>
-  )
-}
 function Footer() {
   return (
-    <footer className="mobile-shell-footer mt-10 border-t border-primary/10 bg-primary/5 px-6 py-12">
+    <footer className="mt-10 border-t border-primary/10 bg-primary/5 px-6 py-12">
       <div className="mx-auto grid max-w-[1160px] gap-8 md:grid-cols-[2fr_1fr_1fr_1fr]">
         <div>
           <Logo transparent />
@@ -907,7 +854,6 @@ function Layout() {
     location.pathname.startsWith("/watch/") ||
     location.pathname === "/scan" ||
     ["/quiz", "/result"].includes(location.pathname)
-  const showMobileBottomNav = !immersive
   useEffect(() => {
     window.scrollTo(0, 0)
   }, [location.pathname])
@@ -946,12 +892,10 @@ function Layout() {
         initial={enabled && location.pathname !== "/scan" ? { opacity: 0, y: 8 } : false}
         animate={enabled && location.pathname !== "/scan" ? { opacity: 1, y: 0 } : false}
         transition={{ duration: 0.35, ease: "easeOut" }}
-        className={showMobileBottomNav ? "mobile-shell-main" : undefined}
       >
         <Outlet />
       </motion.main>
       {!immersive && <Footer />}
-      {showMobileBottomNav && <MobileBottomNav />}
     </>
   )
 }
