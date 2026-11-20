@@ -4864,6 +4864,7 @@ function Provider({ children }: { children: ReactNode }) {
   const [videoWatchStats, setVideoWatchStats] = useState<Record<string, VideoWatchRecord>>(
     () => guestVideoWatchStats(),
   )
+  const videoWatchStatsRef = useRef(videoWatchStats)
   const [quizAuthReady, setQuizAuthReady] = useState(!isAppwriteConfigured)
   const [toast, setToast] = useState("")
   const [adminUser, setAdminUser] = useState<{
@@ -4881,6 +4882,9 @@ function Provider({ children }: { children: ReactNode }) {
   } | null> | null>(null)
   const videoRequestRef = useRef<Promise<void> | null>(null)
   const quizRequestsRef = useRef(new Map<boolean, Promise<void>>())
+  useEffect(() => {
+    videoWatchStatsRef.current = videoWatchStats
+  }, [videoWatchStats])
   useEffect(() => {
     localStorage.setItem("rikokid-cart", String(quantity))
   }, [quantity])
@@ -4941,7 +4945,8 @@ function Provider({ children }: { children: ReactNode }) {
       completed?: boolean
       syncToAccount?: boolean
     }) => {
-      const current = videoWatchStats[input.videoId]
+      const currentStats = videoWatchStatsRef.current
+      const current = currentStats[input.videoId]
       const next: VideoWatchRecord = {
         title: input.title,
         chapter: input.chapter,
@@ -4952,7 +4957,8 @@ function Provider({ children }: { children: ReactNode }) {
         completed: Boolean(current?.completed || input.completed),
         lastViewedAt: new Date().toISOString(),
       }
-      const merged = { ...videoWatchStats, [input.videoId]: next }
+      const merged = { ...currentStats, [input.videoId]: next }
+      videoWatchStatsRef.current = merged
       setVideoWatchStats(merged)
       localStorage.setItem("rikokid-video-watch", JSON.stringify(merged))
       if (input.syncToAccount && quizUser) {
@@ -4963,7 +4969,7 @@ function Provider({ children }: { children: ReactNode }) {
         setQuizUser(user)
       }
     },
-    [quizUser, videoWatchStats],
+    [quizUser],
   )
   const ensureAdminSession = useCallback(() => {
     if (!isAppwriteConfigured) {
