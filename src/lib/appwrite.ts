@@ -62,6 +62,18 @@ export type QuizProfile = {
   childNickname: string
   interests: string[]
   bestScores: Record<string, number>
+  videoWatch: Record<string, VideoWatchRecord>
+}
+
+export type VideoWatchRecord = {
+  title: string
+  chapter: string
+  seconds: number
+  duration: number
+  views: number
+  lastPosition: number
+  completed: boolean
+  lastViewedAt: string
 }
 
 export type QuizUser = {
@@ -83,12 +95,32 @@ function normalizeQuizProfile(value: unknown): QuizProfile {
         ]),
       )
     : {}
+  const videoWatch = profile.videoWatch && typeof profile.videoWatch === "object"
+    ? Object.fromEntries(
+        Object.entries(profile.videoWatch).map(([key, raw]) => {
+          const record = raw && typeof raw === "object"
+            ? (raw as Partial<VideoWatchRecord>)
+            : {}
+          return [key, {
+            title: String(record.title || key),
+            chapter: String(record.chapter || ""),
+            seconds: Math.max(0, Number(record.seconds) || 0),
+            duration: Math.max(0, Number(record.duration) || 0),
+            views: Math.max(0, Math.floor(Number(record.views) || 0)),
+            lastPosition: Math.max(0, Number(record.lastPosition) || 0),
+            completed: Boolean(record.completed),
+            lastViewedAt: String(record.lastViewedAt || ""),
+          } satisfies VideoWatchRecord]
+        }),
+      )
+    : {}
   return {
     childNickname: String(profile.childNickname || ""),
     interests: Array.isArray(profile.interests)
       ? profile.interests.map(String).filter(Boolean).slice(0, 8)
       : [],
     bestScores: scores,
+    videoWatch,
   }
 }
 

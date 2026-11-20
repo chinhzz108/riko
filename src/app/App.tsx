@@ -87,6 +87,7 @@ import type {
   QuizRecord,
   QuizProfile,
   QuizUser,
+  VideoWatchRecord,
   VideoRecord,
 } from "../lib/appwrite"
 import rikoWelcome from "../assets/riko/welcome.webp"
@@ -181,9 +182,26 @@ const guestQuizScores = (): Record<string, number> => {
     return {}
   }
 }
+const guestVideoWatchStats = (): Record<string, VideoWatchRecord> => {
+  try {
+    const stats = JSON.parse(localStorage.getItem("rikokid-video-watch") || "{}")
+    return stats && typeof stats === "object" ? stats : {}
+  } catch {
+    return {}
+  }
+}
+const formatWatchDuration = (seconds: number) => {
+  const total = Math.max(0, Math.floor(seconds))
+  if (total < 60) return `${total} giây`
+  const minutes = Math.floor(total / 60)
+  const remaining = total % 60
+  return remaining ? `${minutes} phút ${remaining} giây` : `${minutes} phút`
+}
 async function mergeGuestQuizScores(user: QuizUser) {
   const localScores = guestQuizScores()
+  const localVideoWatch = guestVideoWatchStats()
   const bestScores = { ...user.quizProfile.bestScores }
+  const videoWatch = { ...user.quizProfile.videoWatch }
   let changed = false
   for (const [key, score] of Object.entries(localScores)) {
     const best = Math.max(0, Number(score) || 0)
@@ -192,8 +210,21 @@ async function mergeGuestQuizScores(user: QuizUser) {
       changed = true
     }
   }
+  for (const [key, local] of Object.entries(localVideoWatch)) {
+    const remote = videoWatch[key]
+    if (!remote || local.seconds > remote.seconds || local.views > remote.views) {
+      videoWatch[key] = {
+        ...remote,
+        ...local,
+        seconds: Math.max(remote?.seconds || 0, local.seconds || 0),
+        views: Math.max(remote?.views || 0, local.views || 0),
+        completed: Boolean(remote?.completed || local.completed),
+      }
+      changed = true
+    }
+  }
   return changed
-    ? updateQuizProfile({ ...user.quizProfile, bestScores })
+    ? updateQuizProfile({ ...user.quizProfile, bestScores, videoWatch })
     : user
 }
 type VideoItem = VideoRecord
@@ -350,6 +381,18 @@ type Context = {
   updateQuizAccountProfile: (profile: QuizProfile) => Promise<void>
   logoutQuiz: () => Promise<void>
   saveQuizProgress: (key: string, score: number) => Promise<void>
+  videoWatchStats: Record<string, VideoWatchRecord>
+  recordVideoWatch: (input: {
+    videoId: string
+    title: string
+    chapter: string
+    seconds: number
+    duration: number
+    position: number
+    started?: boolean
+    completed?: boolean
+    syncToAccount?: boolean
+  }) => Promise<void>
   adminUser: { $id: string; name: string; email: string } | null
   authReady: boolean
   ensureAdminSession: () => Promise<{ $id: string; name: string; email: string } | null>
@@ -1875,7 +1918,7 @@ function Videos() {
   )
 }
 function Watch() {
-  const { videos } = useStore()
+  const { videos, recordVideoWatch } = useStore()
   const location = useLocation()
   const videoId = location.pathname.split("/").pop() || ""
   const slot = qrVideoSlots.find((videoSlot) => videoSlot.id === videoId)
@@ -1924,7 +1967,16 @@ function Watch() {
   const [loading, setLoading] = useState(false)
   const [mediaError, setMediaError] = useState(false)
   const [finished, setFinished] = useState(false)
+  const videoRef = useRef<HTMLVideoElement | null>(null)
+  const playingRef = useRef(false)
+  const watchStartedRef = useRef(false)
+  const lastTimeRef = useRef(0)
+  const pendingSecondsRef = useRef(0)
+  const recordVideoWatchRef = useRef(recordVideoWatch)
   const { enabled } = useMotionPreferences()
+  useEffect(() => {
+    recordVideoWatchRef.current = recordVideoWatch
+  }, [recordVideoWatch])
   useEffect(() => {
     const slotVideoReady = Boolean(slot?.arVideoUrl) || (slot
       ? videos.some(
@@ -1959,7 +2011,29 @@ function Watch() {
     setLoading(false)
     setMediaError(false)
     setFinished(false)
+    playingRef.current = false
+    watchStartedRef.current = false
+    lastTimeRef.current = 0
+    pendingSecondsRef.current = 0
   }, [location.pathname])
+  const flushWatch = useCallback((completed = false, syncToAccount = true) => {
+    const seconds = pendingSecondsRef.current
+    if (!item?.url || (!seconds && !completed)) return
+    pendingSecondsRef.current = 0
+    void recordVideoWatchRef.current({
+      videoId: item.id,
+      title: item.title,
+      chapter: item.chapter,
+      seconds,
+      duration: Number.isFinite(videoRef.current?.duration)
+        ? videoRef.current?.duration || 0
+        : 0,
+      position: videoRef.current?.currentTime || lastTimeRef.current,
+      completed,
+      syncToAccount,
+    })
+  }, [item?.id, item?.title, item?.chapter, item?.url])
+  useEffect(() => () => flushWatch(false, true), [item?.id, flushWatch])
   if (!item && resolving)
     return (
       <div className="mx-auto flex min-h-80 max-w-xl flex-col items-center justify-center px-6 py-12 text-center">
@@ -2006,6 +2080,7 @@ function Watch() {
         {item.url ? (
           <>
             <video
+              ref={videoRef}
               src={item.url}
               data-ar-video-id={arAssetId}
               data-ar-video-url={arAssetId ? item.url : undefined}
@@ -2016,8 +2091,42 @@ function Watch() {
               poster={item.thumbnail}
               onLoadStart={() => { setLoading(true); setMediaError(false) }}
               onLoadedData={() => setLoading(false)}
-              onPlay={() => setPlaying(true)}
-              onEnded={() => setFinished(true)}
+              onPlay={() => {
+                setPlaying(true)
+                playingRef.current = true
+                lastTimeRef.current = videoRef.current?.currentTime || 0
+                if (!watchStartedRef.current) {
+                  watchStartedRef.current = true
+                  void recordVideoWatchRef.current({
+                    videoId: item.id,
+                    title: item.title,
+                    chapter: item.chapter,
+                    seconds: 0,
+                    duration: videoRef.current?.duration || 0,
+                    position: lastTimeRef.current,
+                    started: true,
+                    syncToAccount: true,
+                  })
+                }
+              }}
+              onPause={() => {
+                playingRef.current = false
+                flushWatch(false, true)
+              }}
+              onTimeUpdate={(event) => {
+                const current = event.currentTarget.currentTime
+                const delta = current - lastTimeRef.current
+                if (playingRef.current && delta > 0 && delta < 3) {
+                  pendingSecondsRef.current += delta
+                }
+                lastTimeRef.current = current
+                if (pendingSecondsRef.current >= 12) flushWatch(false, false)
+              }}
+              onEnded={() => {
+                playingRef.current = false
+                setFinished(true)
+                flushWatch(true, true)
+              }}
               onError={() => {
                 setLoading(false)
                 setMediaError(true)
@@ -3054,10 +3163,70 @@ function Login() {
   )
 }
 
+function VideoWatchSummary({
+  stats,
+}: {
+  stats: Record<string, VideoWatchRecord>
+}) {
+  const entries = Object.entries(stats)
+    .filter(([, record]) => record.seconds > 0 || record.views > 0)
+    .sort(([, a], [, b]) => {
+      const dateDiff = Date.parse(b.lastViewedAt || "") - Date.parse(a.lastViewedAt || "")
+      return Number.isFinite(dateDiff) && dateDiff !== 0 ? dateDiff : b.seconds - a.seconds
+    })
+  const totalSeconds = entries.reduce((total, [, record]) => total + record.seconds, 0)
+  const totalViews = entries.reduce((total, [, record]) => total + record.views, 0)
+
+  return (
+    <section className="my-6 rounded-2xl border border-primary/10 bg-white p-5">
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <Eyebrow>THEO DÕI VIDEO</Eyebrow>
+          <h2 className="mt-1 text-2xl text-primary">Tiến độ xem của bé</h2>
+        </div>
+        <p className="text-sm text-[#4A5461]">Cộng dồn theo thời gian xem thực tế</p>
+      </div>
+      <div className="mt-4 grid gap-3 sm:grid-cols-3">
+        <div className="rounded-xl bg-[#F3F8FC] p-4">
+          <b className="text-2xl text-primary">{entries.length}</b>
+          <p className="mt-1 text-xs text-[#4A5461]">Video đã xem</p>
+        </div>
+        <div className="rounded-xl bg-[#F3F8FC] p-4">
+          <b className="text-2xl text-primary">{formatWatchDuration(totalSeconds)}</b>
+          <p className="mt-1 text-xs text-[#4A5461]">Tổng thời gian xem</p>
+        </div>
+        <div className="rounded-xl bg-[#F3F8FC] p-4">
+          <b className="text-2xl text-primary">{totalViews}</b>
+          <p className="mt-1 text-xs text-[#4A5461]">Lượt mở video</p>
+        </div>
+      </div>
+      {entries.length > 0 && (
+        <ul className="mt-4 divide-y divide-primary/10 text-sm">
+          {entries.slice(0, 5).map(([id, record]) => (
+            <li key={id} className="flex items-center justify-between gap-4 py-3">
+              <span className="min-w-0 truncate text-[#4A5461]">{record.title || id}</span>
+              <span className="shrink-0 font-semibold text-primary">
+                {formatWatchDuration(record.seconds)}
+                {record.completed ? " · Đã xem hết" : ""}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+      {entries.length === 0 && (
+        <p className="mt-4 text-sm text-[#4A5461]">
+          Bé chưa xem video nào. Mở một video để bắt đầu ghi nhận tiến độ.
+        </p>
+      )}
+    </section>
+  )
+}
+
 function QuizAccount() {
   const {
     quizUser,
     quizAuthReady,
+    videoWatchStats,
     loginQuiz,
     registerQuiz,
     updateQuizAccountProfile,
@@ -3093,6 +3262,7 @@ function QuizAccount() {
           <p className="mt-3 text-sm text-[#4A5461]">
             Tài khoản phụ huynh · {quizUser.email}
           </p>
+          <VideoWatchSummary stats={videoWatchStats} />
           <div className="my-6 grid gap-3 sm:grid-cols-2">
             <div className="rounded-2xl bg-white p-5">
               <b className="text-3xl text-primary">{totalBestPoints}</b>
@@ -3200,6 +3370,7 @@ function QuizAccount() {
           Điểm tốt nhất và huy hiệu quiz được đồng bộ vào hồ sơ. Chỉ cần email
           của phụ huynh; bé có thể dùng biệt danh và chọn chủ đề yêu thích.
         </p>
+        <VideoWatchSummary stats={videoWatchStats} />
         <div role="group" aria-label="Chọn đăng nhập hoặc tạo tài khoản" className="mb-6 grid grid-cols-2 gap-1 rounded-full bg-[#F0F2F9] p-1">
           {[
             { label: "Đăng nhập", register: false },
@@ -4690,6 +4861,9 @@ function Provider({ children }: { children: ReactNode }) {
     () => localStorage.getItem("rikokid-last-quiz") || "general",
   )
   const [quizUser, setQuizUser] = useState<QuizUser | null>(null)
+  const [videoWatchStats, setVideoWatchStats] = useState<Record<string, VideoWatchRecord>>(
+    () => guestVideoWatchStats(),
+  )
   const [quizAuthReady, setQuizAuthReady] = useState(!isAppwriteConfigured)
   const [toast, setToast] = useState("")
   const [adminUser, setAdminUser] = useState<{
@@ -4728,7 +4902,10 @@ function Provider({ children }: { children: ReactNode }) {
     getQuizUser()
       .then(async (user) => (user ? mergeGuestQuizScores(user) : null))
       .then((user) => {
-        if (active) setQuizUser(user)
+        if (active) {
+          setQuizUser(user)
+          setVideoWatchStats(user?.quizProfile.videoWatch || guestVideoWatchStats())
+        }
       })
       .catch(() => {
         if (active) setQuizUser(null)
@@ -4751,6 +4928,42 @@ function Provider({ children }: { children: ReactNode }) {
       }
     },
     [quizUser],
+  )
+  const recordVideoWatch = useCallback(
+    async (input: {
+      videoId: string
+      title: string
+      chapter: string
+      seconds: number
+      duration: number
+      position: number
+      started?: boolean
+      completed?: boolean
+      syncToAccount?: boolean
+    }) => {
+      const current = videoWatchStats[input.videoId]
+      const next: VideoWatchRecord = {
+        title: input.title,
+        chapter: input.chapter,
+        seconds: Math.max(0, (current?.seconds || 0) + input.seconds),
+        duration: Math.max(current?.duration || 0, input.duration || 0),
+        views: (current?.views || 0) + (input.started ? 1 : 0),
+        lastPosition: Math.max(0, input.position || 0),
+        completed: Boolean(current?.completed || input.completed),
+        lastViewedAt: new Date().toISOString(),
+      }
+      const merged = { ...videoWatchStats, [input.videoId]: next }
+      setVideoWatchStats(merged)
+      localStorage.setItem("rikokid-video-watch", JSON.stringify(merged))
+      if (input.syncToAccount && quizUser) {
+        const user = await updateQuizProfile({
+          ...quizUser.quizProfile,
+          videoWatch: { ...quizUser.quizProfile.videoWatch, [input.videoId]: next },
+        })
+        setQuizUser(user)
+      }
+    },
+    [quizUser, videoWatchStats],
   )
   const ensureAdminSession = useCallback(() => {
     if (!isAppwriteConfigured) {
@@ -4838,16 +5051,22 @@ function Provider({ children }: { children: ReactNode }) {
         setLastQuizKey,
         quizUser,
         quizAuthReady,
+        videoWatchStats,
+        recordVideoWatch,
         loginQuiz: async (email, password) => {
           const user = await loginQuizUser(email, password)
-          setQuizUser(await mergeGuestQuizScores(user))
+          const mergedUser = await mergeGuestQuizScores(user)
+          setQuizUser(mergedUser)
+          setVideoWatchStats(mergedUser.quizProfile.videoWatch || guestVideoWatchStats())
           adminUserRef.current = null
           setAdminUser(null)
           setAuthReady(true)
         },
         registerQuiz: async (input) => {
           const user = await registerQuizUser(input)
-          setQuizUser(await mergeGuestQuizScores(user))
+          const mergedUser = await mergeGuestQuizScores(user)
+          setQuizUser(mergedUser)
+          setVideoWatchStats(mergedUser.quizProfile.videoWatch || guestVideoWatchStats())
           adminUserRef.current = null
           setAdminUser(null)
           setAuthReady(true)
@@ -4858,6 +5077,7 @@ function Provider({ children }: { children: ReactNode }) {
         logoutQuiz: async () => {
           await logoutQuizUser()
           setQuizUser(null)
+          setVideoWatchStats(guestVideoWatchStats())
           adminUserRef.current = null
           setAdminUser(null)
           setAuthReady(true)
