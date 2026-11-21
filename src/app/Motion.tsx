@@ -337,7 +337,7 @@ export function Marquee() {
   return (
     <div
       className="overflow-hidden bg-primary py-4 text-background"
-      aria-label="Đọc, khám phá, xem video, chơi quiz, học cùng Riko"
+      aria-label="Đọc, khám phá, xem video, trải nghiệm AR cùng Riko"
     >
       <div
         className="motion-marquee flex w-max gap-10 pr-10 text-sm font-bold tracking-[.14em]"
@@ -347,7 +347,7 @@ export function Marquee() {
           <span key={index} className="flex items-center gap-10">
             ĐỌC <Sparkles size={17} className="text-[#FBAF37]" /> KHÁM PHÁ{" "}
             <Sparkles size={17} className="text-[#FBAF37]" /> XEM VIDEO{" "}
-            <Sparkles size={17} className="text-[#FBAF37]" /> CHƠI QUIZ{" "}
+            <Sparkles size={17} className="text-[#FBAF37]" /> KHÁM PHÁ AR{" "}
             <Sparkles size={17} className="text-[#FBAF37]" /> HỌC CÙNG RIKO{" "}
             <Sparkles size={17} className="text-[#FBAF37]" />
           </span>
@@ -398,7 +398,7 @@ export function ScrollStory({ stages }: { stages: StoryStage[] }) {
       ref={ref}
       className={`relative bg-[#3F97D2]/[.07] ${cinematic ? "" : "py-12"}`}
       style={cinematic ? { height: `${stages.length * 58.333}vh` } : undefined}
-      aria-label="Đọc, quét mã và chơi cùng Riko"
+      aria-label="Đọc sách, quét mã và xem video cùng Riko"
     >
       <div
         className={

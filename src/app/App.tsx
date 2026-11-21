@@ -11,6 +11,7 @@ import {
 } from "react"
 import {
   createBrowserRouter,
+  Navigate,
   RouterProvider,
   Link,
   Outlet,
@@ -35,7 +36,6 @@ import {
   Heart,
   Brain,
   ScanLine,
-  Gamepad2,
   Check,
   Upload,
   Download,
@@ -54,12 +54,10 @@ import {
   Camera,
   Globe,
   Leaf,
-  Trophy,
   LogOut,
   Pencil,
   Smartphone,
   LockKeyhole,
-  UserRound,
 } from "lucide-react"
 import { motion, AnimatePresence, useInView } from "motion/react"
 import {
@@ -83,10 +81,6 @@ import VideoMascot from "./VideoMascot"
 import { isAppwriteConfigured } from "../lib/appwriteConfig"
 import type {
   OrderRecord,
-  QuizQuestion,
-  QuizRecord,
-  QuizProfile,
-  QuizUser,
   VideoWatchRecord,
   VideoRecord,
 } from "../lib/appwrite"
@@ -112,12 +106,8 @@ const ARScan = lazy(() => import("./ARScan"))
 
 const createOrder: typeof import("../lib/appwrite").createOrder = (...args) =>
   import("../lib/appwrite").then((appwrite) => appwrite.createOrder(...args))
-const createQuiz: typeof import("../lib/appwrite").createQuiz = (...args) =>
-  import("../lib/appwrite").then((appwrite) => appwrite.createQuiz(...args))
 const createVideo: typeof import("../lib/appwrite").createVideo = (...args) =>
   import("../lib/appwrite").then((appwrite) => appwrite.createVideo(...args))
-const deleteQuiz: typeof import("../lib/appwrite").deleteQuiz = (...args) =>
-  import("../lib/appwrite").then((appwrite) => appwrite.deleteQuiz(...args))
 const deleteVideo: typeof import("../lib/appwrite").deleteVideo = (...args) =>
   import("../lib/appwrite").then((appwrite) => appwrite.deleteVideo(...args))
 const getVideoByChapter: typeof import("../lib/appwrite").getVideoByChapter = (
@@ -129,8 +119,6 @@ const getAdminUser: typeof import("../lib/appwrite").getAdminUser = (...args) =>
   import("../lib/appwrite").then((appwrite) => appwrite.getAdminUser(...args))
 const listOrders: typeof import("../lib/appwrite").listOrders = (...args) =>
   import("../lib/appwrite").then((appwrite) => appwrite.listOrders(...args))
-const listQuizzes: typeof import("../lib/appwrite").listQuizzes = (...args) =>
-  import("../lib/appwrite").then((appwrite) => appwrite.listQuizzes(...args))
 const listVideos: typeof import("../lib/appwrite").listVideos = (...args) =>
   import("../lib/appwrite").then((appwrite) => appwrite.listVideos(...args))
 const loginAdmin: typeof import("../lib/appwrite").loginAdmin = (...args) =>
@@ -141,21 +129,6 @@ const requestPasswordRecovery: typeof import("../lib/appwrite").requestPasswordR
 const completePasswordRecovery: typeof import("../lib/appwrite").completePasswordRecovery = (
   ...args
 ) => import("../lib/appwrite").then((appwrite) => appwrite.completePasswordRecovery(...args))
-const getQuizUser: typeof import("../lib/appwrite").getQuizUser = (...args) =>
-  import("../lib/appwrite").then((appwrite) => appwrite.getQuizUser(...args))
-const registerQuizUser: typeof import("../lib/appwrite").registerQuizUser = (
-  ...args
-) => import("../lib/appwrite").then((appwrite) => appwrite.registerQuizUser(...args))
-const loginQuizUser: typeof import("../lib/appwrite").loginQuizUser = (...args) =>
-  import("../lib/appwrite").then((appwrite) => appwrite.loginQuizUser(...args))
-const updateQuizProfile: typeof import("../lib/appwrite").updateQuizProfile = (
-  ...args
-) => import("../lib/appwrite").then((appwrite) => appwrite.updateQuizProfile(...args))
-const saveQuizResultToAccount: typeof import("../lib/appwrite").saveQuizResult = (
-  ...args
-) => import("../lib/appwrite").then((appwrite) => appwrite.saveQuizResult(...args))
-const logoutQuizUser: typeof import("../lib/appwrite").logoutQuizUser = (...args) =>
-  import("../lib/appwrite").then((appwrite) => appwrite.logoutQuizUser(...args))
 const logoutAdmin: typeof import("../lib/appwrite").logoutAdmin = (...args) =>
   import("../lib/appwrite").then((appwrite) => appwrite.logoutAdmin(...args))
 const updateOrderStatus: typeof import("../lib/appwrite").updateOrderStatus = (
@@ -174,14 +147,6 @@ function ARScanRoute() {
 
 const money = (value: number) => value.toLocaleString("vi-VN") + "đ"
 const bookTitle = "Riko & khu rừng kỳ diệu"
-const guestQuizScores = (): Record<string, number> => {
-  try {
-    const scores = JSON.parse(localStorage.getItem("rikokid-quiz-scores") || "{}")
-    return scores && typeof scores === "object" ? scores : {}
-  } catch {
-    return {}
-  }
-}
 const guestVideoWatchStats = (): Record<string, VideoWatchRecord> => {
   try {
     const stats = JSON.parse(localStorage.getItem("rikokid-video-watch") || "{}")
@@ -196,36 +161,6 @@ const formatWatchDuration = (seconds: number) => {
   const minutes = Math.floor(total / 60)
   const remaining = total % 60
   return remaining ? `${minutes} phút ${remaining} giây` : `${minutes} phút`
-}
-async function mergeGuestQuizScores(user: QuizUser) {
-  const localScores = guestQuizScores()
-  const localVideoWatch = guestVideoWatchStats()
-  const bestScores = { ...user.quizProfile.bestScores }
-  const videoWatch = { ...user.quizProfile.videoWatch }
-  let changed = false
-  for (const [key, score] of Object.entries(localScores)) {
-    const best = Math.max(0, Number(score) || 0)
-    if (best > (bestScores[key] || 0)) {
-      bestScores[key] = best
-      changed = true
-    }
-  }
-  for (const [key, local] of Object.entries(localVideoWatch)) {
-    const remote = videoWatch[key]
-    if (!remote || local.seconds > remote.seconds || local.views > remote.views) {
-      videoWatch[key] = {
-        ...remote,
-        ...local,
-        seconds: Math.max(remote?.seconds || 0, local.seconds || 0),
-        views: Math.max(remote?.views || 0, local.views || 0),
-        completed: Boolean(remote?.completed || local.completed),
-      }
-      changed = true
-    }
-  }
-  return changed
-    ? updateQuizProfile({ ...user.quizProfile, bestScores, videoWatch })
-    : user
 }
 type VideoItem = VideoRecord
 type QRVideoSlot = {
@@ -313,47 +248,6 @@ function displayVideoChapter(chapter: string) {
 function videoChapterGroup(chapter: string) {
   return findQrSlot(chapter)?.group || chapter
 }
-const questions = [
-  {
-    text: "Riko đã tìm thấy gì trong khu rừng?",
-    answers: [
-      "Một chiếc chìa khóa",
-      "Một quyển sách",
-      "Một ngôi sao",
-      "Một chiếc hộp",
-    ],
-    correct: 2,
-    hint: "Vật này lấp lánh trên bầu trời đêm!",
-  },
-  {
-    text: "Chúng mình nên làm gì để bảo vệ khu rừng?",
-    answers: [
-      "Trồng thêm cây",
-      "Vứt rác xuống suối",
-      "Bẻ cành cây",
-      "Hái hết hoa",
-    ],
-    correct: 0,
-    hint: "Hãy giúp khu rừng có thêm màu xanh.",
-  },
-  {
-    text: "Khi một người bạn gặp khó khăn, Riko làm gì?",
-    answers: ["Bỏ đi", "Giúp đỡ bạn", "Trốn vào nhà", "Không quan tâm"],
-    correct: 1,
-    hint: "Riko luôn có một trái tim ấm áp.",
-  },
-  {
-    text: "Điều gì làm nên một nhà thám hiểm giỏi?",
-    answers: [
-      "Đi một mình",
-      "Không đặt câu hỏi",
-      "Tò mò và dũng cảm",
-      "Ngủ cả ngày",
-    ],
-    correct: 2,
-    hint: "Luôn sẵn sàng khám phá và học điều mới.",
-  },
-]
 type Context = {
   quantity: number
   setQuantity: (n: number) => void
@@ -362,25 +256,6 @@ type Context = {
   notify: (s: string) => void
   videos: VideoItem[]
   setVideos: (v: VideoItem[]) => void
-  quizzes: QuizRecord[]
-  setQuizzes: (v: QuizRecord[]) => void
-  score: number
-  setScore: (n: number) => void
-  lastQuizKey: string
-  setLastQuizKey: (key: string) => void
-  quizUser: QuizUser | null
-  quizAuthReady: boolean
-  loginQuiz: (email: string, password: string) => Promise<void>
-  registerQuiz: (input: {
-    guardianName: string
-    email: string
-    password: string
-    childNickname: string
-    interests: string[]
-  }) => Promise<void>
-  updateQuizAccountProfile: (profile: QuizProfile) => Promise<void>
-  logoutQuiz: () => Promise<void>
-  saveQuizProgress: (key: string, score: number) => Promise<void>
   videoWatchStats: Record<string, VideoWatchRecord>
   recordVideoWatch: (input: {
     videoId: string
@@ -391,13 +266,11 @@ type Context = {
     position: number
     started?: boolean
     completed?: boolean
-    syncToAccount?: boolean
   }) => Promise<void>
   adminUser: { $id: string; name: string; email: string } | null
   authReady: boolean
   ensureAdminSession: () => Promise<{ $id: string; name: string; email: string } | null>
   loadVideos: () => Promise<void>
-  loadQuizzes: (publishedOnly?: boolean) => Promise<void>
   login: (email: string, password: string) => Promise<void>
   logout: () => Promise<void>
   backendError: string
@@ -674,13 +547,12 @@ function Logo({ transparent = false, compact = false }: { transparent?: boolean;
 function Header() {
   const [open, setOpen] = useState(false)
   const { enabled } = useMotionPreferences()
-  const { quantity, quizUser } = useStore()
+  const { quantity } = useStore()
   const location = useLocation()
   useEffect(() => setOpen(false), [location])
   const links = [
     ["Trang chủ", "/"],
     ["Sách", "/book"],
-    ["Quiz", "/quizzes"],
     ["Trải nghiệm AR", "/scan"],
     ["Về Riko", "/about"],
   ]
@@ -730,16 +602,6 @@ function Header() {
               </span>
             )}
           </Link>
-          <Link
-            to="/tai-khoan"
-            aria-label={quizUser ? "Tài khoản phụ huynh" : "Đăng nhập tài khoản phụ huynh"}
-            title="Tài khoản phụ huynh"
-            aria-current={location.pathname === "/tai-khoan" ? "page" : undefined}
-            className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-[#FBAF37] bg-[#FBAF37] px-2.5 py-2.5 text-xs font-bold text-[#293D79] shadow-[0_4px_14px_#FBAF3733] transition hover:-translate-y-0.5 hover:bg-[#FFC567] hover:shadow-[0_7px_20px_#FBAF3744] sm:gap-2 sm:px-3 sm:text-sm xl:px-4"
-          >
-            <UserRound size={17} />
-            <span>{quizUser ? "Tài khoản" : "Đăng nhập"}</span>
-          </Link>
           <div className="hidden xl:block">
             <Button to="/book" className="!px-5 !py-3">
               Đặt trước <ArrowRight size={15} />
@@ -776,13 +638,6 @@ function Header() {
             <MotionToggle />
             <span className="text-sm text-primary">Chuyển động nhẹ nhàng</span>
           </div>
-          <Link
-            to="/tai-khoan"
-            className="inline-flex w-fit items-center gap-2 rounded-full bg-[#FBAF37] px-4 py-3 font-bold text-[#293D79]"
-          >
-            <UserRound size={18} />
-            {quizUser ? "Tài khoản phụ huynh" : "Đăng nhập"}
-          </Link>
         </nav>
       )}
     </header>
@@ -812,7 +667,7 @@ function Footer() {
           </div>
         </div>
         {[
-          ["Khám phá", ["Sách Riko", "/book"], ["Quiz & trò chơi", "/quizzes"]],
+          ["Khám phá", ["Sách Riko", "/book"], ["Video cùng Riko", "/videos"]],
           [
             "Cùng Riko",
             ["Về Riko", "/about"],
@@ -849,20 +704,17 @@ function Footer() {
 function Layout() {
   const location = useLocation()
   const { enabled } = useMotionPreferences()
-  const { ensureAdminSession, loadVideos, loadQuizzes } = useStore()
+  const { ensureAdminSession, loadVideos } = useStore()
   const immersive =
     location.pathname.startsWith("/watch/") ||
-    location.pathname === "/scan" ||
-    ["/quiz", "/result"].includes(location.pathname)
+    location.pathname === "/scan"
   useEffect(() => {
     window.scrollTo(0, 0)
   }, [location.pathname])
   useEffect(() => {
     if (location.pathname === "/login") void ensureAdminSession()
     if (location.pathname === "/videos") void loadVideos()
-    if (["/quizzes", "/quiz"].includes(location.pathname))
-      void loadQuizzes(true)
-  }, [location.pathname, ensureAdminSession, loadVideos, loadQuizzes])
+  }, [location.pathname, ensureAdminSession, loadVideos])
   return (
     <>
       {location.pathname === "/scan" ? null : immersive ? (
@@ -871,15 +723,13 @@ function Layout() {
           <div className="flex items-center gap-3">
             <MotionToggle />
             <Link
-              to={location.pathname.startsWith("/watch/") || location.pathname === "/scan" ? "/" : "/quizzes"}
+              to="/"
               className="flex items-center gap-2 rounded-full border border-border bg-white p-3 text-base font-semibold text-primary"
-              aria-label="Thoát"
+              aria-label="Trang chủ"
             >
               <X size={18} />
               <span className="hidden sm:block">
-                {location.pathname.startsWith("/watch/") || location.pathname === "/scan"
-                  ? "Trang chủ"
-                  : "Thoát"}
+                Trang chủ
               </span>
             </Link>
           </div>
@@ -1291,15 +1141,15 @@ function Home() {
               icon: ScanLine,
               title: "Quét QR",
               desc: "Quét mã QR được đặt trong từng phần của cuốn sách.",
-              to: "/watch/1",
+              to: "/scan",
               color: "bg-[#3F97D2]/15",
               ink: "text-[#1D80C4]",
             },
             {
-              icon: Gamepad2,
-              title: "Xem & Chơi",
-              desc: "Xem video, trả lời câu hỏi và nhận những phần thưởng thú vị.",
-              to: "/quizzes",
+              icon: Play,
+              title: "Xem video",
+              desc: "Theo dõi những câu chuyện ngắn mở rộng từ trang sách.",
+              to: "/videos",
               color: "bg-[#FBAF37]/15",
               ink: "text-[#F5801F]",
             },
@@ -1373,53 +1223,22 @@ function Home() {
             ),
           },
           {
-            label: "04 · CHƠI QUIZ",
-            title: "Đến lượt bạn tỏa sáng!",
-            text: "Cùng trả lời câu hỏi, thử lại nếu cần và khám phá những điều bạn vừa học được.",
+            label: "04 · KHÁM PHÁ AR",
+            title: "Câu chuyện bước ra khỏi trang sách",
+            text: "Quét mã trên trang sách để mở trải nghiệm thực tế tăng cường cùng Riko.",
             visual: (
-              <div className="w-[85%] rotate-2 rounded-2xl border border-primary/10 bg-background p-6 shadow-lg">
-                <p className="mb-3 text-xs font-bold text-[#1D80C4]">
-                  RIKO CHALLENGE · CÂU 1 / 4
-                </p>
-                <h3 className="mb-4 text-xl">
-                  Riko đã tìm thấy gì trong khu rừng?
-                </h3>
-                <div className="grid grid-cols-2 gap-2">
-                  {questions[0].answers.map((answer, index) => (
-                    <Link
-                      key={answer}
-                      to="/quiz"
-                      className={`rounded-xl border p-3 text-xs font-semibold ${
-                        index === 2
-                          ? "border-[#59B447] bg-[#59B447]/10 text-[#28823F]"
-                          : "border-primary/10 bg-white"
-                      }`}
-                    >
-                      {answer}
-                    </Link>
-                  ))}
+              <div className="w-[78%] rotate-2 rounded-[30px] border-[7px] border-primary bg-background p-5 shadow-xl">
+                <div className="mb-4 flex items-center justify-between text-xs font-bold text-primary">
+                  <span>RIKO · AR</span>
+                  <ScanLine size={18} />
                 </div>
+                <div className="flex h-52 items-center justify-center rounded-2xl bg-[#3F97D2]/10">
+                  <Mascot pose="welcome" className="h-44" />
+                </div>
+                <p className="mt-4 text-center text-sm font-bold text-primary">
+                  Cùng Riko khám phá thế giới thật
+                </p>
               </div>
-            ),
-          },
-          {
-            label: "05 · NHẬN PHẦN THƯỞNG",
-            title: "Mỗi khám phá là một kho báu",
-            text: "Nhận ngôi sao, sưu tầm huy hiệu và cùng Riko ăn mừng. Học điều mới thật vui!",
-            visual: (
-              <>
-                <Mascot pose="celebrating" className="h-64" />
-                <Floating className="absolute right-8 top-14" duration={7}>
-                  <Star
-                    size={38}
-                    fill="currentColor"
-                    className="text-[#FBAF37]"
-                  />
-                </Floating>
-                <span className="collectible absolute bottom-6 rounded-2xl border-2 border-dashed border-[#FBAF37] bg-background px-4 py-3 text-sm font-bold text-primary">
-                  🏅 Nhà thám hiểm Riko
-                </span>
-              </>
             ),
           },
         ]}
@@ -1513,68 +1332,6 @@ function Home() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, amount: 0.08 }}
         transition={{ duration: 0.6 }}
-        className="mx-auto max-w-[1160px] px-6"
-      >
-        <div className="grid items-center gap-10 rounded-[28px] bg-primary px-7 py-10 md:grid-cols-[1fr_1.1fr] md:px-12">
-          <div>
-            <p className="mb-3 text-xs font-bold tracking-[.1em] text-[#FBAF37]">
-              THỬ THÁCH NHỎ, NIỀM VUI LỚN
-            </p>
-            <h2 className="text-4xl leading-tight text-white">
-              Thử thách
-              <br />
-              cùng Riko!
-            </h2>
-            <p className="my-5 max-w-sm text-sm font-medium leading-7 text-white/80">
-              Bạn hiểu câu chuyện đến đâu? Chinh phục câu đố, nhận ngôi sao và
-              sưu tầm huy hiệu của riêng mình.
-            </p>
-            <Button
-              to="/quiz"
-              className="!bg-[#FBAF37] !text-[#363B47] hover:!bg-[#F5801F]"
-            >
-              <Gamepad2 size={20} /> Chơi ngay
-            </Button>
-          </div>
-          <div className="relative">
-            <div className="rotate-2 rounded-3xl bg-background p-6 shadow-xl">
-              <div className="flex justify-between text-xs font-bold text-primary">
-                <span>✦ RIKO CHALLENGE</span>
-                <span>Câu 1 / 4</span>
-              </div>
-              <div className="my-4 h-2 rounded-full bg-primary/10">
-                <div className="h-full w-1/4 rounded-full bg-[#3F97D2]" />
-              </div>
-              <h3 className="mb-5 text-xl leading-7">
-                Riko đã tìm thấy gì trong khu rừng?
-              </h3>
-              <div className="grid gap-3 sm:grid-cols-2">
-                {questions[0].answers.map((answer, index) => (
-                  <Link
-                    to="/quiz"
-                    key={answer}
-                    className="rounded-xl border border-primary/10 bg-white p-3.5 text-xs font-semibold transition hover:border-primary hover:bg-primary/5"
-                  >
-                    <span className="mr-2 text-primary">
-                      {String.fromCharCode(65 + index)}.
-                    </span>
-                    {answer}
-                  </Link>
-                ))}
-              </div>
-            </div>
-            <Mascot
-              pose="encouraging"
-              className="absolute -bottom-9 -right-6 hidden h-30 sm:block"
-            />
-          </div>
-        </div>
-      </motion.section>
-      <motion.section
-        initial={enabled ? { opacity: 0, y: 14 } : false}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.08 }}
-        transition={{ duration: 0.6 }}
         className="mx-auto max-w-[1160px] px-6 py-15"
       >
         <SectionTitle
@@ -1586,7 +1343,7 @@ function Home() {
             {[
               [64, "Trang sách đầy màu sắc"],
               [3, "Video câu chuyện"],
-              [4, "Câu đố khám phá"],
+              [bookVideoSlots.length, "Điểm quét QR trong sách"],
               [1, "Người bạn đồng hành"],
             ].map(([value, label]) => (
               <div key={String(label)} className="text-center">
@@ -1608,7 +1365,7 @@ function Home() {
             [
               Brain,
               "Ghi nhớ tự nhiên",
-              "Học thông qua câu chuyện và trò chơi.",
+              "Kết nối câu chuyện, video và trải nghiệm AR.",
             ],
             [
               ShieldCheck,
@@ -2016,7 +1773,7 @@ function Watch() {
     lastTimeRef.current = 0
     pendingSecondsRef.current = 0
   }, [location.pathname])
-  const flushWatch = useCallback((completed = false, syncToAccount = true) => {
+  const flushWatch = useCallback((completed = false) => {
     const seconds = pendingSecondsRef.current
     if (!item?.url || (!seconds && !completed)) return
     pendingSecondsRef.current = 0
@@ -2030,10 +1787,9 @@ function Watch() {
         : 0,
       position: videoRef.current?.currentTime || lastTimeRef.current,
       completed,
-      syncToAccount,
     })
   }, [item?.id, item?.title, item?.chapter, item?.url])
-  useEffect(() => () => flushWatch(false, true), [item?.id, flushWatch])
+  useEffect(() => () => flushWatch(false), [item?.id, flushWatch])
   if (!item && resolving)
     return (
       <div className="mx-auto flex min-h-80 max-w-xl flex-col items-center justify-center px-6 py-12 text-center">
@@ -2105,13 +1861,12 @@ function Watch() {
                     duration: videoRef.current?.duration || 0,
                     position: lastTimeRef.current,
                     started: true,
-                    syncToAccount: true,
                   })
                 }
               }}
               onPause={() => {
                 playingRef.current = false
-                flushWatch(false, true)
+                flushWatch(false)
               }}
               onTimeUpdate={(event) => {
                 const current = event.currentTarget.currentTime
@@ -2120,12 +1875,12 @@ function Watch() {
                   pendingSecondsRef.current += delta
                 }
                 lastTimeRef.current = current
-                if (pendingSecondsRef.current >= 12) flushWatch(false, false)
+                if (pendingSecondsRef.current >= 12) flushWatch(false)
               }}
               onEnded={() => {
                 playingRef.current = false
                 setFinished(true)
-                flushWatch(true, true)
+                flushWatch(true)
               }}
               onError={() => {
                 setLoading(false)
@@ -2188,8 +1943,8 @@ function Watch() {
         <div>
           <h1 className="text-3xl">{item.title}</h1>
           <p className="mt-3 text-base leading-7 text-[#4A5461]">
-            Cùng Riko khám phá những điều kỳ diệu và sẵn sàng cho một thử thách
-            nhỏ!
+            Cùng Riko khám phá những điều kỳ diệu qua video nối tiếp câu chuyện
+            trong sách.
           </p>
         </div>
         <Mascot className="hidden h-35 w-35 sm:block" />
@@ -2203,503 +1958,8 @@ function Watch() {
         transition={{ duration: 1 }}
         className="mt-6 flex flex-wrap gap-3"
       >
-        <Button to={`/quiz?chapter=${item.chapter.match(/\d/)?.[0] || 1}`}>
-          <Gamepad2 size={18} /> Chơi Quiz
-        </Button>
-        {nextVideo && (
-          <Button secondary to={`/watch/${nextVideo.id}`}>
-            Video tiếp theo <ArrowRight size={16} />
-          </Button>
-        )}
-      </motion.div>
-    </div>
-  )
-}
-function Quizzes() {
-  const { score, quizzes, quizUser } = useStore()
-  const bestScores = quizUser?.quizProfile.bestScores || guestQuizScores()
-  const accountBestPoints = Math.max(
-    score,
-    Object.values(bestScores).reduce(
-      (total, value) => total + Number(value || 0),
-      0,
-    ),
-  )
-  const publishedQuizzes = quizzes.filter((quiz) => quiz.published)
-  const adventures = publishedQuizzes.length
-    ? publishedQuizzes
-    : [
-        {
-          id: "",
-          title: "Riko bắt đầu hành trình",
-          chapter: "Chương 1",
-          questions,
-        },
-        {
-          id: "",
-          title: "Những người bạn nhỏ",
-          chapter: "Chương 2",
-          questions,
-        },
-        { id: "", title: "Nhà thám hiểm xanh", chapter: "Chương 3", questions },
-      ]
-  return (
-    <div className="mx-auto max-w-[1100px] px-6 py-8">
-      <div className="mb-10 grid items-center gap-6 rounded-[28px] bg-[#3F97D2]/10 px-7 py-8 md:grid-cols-[1.8fr_1fr]">
-        <div>
-          <Eyebrow>SẴN SÀNG, NHÀ THÁM HIỂM NHỎ?</Eyebrow>
-          <h1 className="text-4xl leading-tight md:text-[48px]">
-            Thử thách cùng Riko
-          </h1>
-          <p className="my-4 text-base leading-7 text-[#4A5461]">
-            {quizUser?.quizProfile.childNickname
-              ? `Chào ${quizUser.quizProfile.childNickname}! ${quizUser.quizProfile.interests.length ? `Riko nhớ bé thích ${quizUser.quizProfile.interests.join(", ")}. ` : ""}Cùng chơi quiz, lưu điểm và sưu tập huy hiệu nhé.`
-              : "Cùng chơi, cùng học và thu thập những ngôi sao của riêng bạn. Mỗi thử thách là một cuộc phiêu lưu mới!"}
-          </p>
-          <div className="flex flex-wrap gap-3">
-            <span className="rounded-full bg-white px-4 py-2 text-base font-bold text-primary">
-              ★ {accountBestPoints} điểm khám phá
-            </span>
-            <span className="rounded-full bg-white px-4 py-2 text-base font-bold text-primary">
-              🏅 {accountBestPoints > 0 ? 1 : 0} huy hiệu
-            </span>
-            <Link
-              to="/tai-khoan"
-              className="inline-flex items-center gap-2 rounded-full border border-primary/15 bg-white px-4 py-2 text-sm font-bold text-primary hover:bg-primary/5"
-            >
-              <UserRound size={16} />
-              {quizUser ? "Hồ sơ phụ huynh" : "Đăng nhập để lưu tiến độ"}
-            </Link>
-          </div>
-        </div>
-        <Mascot pose="encouraging" className="mx-auto h-53" />
-      </div>
-      <h2 className="mb-6 text-3xl">Chọn cuộc phiêu lưu của bạn</h2>
-      <div className="grid gap-6 md:grid-cols-3">
-        {adventures.map((quiz, index) => {
-          const quizKey = quiz.id || `chapter-${index + 1}`
-          const completed = Number(bestScores[quizKey] || 0) > 0
-          return (
-            <div
-              className="relative rounded-[24px] border border-primary/10 bg-white p-6"
-              key={quiz.id || quiz.title}
-            >
-            <p className="mb-5 text-sm font-bold tracking-[.12em] text-[#1D80C4]">
-              {quiz.chapter.toUpperCase()}
-            </p>
-            <div className="mb-5 flex size-16 -rotate-6 items-center justify-center rounded-2xl bg-primary/10">
-              {index === 0 ? (
-                <BookOpen size={32} className="text-primary" />
-              ) : index === 1 ? (
-                <Heart size={32} className="text-primary" />
-              ) : (
-                <Leaf size={32} className="text-primary" />
-              )}
-            </div>
-            <h3 className="min-h-15 text-2xl leading-tight">{quiz.title}</h3>
-            <p className="my-4 text-base text-[#4A5461]">
-              {quiz.questions.length} câu hỏi · ★★★ có thể nhận
-            </p>
-            <div className="mb-5 h-1.5 rounded-full bg-primary/10">
-              <div
-                className={`h-full rounded-full bg-[#59B447] ${
-                  completed ? "w-full" : "w-0"
-                }`}
-              />
-            </div>
-            <div className="flex items-center justify-between">
-              <Button
-                to={
-                  quiz.id
-                    ? `/quiz?quiz=${quiz.id}`
-                    : `/quiz?chapter=${index + 1}`
-                }
-              >
-                Bắt đầu <ArrowRight size={16} />
-              </Button>
-              <span className="text-sm font-semibold text-[#4A5461]">
-                {completed ? "✓ Đã hoàn thành" : "Chưa khám phá"}
-              </span>
-            </div>
-            </div>
-          )
-        })}
-      </div>
-      <div className="mt-10 rounded-3xl border border-primary/10 p-6">
-        <h3 className="mb-5 text-xl">Bộ sưu tập của bạn</h3>
-        <div className="flex flex-wrap gap-5">
-          {[
-            "Nhà thám hiểm",
-            "Siêu trí nhớ",
-            "Bạn của Riko",
-            "Bậc thầy câu đố",
-          ].map((badge, index) => (
-            <div
-              key={badge}
-              className={`collectible flex items-center gap-3 rounded-2xl border-2 border-dashed px-4 py-3 text-base font-bold ${
-                accountBestPoints > 0 && index === 0
-                  ? "border-[#FBAF37] bg-[#FBAF37]/10 text-primary"
-                  : "border-primary/15 text-[#4A5461]/55"
-              }`}
-            >
-              <Trophy
-                size={24}
-                className={
-                  accountBestPoints > 0 && index === 0
-                    ? "text-[#FBAF37]"
-                    : "text-primary/25"
-                }
-              />
-              {badge}
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  )
-}
-function Quiz() {
-  const [current, setCurrent] = useState(0)
-  const [selected, setSelected] = useState<number | null>(null)
-  const [points, setPoints] = useState(0)
-  const [retried, setRetried] = useState(false)
-  const [retryReady, setRetryReady] = useState(false)
-  const [attempt, setAttempt] = useState(0)
-  const { setScore, setLastQuizKey, quizzes } = useStore()
-  const navigate = useNavigate()
-  const location = useLocation()
-  const { enabled } = useMotionPreferences()
-  const requestedQuizId = new URLSearchParams(location.search).get("quiz")
-  const activeQuiz =
-    quizzes.find((quiz) => quiz.id === requestedQuizId && quiz.published) ||
-    quizzes.find((quiz) => quiz.published)
-  const activeQuestions = activeQuiz?.questions.length
-    ? activeQuiz.questions
-    : questions
-  const question =
-    activeQuestions[Math.min(current, activeQuestions.length - 1)]
-  const correct = selected === question.correct
-  useEffect(() => {
-    setCurrent(0)
-    setSelected(null)
-    setPoints(0)
-    setRetried(false)
-  }, [requestedQuizId, activeQuiz?.id])
-  useEffect(() => {
-    setRetryReady(false)
-    if (selected === null || selected === question.correct) return
-    const timer = setTimeout(() => setRetryReady(true), 900)
-    return () => clearTimeout(timer)
-  }, [selected, current, attempt, question.correct])
-  function next() {
-    if (current === activeQuestions.length - 1) {
-      setScore(points)
-      const requestedChapter = new URLSearchParams(location.search).get("chapter")
-      setLastQuizKey(
-        requestedQuizId || `chapter-${requestedChapter || "1"}`,
-      )
-      navigate("/result", { viewTransition: enabled })
-    } else {
-      setCurrent(current + 1)
-      setSelected(null)
-      setRetried(false)
-    }
-  }
-  return (
-    <div className="mx-auto max-w-[850px] overflow-x-clip px-6 py-9">
-      <div className="mb-5 flex justify-between rounded-2xl border border-primary/10 bg-white/80 p-4 text-base font-semibold backdrop-blur-sm">
-        <span>
-          {activeQuiz ? `${activeQuiz.title} · ` : ""}Câu {current + 1} /{" "}
-          {activeQuestions.length}
-        </span>
-        <span className="text-primary">
-          <Star
-            size={17}
-            fill="currentColor"
-            className="mr-1 inline text-[#FBAF37]"
-          />{" "}
-          <AnimatedNumber value={points} /> điểm
-        </span>
-      </div>
-      <div
-        role="progressbar"
-        aria-label="Tiến độ bài quiz"
-        aria-valuenow={current + 1}
-        aria-valuemin={0}
-        aria-valuemax={activeQuestions.length}
-        className="mb-6 h-3 overflow-hidden rounded-full bg-primary/10"
-      >
-        <motion.div
-          className="h-full origin-left rounded-full bg-[#1D80C4]"
-          animate={{ scaleX: (current + 1) / activeQuestions.length }}
-          transition={{ duration: enabled ? 0.6 : 0, ease: "easeInOut" }}
-        />
-      </div>
-      <div className="mb-5 flex items-center justify-center gap-4">
-        <Mascot
-          pose={
-            selected === null
-              ? "encouraging"
-              : correct
-                ? "celebrating"
-                : "thinking"
-          }
-          className="h-30 w-24"
-        />
-        <motion.p
-          key={selected === null ? "ready" : correct ? "correct" : "retry"}
-          initial={enabled ? { opacity: 0, y: 5 } : false}
-          animate={{ opacity: 1, y: 0 }}
-          className="rounded-[20px_20px_20px_5px] border border-primary/15 bg-white px-5 py-4 text-base font-bold text-primary"
-        >
-          {selected === null
-            ? "Cùng thử câu này nhé!"
-            : correct
-              ? "Bạn giỏi lắm! ✨"
-              : "Mình thử lại nhé!"}
-        </motion.p>
-      </div>
-      <AnimatePresence mode="wait" initial={false}>
-        <motion.div
-          key={current}
-          initial={enabled ? { opacity: 0, x: 24 } : false}
-          animate={{ opacity: 1, x: 0 }}
-          exit={enabled ? { opacity: 0, x: -20 } : undefined}
-          transition={{ duration: enabled ? 0.25 : 0 }}
-          className="relative rounded-[24px] border border-primary/15 bg-white p-6 shadow-[0_8px_30px_#374BA008] md:p-10"
-        >
-          <Eyebrow>RIKOKID CHALLENGE</Eyebrow>
-          <h1 className="mb-8 font-sans text-2xl leading-snug md:text-3xl">
-            {question.text}
-          </h1>
-          <div className="grid gap-4 sm:grid-cols-2">
-            {question.answers.map((answer, index) => (
-              <motion.button
-                type="button"
-                key={answer}
-                disabled={selected !== null && (correct || !retryReady)}
-                onClick={() => {
-                  setSelected(index)
-                  setAttempt(attempt + 1)
-                  if (index === question.correct)
-                    setPoints(points + (retried ? 5 : 10))
-                  else setRetried(true)
-                }}
-                animate={
-                  enabled && selected === index && !correct
-                    ? { x: [0, -4, 4, -2, 0] }
-                    : { x: 0 }
-                }
-                transition={{ duration: 0.35 }}
-                whileHover={enabled ? { y: -2 } : undefined}
-                whileTap={enabled ? { scale: 0.985 } : undefined}
-                className={`relative flex min-h-19 items-center gap-4 rounded-2xl border-2 p-4 text-left text-base transition-colors ${
-                  selected === index
-                    ? correct
-                      ? "border-[#59B447] bg-[#59B447]/10 text-[#28823F]"
-                      : "border-[#F15A3E]/50 bg-[#F15A3E]/5"
-                    : "border-primary/15 bg-white/80 hover:border-[#1D80C4]"
-                }`}
-              >
-                <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-background font-bold">
-                  {String.fromCharCode(65 + index)}
-                </span>
-                {answer}
-                {selected === index && correct && (
-                  <>
-                    <motion.span
-                      initial={enabled ? { scale: 0, rotate: -25 } : false}
-                      animate={{ scale: 1, rotate: 0 }}
-                      transition={{ type: "spring", duration: 0.4 }}
-                    >
-                      <Check size={20} />
-                    </motion.span>
-                    <RewardBurst points={retried ? 5 : 10} />
-                  </>
-                )}
-              </motion.button>
-            ))}
-          </div>
-          <AnimatePresence>
-            {selected !== null && (
-              <motion.div
-                key={correct ? "correct" : "incorrect"}
-                role="status"
-                initial={enabled ? { opacity: 0, y: 8 } : false}
-                animate={{ opacity: 1, y: 0 }}
-                exit={enabled ? { opacity: 0 } : undefined}
-                transition={{ duration: 0.25 }}
-                className={`mt-6 flex items-center gap-4 rounded-2xl p-4 ${
-                  correct ? "bg-[#59B447]/10" : "bg-[#F15A3E]/5"
-                }`}
-              >
-                <Mascot
-                  pose={correct ? "celebrating" : "thinking"}
-                  className="h-28 w-25 shrink-0"
-                />
-                <div>
-                  <h3
-                    className={`text-xl ${
-                      correct ? "text-[#28823F]" : "text-primary"
-                    }`}
-                  >
-                    {correct
-                      ? "Chính xác! Tuyệt vời! ✨"
-                      : "Chưa đúng rồi! Thử lại nhé!"}
-                  </h3>
-                  <p className="my-2 text-sm">
-                    {correct
-                      ? `+${retried ? 5 : 10} điểm · Bạn đang làm rất tốt!`
-                      : question.hint}
-                  </p>
-                  <Button
-                    onClick={
-                      correct
-                        ? next
-                        : () => {
-                            setSelected(null)
-                            setRetried(true)
-                          }
-                    }
-                  >
-                    {correct
-                      ? current === activeQuestions.length - 1
-                        ? "Xem kết quả"
-                        : "Câu tiếp theo"
-                      : "Thử lại"}
-                    <ArrowRight size={15} />
-                  </Button>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </motion.div>
-      </AnimatePresence>
-      <p className="mt-5 text-center text-sm text-[#4A5461]">
-        Không cần vội, Riko luôn ở đây để cổ vũ bạn! 🌿
-      </p>
-    </div>
-  )
-}
-function Result() {
-  const { score, lastQuizKey, quizUser, saveQuizProgress } = useStore()
-  const { enabled } = useMotionPreferences()
-  const stars = score >= 35 ? 3 : score >= 25 ? 2 : score > 0 ? 1 : 0
-  const savedRunRef = useRef("")
-  const [saveState, setSaveState] = useState("")
-  useEffect(() => {
-    if (score <= 0) return
-    const signature = `${lastQuizKey}:${score}:${quizUser?.$id || "guest"}`
-    if (savedRunRef.current === signature) return
-    savedRunRef.current = signature
-    void saveQuizProgress(lastQuizKey, score)
-      .then(() => setSaveState(quizUser ? "Đã lưu tiến độ vào tài khoản." : "Đã lưu trên thiết bị này."))
-      .catch(() => setSaveState("Chưa đồng bộ được. Tiến độ vẫn còn trên thiết bị này."))
-  }, [lastQuizKey, score, quizUser?.$id, saveQuizProgress])
-  const entrance = (delay: number) => ({
-    initial: enabled ? { opacity: 0, y: 12, scale: 0.96 } : false as const,
-    animate: { opacity: 1, y: 0, scale: 1 },
-    transition: { duration: enabled ? 0.6 : 0, delay: enabled ? delay : 0 },
-  })
-  return (
-    <div className="relative mx-auto max-w-[800px] overflow-hidden px-6 py-9 text-center">
-      {enabled &&
-        Array.from({ length: 14 }, (_, index) => (
-          <span
-            key={index}
-            aria-hidden="true"
-            className="pointer-events-none absolute top-12 text-2xl text-[#FBAF37]"
-            style={{
-              left: 10 + index * 6 + "%",
-              animation: `celebrate ${2 + index / 12}s ease-out ${1.5 + index / 15}s both`,
-            }}
-          >
-            ✦
-          </span>
-        ))}
-      <motion.div {...entrance(0)}>
-        <Mascot pose="celebrating" className="mx-auto h-65" />
-      </motion.div>
-      <motion.h1 {...entrance(0.2)} className="text-4xl sm:text-5xl">
-        Bạn làm rất tốt!
-      </motion.h1>
-      <motion.p {...entrance(0.3)} className="mt-4 text-base text-[#4A5461]">
-        Mỗi điều bạn học được là một kho báu mới.
-      </motion.p>
-      <div
-        className="my-7 flex justify-center gap-3"
-        aria-label={`${stars} ngôi sao`}
-      >
-        {[0, 1, 2].map((index) => (
-          <motion.span
-            key={index}
-            initial={enabled ? { opacity: 0, scale: 0.4, rotate: -15 } : false}
-            animate={{ opacity: 1, scale: 1, rotate: 0 }}
-            transition={{
-              type: "spring",
-              duration: 0.65,
-              bounce: 0.4,
-              delay: enabled ? 0.9 + index * 0.18 : 0,
-            }}
-          >
-            <Star
-              size={42}
-              fill="currentColor"
-              className={index < stars ? "text-[#FBAF37]" : "text-primary/15"}
-            />
-          </motion.span>
-        ))}
-      </div>
-      <motion.div
-        {...entrance(0.45)}
-        className="mx-auto flex max-w-md justify-center gap-8 rounded-3xl border border-primary/10 bg-[#3F97D2]/10 p-7"
-      >
-        <div>
-          <b className="text-3xl">
-            <AnimatedNumber value={score} delay={enabled ? 0.3 : 0} /> / 40
-          </b>
-          <p className="mt-2 text-sm">Điểm khám phá</p>
-        </div>
-        <div>
-          <b className="text-3xl">{score > 0 ? 4 : 0} / 4</b>
-          <p className="mt-2 text-sm">Câu hoàn thành</p>
-        </div>
-      </motion.div>
-      <motion.div {...entrance(1.3)} className="my-8 flex justify-center">
-        <Floating duration={7}>
-          <div className="collectible flex items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-[#FBAF37] bg-[#FBAF37]/10 px-5 py-4">
-            <Trophy className="text-[#F5801F]" />
-            <span className="text-lg font-bold text-primary">
-              Nhà thám hiểm Riko
-            </span>
-          </div>
-        </Floating>
-      </motion.div>
-      <div className="mx-auto mb-8 max-w-xl rounded-2xl border border-primary/10 bg-white p-5">
-        <p className="font-bold text-primary">
-          {quizUser
-            ? `Tiến độ của ${quizUser.quizProfile.childNickname || "bé"} sẽ được lưu vào hồ sơ phụ huynh.`
-            : "Đăng nhập tài khoản phụ huynh để đồng bộ điểm và cá nhân hóa huy hiệu."}
-        </p>
-        {saveState && <p className="mt-2 text-sm text-[#4A5461]">{saveState}</p>}
-        <Link
-          to="/tai-khoan"
-          className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-[#1D80C4] underline underline-offset-4"
-        >
-          <UserRound size={16} />
-          {quizUser ? "Xem hồ sơ quiz" : "Đăng nhập hoặc tạo tài khoản"}
-        </Link>
-      </div>
-      <motion.div
-        {...entrance(1.5)}
-        className="flex flex-wrap justify-center gap-3"
-      >
-        <Button to="/quiz">Chơi lại</Button>
-        <Button secondary to="/quizzes">
-          Quiz tiếp theo
-        </Button>
-        <Button secondary to="/">
-          Về trang chủ
+        <Button to={nextVideo ? `/watch/${nextVideo.id}` : "/videos"}>
+          {nextVideo ? "Video tiếp theo" : "Xem các video"} <ArrowRight size={16} />
         </Button>
       </motion.div>
     </div>
@@ -2942,8 +2202,8 @@ function Success() {
       <p className="my-5 text-sm text-[#4A5461]">Mã đơn hàng #{orderCode}</p>
       <div className="flex flex-wrap justify-center gap-3">
         <Button onClick={() => setTrack(!track)}>Theo dõi đơn hàng</Button>
-        <Button secondary to="/quizzes">
-          Khám phá Quiz
+        <Button secondary to="/videos">
+          Xem video cùng Riko
         </Button>
       </div>
       {track && (
@@ -2959,6 +2219,7 @@ function Success() {
   )
 }
 function About({ parents = false }: { parents?: boolean }) {
+  const { videoWatchStats } = useStore()
   if (parents)
     return (
       <div className="mx-auto max-w-[1050px] px-6 py-12">
@@ -2999,7 +2260,7 @@ function About({ parents = false }: { parents?: boolean }) {
             ],
             [
               "Học qua trải nghiệm",
-              "Kết hợp kể chuyện, hoạt động ngoài trời và quiz để củng cố kiến thức.",
+              "Kết hợp kể chuyện, hoạt động ngoài trời và video để mở rộng trải nghiệm.",
             ],
           ].map(([title, text], index) => (
             <div
@@ -3014,6 +2275,7 @@ function About({ parents = false }: { parents?: boolean }) {
             </div>
           ))}
         </div>
+        <VideoWatchSummary stats={videoWatchStats} />
       </div>
     )
   return (
@@ -3080,8 +2342,8 @@ function About({ parents = false }: { parents?: boolean }) {
         <h2 className="mb-6 text-3xl text-white">
           Cùng Riko khám phá thế giới
         </h2>
-        <Button to="/quizzes" className="!bg-[#FBAF37] !text-[#363B47]">
-          Sẵn sàng cho cuộc phiêu lưu! <ArrowRight size={16} />
+        <Button to="/book" className="!bg-[#FBAF37] !text-[#363B47]">
+          Chọn sách để khám phá <ArrowRight size={16} />
         </Button>
       </div>
     </div>
@@ -3222,263 +2484,6 @@ function VideoWatchSummary({
   )
 }
 
-function QuizAccount() {
-  const {
-    quizUser,
-    quizAuthReady,
-    videoWatchStats,
-    loginQuiz,
-    registerQuiz,
-    updateQuizAccountProfile,
-    logoutQuiz,
-  } = useStore()
-  const [registerMode, setRegisterMode] = useState(false)
-  const [submitting, setSubmitting] = useState(false)
-  const [error, setError] = useState("")
-  const [message, setMessage] = useState("")
-  const totalBestPoints = quizUser
-    ? Object.values(quizUser.quizProfile.bestScores).reduce(
-        (total, value) => total + Number(value || 0),
-        0,
-      )
-    : 0
-
-  if (!quizAuthReady) {
-    return (
-      <div className="mx-auto max-w-xl px-6 py-20 text-center text-primary">
-        Đang tải hồ sơ nhà thám hiểm…
-      </div>
-    )
-  }
-
-  if (quizUser) {
-    return (
-      <div className="mx-auto max-w-2xl px-6 py-12">
-        <div className="rounded-3xl border border-primary/10 bg-[#FFFEF0] p-6 md:p-9">
-          <Eyebrow>HỒ SƠ NHÀ THÁM HIỂM</Eyebrow>
-          <h1 className="text-3xl md:text-4xl">
-            Chào {quizUser.quizProfile.childNickname || quizUser.name}!
-          </h1>
-          <p className="mt-3 text-sm text-[#4A5461]">
-            Tài khoản phụ huynh · {quizUser.email}
-          </p>
-          <VideoWatchSummary stats={videoWatchStats} />
-          <div className="my-6 grid gap-3 sm:grid-cols-2">
-            <div className="rounded-2xl bg-white p-5">
-              <b className="text-3xl text-primary">{totalBestPoints}</b>
-              <p className="mt-1 text-sm text-[#4A5461]">Điểm tốt nhất đã lưu</p>
-            </div>
-            <div className="rounded-2xl bg-white p-5">
-              <b className="text-3xl text-primary">
-                {Object.keys(quizUser.quizProfile.bestScores).length}
-              </b>
-              <p className="mt-1 text-sm text-[#4A5461]">Quiz đã hoàn thành</p>
-            </div>
-          </div>
-          {Object.keys(quizUser.quizProfile.bestScores).length > 0 && (
-            <div className="mb-6 rounded-2xl bg-white p-5">
-              <h2 className="mb-3 font-bold text-primary">Thành tích gần đây</h2>
-              <ul className="space-y-2 text-sm text-[#4A5461]">
-                {Object.entries(quizUser.quizProfile.bestScores).map(([key, value]) => (
-                  <li key={key} className="flex justify-between gap-4">
-                    <span>{key.startsWith("chapter-") ? `Chương ${key.slice(8)}` : key}</span>
-                    <b>{value} điểm</b>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-          <form
-            key={quizUser.$id}
-            onSubmit={async (event) => {
-              event.preventDefault()
-              setError("")
-              setMessage("")
-              setSubmitting(true)
-              const data = new FormData(event.currentTarget)
-              try {
-                await updateQuizAccountProfile({
-                  ...quizUser.quizProfile,
-                  childNickname: String(data.get("childNickname") || "").trim(),
-                  interests: String(data.get("interests") || "")
-                    .split(/[,،]/)
-                    .map((interest) => interest.trim())
-                    .filter(Boolean)
-                    .slice(0, 8),
-                })
-                setMessage("Đã cập nhật sở thích và biệt danh của bé.")
-              } catch (cause) {
-                setError(cause instanceof Error ? cause.message : "Chưa lưu được hồ sơ.")
-              } finally {
-                setSubmitting(false)
-              }
-            }}
-            className="space-y-4 rounded-2xl bg-white p-5"
-          >
-            <h2 className="font-bold text-primary">Cá nhân hóa quiz</h2>
-            <label className="block text-sm font-medium">
-              Biệt danh của bé
-              <input
-                name="childNickname"
-                maxLength={32}
-                defaultValue={quizUser.quizProfile.childNickname}
-                placeholder="Ví dụ: Mít"
-                className="mt-2 block w-full rounded-xl border border-primary/15 px-4 py-3 outline-none focus:border-primary"
-              />
-            </label>
-            <label className="block text-sm font-medium">
-              Chủ đề bé yêu thích
-              <input
-                name="interests"
-                defaultValue={quizUser.quizProfile.interests.join(", ")}
-                placeholder="Động vật, phương tiện, thiên nhiên"
-                className="mt-2 block w-full rounded-xl border border-primary/15 px-4 py-3 outline-none focus:border-primary"
-              />
-            </label>
-            {message && <p role="status" className="text-sm text-[#28823F]">{message}</p>}
-            {error && <p role="alert" className="text-sm text-[#B83E2C]">{error}</p>}
-            <button
-              disabled={submitting}
-              className="rounded-full bg-primary px-5 py-3 font-semibold text-white disabled:opacity-60"
-            >
-              {submitting ? "Đang lưu…" : "Lưu hồ sơ"}
-            </button>
-          </form>
-          <div className="mt-5 flex flex-wrap gap-3">
-            <Button to="/quizzes"><Gamepad2 size={16} /> Tiếp tục chơi quiz</Button>
-            <Button secondary onClick={() => void logoutQuiz()}>Đăng xuất</Button>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  return (
-    <div className="mx-auto max-w-xl px-4 py-10 sm:px-6 sm:py-14">
-      <div className="overflow-hidden rounded-[28px] border border-primary/10 bg-white p-5 shadow-[0_16px_60px_-20px_#374BA02a] sm:p-6 md:p-9">
-        <div className="mb-6 flex items-center justify-between gap-3 rounded-2xl bg-[#FFF4DD] px-4 py-2">
-          <div>
-            <p className="text-[10px] font-bold uppercase tracking-[.14em] text-[#8D662F]">Tài khoản phụ huynh</p>
-            <p className="mt-2 text-sm font-bold text-primary">Cùng con lớn lên qua từng khám phá</p>
-          </div>
-          <Mascot pose="encouraging" className="h-24 w-20 shrink-0" />
-        </div>
-        <h1 className="text-3xl leading-tight tracking-tight">
-          Lưu hành trình của bé
-        </h1>
-        <p className="my-4 text-sm leading-6 text-[#4A5461]">
-          Điểm tốt nhất và huy hiệu quiz được đồng bộ vào hồ sơ. Chỉ cần email
-          của phụ huynh; bé có thể dùng biệt danh và chọn chủ đề yêu thích.
-        </p>
-        <VideoWatchSummary stats={videoWatchStats} />
-        <div role="group" aria-label="Chọn đăng nhập hoặc tạo tài khoản" className="mb-6 grid grid-cols-2 gap-1 rounded-full bg-[#F0F2F9] p-1">
-          {[
-            { label: "Đăng nhập", register: false },
-            { label: "Tạo tài khoản", register: true },
-          ].map((option) => (
-            <button
-              key={option.label}
-              type="button"
-              aria-pressed={registerMode === option.register}
-              onClick={() => {
-                setRegisterMode(option.register)
-                setError("")
-              }}
-              className={`rounded-full px-2 py-3 text-xs font-bold transition sm:px-3 sm:text-sm ${registerMode === option.register ? "bg-primary text-white shadow-sm" : "text-[#68758C] hover:text-primary"}`}
-            >
-              {option.label}
-            </button>
-          ))}
-        </div>
-        <form
-          onSubmit={async (event) => {
-            event.preventDefault()
-            setError("")
-            setSubmitting(true)
-            const data = new FormData(event.currentTarget)
-            const email = String(data.get("email") || "").trim()
-            const password = String(data.get("password") || "")
-            try {
-              if (registerMode) {
-                await registerQuiz({
-                  guardianName: String(data.get("guardianName") || "").trim(),
-                  email,
-                  password,
-                  childNickname: String(data.get("childNickname") || "").trim(),
-                  interests: String(data.get("interests") || "")
-                    .split(/[,،]/)
-                    .map((interest) => interest.trim())
-                    .filter(Boolean)
-                    .slice(0, 8),
-                })
-              } else {
-                await loginQuiz(email, password)
-              }
-            } catch (cause) {
-              setError(cause instanceof Error ? cause.message : "Không đăng nhập được.")
-            } finally {
-              setSubmitting(false)
-            }
-          }}
-          className="space-y-4"
-        >
-          {registerMode && <Field label="Tên phụ huynh" name="guardianName" />}
-          <Field label="Email phụ huynh" name="email" type="email" />
-          <Field label="Mật khẩu" name="password" type="password" minLength={8} />
-          {registerMode && (
-            <>
-              <label className="block text-sm font-medium">
-                Biệt danh của bé <span className="font-normal text-[#4A5461]">(không bắt buộc)</span>
-                <input
-                  name="childNickname"
-                  maxLength={32}
-                  placeholder="Ví dụ: Mít"
-                  className="mt-2 block w-full rounded-xl border border-primary/15 bg-white px-4 py-3.5 outline-none focus:border-primary"
-                />
-              </label>
-              <label className="block text-sm font-medium">
-                Chủ đề bé yêu thích <span className="font-normal text-[#4A5461]">(không bắt buộc)</span>
-                <input
-                  name="interests"
-                  placeholder="Động vật, phương tiện, thiên nhiên"
-                  className="mt-2 block w-full rounded-xl border border-primary/15 bg-white px-4 py-3.5 outline-none focus:border-primary"
-                />
-              </label>
-            </>
-          )}
-          {!isAppwriteConfigured && (
-            <p role="status" className="rounded-xl bg-[#FBAF37]/15 p-4 text-sm text-[#6E493E]">
-              Chưa cấu hình Appwrite cho môi trường này. Điểm quiz vẫn được giữ
-              trên thiết bị; đăng nhập đồng bộ cần kết nối Appwrite.
-            </p>
-          )}
-          {error && <p role="alert" className="rounded-xl bg-[#F15A3E]/10 p-4 text-sm text-[#B83E2C]">{error}</p>}
-          <button
-            disabled={submitting || !isAppwriteConfigured}
-            className="w-full rounded-full bg-primary py-4 font-bold text-white shadow-[0_6px_18px_#374BA025] transition hover:bg-[#293D91] disabled:opacity-60"
-          >
-            {submitting
-              ? "Đang xử lý…"
-              : registerMode
-                ? "Tạo tài khoản phụ huynh"
-                : "Đăng nhập và đồng bộ"}
-          </button>
-        </form>
-        <button
-          type="button"
-          onClick={() => {
-            setRegisterMode(!registerMode)
-            setError("")
-          }}
-          className="mt-5 w-full text-sm font-semibold text-primary underline underline-offset-4"
-        >
-          {registerMode ? "Đã có tài khoản? Đăng nhập" : "Chưa có tài khoản? Tạo hồ sơ mới"}
-        </button>
-      </div>
-    </div>
-  )
-}
-
 function PasswordRecovery() {
   const location = useLocation()
   const navigate = useNavigate()
@@ -3607,7 +2612,6 @@ const adminLinks = [
   [BookOpen, "Sách", "/admin/books"],
   [Video, "Video", "/admin/videos"],
   [QrCode, "Mã QR", "/admin/qr"],
-  [Gamepad2, "Quiz", "/admin/quizzes"],
   [Package, "Đơn hàng", "/admin/orders"],
   [Users, "Người dùng", "/admin/users"],
   [Settings, "Cài đặt", "/admin/settings"],
@@ -3622,18 +2626,17 @@ function AdminLayout() {
     backendError,
     ensureAdminSession,
     loadVideos,
-    loadQuizzes,
   } = useStore()
   useEffect(() => {
     let active = true
     void ensureAdminSession().then((user) => {
       if (!active || !user) return
-      void Promise.all([loadVideos(), loadQuizzes(false)])
+      void loadVideos()
     })
     return () => {
       active = false
     }
-  }, [ensureAdminSession, loadVideos, loadQuizzes])
+  }, [ensureAdminSession, loadVideos])
   useEffect(() => {
     if (authReady && !adminUser) navigate("/login")
   }, [adminUser, authReady, navigate])
@@ -3713,7 +2716,7 @@ function AdminHeading({
   )
 }
 function Dashboard() {
-  const { videos, quizzes } = useStore()
+  const { videos } = useStore()
   const [orderCount, setOrderCount] = useState(0)
   useEffect(() => {
     listOrders()
@@ -3731,7 +2734,6 @@ function Dashboard() {
           ["Sách", 1, BookOpen],
           ["Video", videos.length, Video],
           ["Mã QR", bookVideoSlots.length, QrCode],
-          ["Quiz", quizzes.length, Gamepad2],
           ["Đơn hàng", orderCount, Package],
           [
             "Cơ sở dữ liệu",
@@ -3757,14 +2759,11 @@ function Dashboard() {
       <div className="mt-8 rounded-2xl border border-border bg-white p-7">
         <h3 className="text-xl">Bắt đầu cuộc phiêu lưu mới</h3>
         <p className="mb-6 mt-2 text-sm text-[#4A5461]">
-          Tải video, tạo mã QR và xây dựng bài quiz cho cuốn sách.
+          Tải video và quản lý mã QR cho cuốn sách.
         </p>
         <div className="flex flex-wrap gap-3">
           <Button to="/admin/upload">
             <Upload size={16} /> Upload video
-          </Button>
-          <Button secondary to="/admin/quizzes">
-            Tạo Quiz
           </Button>
           <Button secondary to="/admin/qr">
             Tạo mã QR
@@ -4457,221 +3456,6 @@ function QRAdmin() {
     </>
   )
 }
-function QuizAdmin() {
-  const { notify, videos, quizzes, setQuizzes } = useStore()
-  const [builder, setBuilder] = useState(false)
-  const [count, setCount] = useState(1)
-  const [saving, setSaving] = useState(false)
-  const [error, setError] = useState("")
-  return (
-    <>
-      <AdminHeading title="Xưởng sáng tạo Quiz">
-        <Button onClick={() => setBuilder(true)}>
-          <Plus size={16} /> Tạo Quiz
-        </Button>
-      </AdminHeading>
-      {!builder ? (
-        <div className="space-y-4">
-          {quizzes.map((item) => (
-            <div
-              key={item.id}
-              className="flex items-center justify-between rounded-2xl border border-border bg-white p-6"
-            >
-              <div>
-                <h3 className="text-xl">{item.title}</h3>
-                <p className="mt-2 text-sm text-[#4A5461]">
-                  {item.questions.length} câu hỏi ·{" "}
-                  {item.published ? "Đã xuất bản" : "Bản nháp"}
-                </p>
-              </div>
-              <Button
-                secondary
-                onClick={() => {
-                  void (async () => {
-                    try {
-                      await deleteQuiz(item.id)
-                      setQuizzes(quizzes.filter((quiz) => quiz.id !== item.id))
-                      notify("Đã xóa quiz khỏi Appwrite.")
-                    } catch (cause) {
-                      notify(
-                        cause instanceof Error
-                          ? cause.message
-                          : "Không xóa được quiz.",
-                      )
-                    }
-                  })()
-                }}
-              >
-                <Trash2 size={15} />
-              </Button>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <form
-          className="max-w-3xl space-y-6 rounded-3xl border border-border bg-white p-7"
-          onSubmit={async (event) => {
-            event.preventDefault()
-            const data = new FormData(event.currentTarget)
-            setSaving(true)
-            setError("")
-            const questions: QuizQuestion[] = Array.from(
-              { length: count },
-              (_, index) => ({
-                text: String(data.get(`question-${index}`) || "").trim(),
-                answers: Array.from({ length: 4 }, (_, answer) =>
-                  String(data.get(`answer-${index}-${answer}`) || "").trim(),
-                ),
-                correct: Number(data.get(`correct-${index}`) || 0),
-                hint: String(data.get(`hint-${index}`) || "").trim(),
-              }),
-            )
-            try {
-              const quiz = await createQuiz({
-                title: String(data.get("quizTitle") || "").trim(),
-                chapter: String(data.get("chapter") || "Chương 1"),
-                videoId: String(data.get("videoId") || ""),
-                published: data.get("published") === "on",
-                questions,
-              })
-              setQuizzes([quiz, ...quizzes])
-              setBuilder(false)
-              setCount(1)
-              notify(
-                quiz.published
-                  ? "Quiz đã được xuất bản."
-                  : "Đã lưu bản nháp quiz.",
-              )
-            } catch (cause) {
-              setError(
-                cause instanceof Error ? cause.message : "Không lưu được quiz.",
-              )
-            } finally {
-              setSaving(false)
-            }
-          }}
-        >
-          <label className="block text-sm">
-            Tên quiz
-            <input
-              required
-              name="quizTitle"
-              className="mt-2 w-full rounded-xl border border-border p-4"
-              placeholder="Tên cuộc phiêu lưu..."
-            />
-          </label>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <label className="text-sm">
-              Sách
-              <select
-                name="chapter"
-                className="mt-2 w-full rounded-xl border border-border p-4"
-              >
-                <option>{bookTitle}</option>
-              </select>
-            </label>
-            <label className="text-sm">
-              Chương
-              <select className="mt-2 w-full rounded-xl border border-border p-4">
-                {[1, 2, 3].map((n) => (
-                  <option key={n}>Chương {n}</option>
-                ))}
-              </select>
-            </label>
-          </div>
-          <label className="block text-sm">
-            Video liên quan
-            <select
-              name="videoId"
-              className="mt-2 w-full rounded-xl border border-border p-4"
-            >
-              <option value="">Không liên kết video</option>
-              {videos.map((video) => (
-                <option key={video.id} value={video.id}>
-                  {video.title}
-                </option>
-              ))}
-            </select>
-          </label>
-          {Array.from({ length: count }, (_, index) => (
-            <fieldset
-              key={index}
-              className="space-y-4 rounded-2xl bg-primary/5 p-5"
-            >
-              <legend className="font-sans text-lg font-bold text-primary">
-                Câu hỏi {index + 1}
-              </legend>
-              <input
-                required
-                name={`question-${index}`}
-                placeholder="Nội dung câu hỏi"
-                className="w-full rounded-xl border border-border bg-white p-4 text-base"
-              />
-              <p className="text-sm text-[#4A5461]">Chọn một đáp án đúng:</p>
-              <div className="grid gap-3 sm:grid-cols-2">
-                {Array.from({ length: 4 }, (_, answer) => (
-                  <label
-                    key={answer}
-                    className="flex items-center gap-3 rounded-xl bg-white p-3"
-                  >
-                    <input
-                      required
-                      type="radio"
-                      name={`correct-${index}`}
-                      value={answer}
-                      defaultChecked={answer === 0}
-                    />
-                    <input
-                      required
-                      name={`answer-${index}-${answer}`}
-                      placeholder={`Đáp án ${String.fromCharCode(65 + answer)}`}
-                      className="w-full text-sm outline-none"
-                    />
-                  </label>
-                ))}
-              </div>
-              <input
-                name={`hint-${index}`}
-                placeholder="Giải thích sau khi trả lời"
-                className="w-full rounded-xl border border-border p-3 text-sm"
-              />
-            </fieldset>
-          ))}
-          <label className="flex items-center gap-3 text-sm">
-            <input type="checkbox" name="published" defaultChecked />
-            Xuất bản để các bạn nhỏ có thể chơi ngay
-          </label>
-          {error && (
-            <p
-              role="alert"
-              className="rounded-xl bg-[#F15A3E]/10 p-4 text-sm text-[#B83E2C]"
-            >
-              {error}
-            </p>
-          )}
-          <p className="text-xs text-[#4A5461]">
-            Chọn nút tròn cạnh đáp án đúng. Quiz được lưu trong Appwrite và có
-            thể xuất bản cho trang chơi công khai.
-          </p>
-          <div className="flex flex-wrap gap-3">
-            <Button secondary onClick={() => setCount(count + 1)}>
-              <Plus size={16} /> Thêm câu hỏi
-            </Button>
-            <button
-              disabled={saving}
-              className="rounded-full bg-primary px-6 py-4 text-base text-white disabled:opacity-60"
-            >
-              {saving ? "Đang lưu..." : "Lưu Quiz"}
-            </button>
-            <Button secondary onClick={() => setBuilder(false)}>
-              Hủy
-            </Button>
-          </div>
-        </form>
-      )}
-    </>
-  )
-}
 function OrdersAdmin() {
   const [orders, setOrders] = useState<OrderRecord[]>([])
   const [loading, setLoading] = useState(true)
@@ -4853,19 +3637,10 @@ function Provider({ children }: { children: ReactNode }) {
   const [videos, setVideos] = useState<VideoItem[]>(
     isAppwriteConfigured ? [] : initialVideos,
   )
-  const [quizzes, setQuizzes] = useState<QuizRecord[]>([])
-  const [score, setScore] = useState(
-    () => Number(localStorage.getItem("rikokid-quiz-score")) || 0,
-  )
-  const [lastQuizKey, setLastQuizKey] = useState(
-    () => localStorage.getItem("rikokid-last-quiz") || "general",
-  )
-  const [quizUser, setQuizUser] = useState<QuizUser | null>(null)
   const [videoWatchStats, setVideoWatchStats] = useState<Record<string, VideoWatchRecord>>(
     () => guestVideoWatchStats(),
   )
   const videoWatchStatsRef = useRef(videoWatchStats)
-  const [quizAuthReady, setQuizAuthReady] = useState(!isAppwriteConfigured)
   const [toast, setToast] = useState("")
   const [adminUser, setAdminUser] = useState<{
     $id: string
@@ -4881,7 +3656,6 @@ function Provider({ children }: { children: ReactNode }) {
     email: string
   } | null> | null>(null)
   const videoRequestRef = useRef<Promise<void> | null>(null)
-  const quizRequestsRef = useRef(new Map<boolean, Promise<void>>())
   useEffect(() => {
     videoWatchStatsRef.current = videoWatchStats
   }, [videoWatchStats])
@@ -4891,48 +3665,6 @@ function Provider({ children }: { children: ReactNode }) {
   useEffect(() => {
     localStorage.setItem("rikokid-cart-product", cartProductId)
   }, [cartProductId])
-  useEffect(() => {
-    localStorage.setItem("rikokid-quiz-score", String(score))
-  }, [score])
-  useEffect(() => {
-    localStorage.setItem("rikokid-last-quiz", lastQuizKey)
-  }, [lastQuizKey])
-  useEffect(() => {
-    if (!isAppwriteConfigured) {
-      setQuizAuthReady(true)
-      return
-    }
-    let active = true
-    getQuizUser()
-      .then(async (user) => (user ? mergeGuestQuizScores(user) : null))
-      .then((user) => {
-        if (active) {
-          setQuizUser(user)
-          setVideoWatchStats(user?.quizProfile.videoWatch || guestVideoWatchStats())
-        }
-      })
-      .catch(() => {
-        if (active) setQuizUser(null)
-      })
-      .finally(() => {
-        if (active) setQuizAuthReady(true)
-      })
-    return () => {
-      active = false
-    }
-  }, [])
-  const saveQuizProgress = useCallback(
-    async (key: string, resultScore: number) => {
-      const scores = guestQuizScores()
-      scores[key] = Math.max(scores[key] || 0, Math.max(0, resultScore))
-      localStorage.setItem("rikokid-quiz-scores", JSON.stringify(scores))
-      if (quizUser) {
-        const user = await saveQuizResultToAccount(key, resultScore)
-        setQuizUser(user)
-      }
-    },
-    [quizUser],
-  )
   const recordVideoWatch = useCallback(
     async (input: {
       videoId: string
@@ -4943,7 +3675,6 @@ function Provider({ children }: { children: ReactNode }) {
       position: number
       started?: boolean
       completed?: boolean
-      syncToAccount?: boolean
     }) => {
       const currentStats = videoWatchStatsRef.current
       const current = currentStats[input.videoId]
@@ -4961,15 +3692,8 @@ function Provider({ children }: { children: ReactNode }) {
       videoWatchStatsRef.current = merged
       setVideoWatchStats(merged)
       localStorage.setItem("rikokid-video-watch", JSON.stringify(merged))
-      if (input.syncToAccount && quizUser) {
-        const user = await updateQuizProfile({
-          ...quizUser.quizProfile,
-          videoWatch: { ...quizUser.quizProfile.videoWatch, [input.videoId]: next },
-        })
-        setQuizUser(user)
-      }
     },
-    [quizUser],
+    [],
   )
   const ensureAdminSession = useCallback(() => {
     if (!isAppwriteConfigured) {
@@ -5016,25 +3740,6 @@ function Provider({ children }: { children: ReactNode }) {
     videoRequestRef.current = request
     return request
   }, [])
-  const loadQuizzes = useCallback((publishedOnly = true) => {
-    if (!isAppwriteConfigured) return Promise.resolve()
-    const existingRequest = quizRequestsRef.current.get(publishedOnly)
-    if (existingRequest) return existingRequest
-    const request = listQuizzes(publishedOnly)
-      .then(setQuizzes)
-      .catch((cause) => {
-        setBackendError(
-          (previous) =>
-            previous ||
-            (cause instanceof Error ? cause.message : "Không tải được quiz."),
-        )
-      })
-      .finally(() => {
-        quizRequestsRef.current.delete(publishedOnly)
-      })
-    quizRequestsRef.current.set(publishedOnly, request)
-    return request
-  }, [])
   useEffect(() => {
     if (!toast) return
     const timer = setTimeout(() => setToast(""), 4000)
@@ -5049,51 +3754,12 @@ function Provider({ children }: { children: ReactNode }) {
         setCartProductId,
         videos,
         setVideos,
-        quizzes,
-        setQuizzes,
-        score,
-        setScore,
-        lastQuizKey,
-        setLastQuizKey,
-        quizUser,
-        quizAuthReady,
         videoWatchStats,
         recordVideoWatch,
-        loginQuiz: async (email, password) => {
-          const user = await loginQuizUser(email, password)
-          const mergedUser = await mergeGuestQuizScores(user)
-          setQuizUser(mergedUser)
-          setVideoWatchStats(mergedUser.quizProfile.videoWatch || guestVideoWatchStats())
-          adminUserRef.current = null
-          setAdminUser(null)
-          setAuthReady(true)
-        },
-        registerQuiz: async (input) => {
-          const user = await registerQuizUser(input)
-          const mergedUser = await mergeGuestQuizScores(user)
-          setQuizUser(mergedUser)
-          setVideoWatchStats(mergedUser.quizProfile.videoWatch || guestVideoWatchStats())
-          adminUserRef.current = null
-          setAdminUser(null)
-          setAuthReady(true)
-        },
-        updateQuizAccountProfile: async (profile) => {
-          setQuizUser(await updateQuizProfile(profile))
-        },
-        logoutQuiz: async () => {
-          await logoutQuizUser()
-          setQuizUser(null)
-          setVideoWatchStats(guestVideoWatchStats())
-          adminUserRef.current = null
-          setAdminUser(null)
-          setAuthReady(true)
-        },
-        saveQuizProgress,
         adminUser,
         authReady,
         ensureAdminSession,
         loadVideos,
-        loadQuizzes,
         login: async (email, password) => {
           const user = await loginAdmin(email, password)
           adminUserRef.current = user
@@ -5140,15 +3806,15 @@ const router = createBrowserRouter([
       { path: "preview", Component: Preview },
       { path: "videos", Component: Videos },
       { path: "watch/:id", Component: Watch },
-      { path: "quizzes", Component: Quizzes },
-      { path: "quiz", Component: Quiz },
-      { path: "result", Component: Result },
+      { path: "quizzes", element: <Navigate to="/book" replace /> },
+      { path: "quiz", element: <Navigate to="/book" replace /> },
+      { path: "result", element: <Navigate to="/book" replace /> },
       { path: "cart", Component: Cart },
       { path: "checkout", Component: Checkout },
       { path: "order-success", Component: Success },
       { path: "about", Component: About },
       { path: "parents", element: <About parents /> },
-      { path: "tai-khoan", Component: QuizAccount },
+      { path: "tai-khoan", element: <Navigate to="/parents" replace /> },
       { path: "login", Component: Login },
       { path: "recovery", Component: PasswordRecovery },
       {
@@ -5172,7 +3838,7 @@ const router = createBrowserRouter([
       { path: "videos", Component: VideoAdmin },
       { path: "upload", Component: UploadVideo },
       { path: "qr", Component: QRAdmin },
-      { path: "quizzes", Component: QuizAdmin },
+      { path: "quizzes", element: <Navigate to="/admin" replace /> },
       ...["books", "orders", "users", "settings"].map((path) => ({
         path,
         Component: AdminOther,

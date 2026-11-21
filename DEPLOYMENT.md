@@ -15,7 +15,6 @@ database and tables have been created in its console:
 | Database — Rikokid Content | `6acfa9960034613b2b16` |
 | Orders table | `6acfa9ab00235695e522` |
 | Videos table | `6acfa9b9001328339d1b` |
-| Quizzes table | `6acfa9bf00239602e8ff` |
 | Media bucket | `6acfaa0500376f5fea5c` |
 | Admin team | `6acfa9e9001c51f872c3` |
 
@@ -59,20 +58,6 @@ Enable row security. Give the admin team **Create**, **Read**, **Update**, and
 **Delete**. Public read is assigned on each video row: published videos appear
 in the catalogue; `Chỉ qua đường dẫn` videos are omitted from the catalogue but
 can still open when their QR/link is known.
-
-### Quizzes
-
-| Column ID | Type | Required |
-| --- | --- | --- |
-| `title` | String | Yes |
-| `chapter` | String | Yes |
-| `videoId` | String | No |
-| `published` | Boolean | Yes |
-| `questions` | Long text | Yes |
-
-The `questions` value is a JSON array. Enable row security. Give the admin team
-**Create**, **Read**, **Update**, and **Delete**. Published quiz rows receive
-public read permissions individually; drafts stay private to admins.
 
 ### Auth team and Storage
 

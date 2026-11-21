@@ -27,22 +27,6 @@ export type VideoRecord = {
   thumbnailFileId?: string
 }
 
-export type QuizQuestion = {
-  text: string
-  answers: string[]
-  correct: number
-  hint: string
-}
-
-export type QuizRecord = {
-  id: string
-  title: string
-  chapter: string
-  videoId: string
-  published: boolean
-  questions: QuizQuestion[]
-}
-
 export type OrderRecord = {
   id: string
   orderCode: string
@@ -58,13 +42,6 @@ export type OrderRecord = {
   createdAt: string
 }
 
-export type QuizProfile = {
-  childNickname: string
-  interests: string[]
-  bestScores: Record<string, number>
-  videoWatch: Record<string, VideoWatchRecord>
-}
-
 export type VideoWatchRecord = {
   title: string
   chapter: string
@@ -74,54 +51,6 @@ export type VideoWatchRecord = {
   lastPosition: number
   completed: boolean
   lastViewedAt: string
-}
-
-export type QuizUser = {
-  $id: string
-  name: string
-  email: string
-  quizProfile: QuizProfile
-}
-
-function normalizeQuizProfile(value: unknown): QuizProfile {
-  const profile = value && typeof value === "object"
-    ? (value as Partial<QuizProfile>)
-    : {}
-  const scores = profile.bestScores && typeof profile.bestScores === "object"
-    ? Object.fromEntries(
-        Object.entries(profile.bestScores).map(([key, score]) => [
-          key,
-          Math.max(0, Number(score) || 0),
-        ]),
-      )
-    : {}
-  const videoWatch = profile.videoWatch && typeof profile.videoWatch === "object"
-    ? Object.fromEntries(
-        Object.entries(profile.videoWatch).map(([key, raw]) => {
-          const record = raw && typeof raw === "object"
-            ? (raw as Partial<VideoWatchRecord>)
-            : {}
-          return [key, {
-            title: String(record.title || key),
-            chapter: String(record.chapter || ""),
-            seconds: Math.max(0, Number(record.seconds) || 0),
-            duration: Math.max(0, Number(record.duration) || 0),
-            views: Math.max(0, Math.floor(Number(record.views) || 0)),
-            lastPosition: Math.max(0, Number(record.lastPosition) || 0),
-            completed: Boolean(record.completed),
-            lastViewedAt: String(record.lastViewedAt || ""),
-          } satisfies VideoWatchRecord]
-        }),
-      )
-    : {}
-  return {
-    childNickname: String(profile.childNickname || ""),
-    interests: Array.isArray(profile.interests)
-      ? profile.interests.map(String).filter(Boolean).slice(0, 8)
-      : [],
-    bestScores: scores,
-    videoWatch,
-  }
 }
 
 const client = new Client()
@@ -415,62 +344,6 @@ export async function updateOrderStatus(id: string, status: string) {
   })
 }
 
-function parseQuestions(value: unknown): QuizQuestion[] {
-  if (Array.isArray(value)) return value as QuizQuestion[]
-  try {
-    const parsed = JSON.parse(String(value || "[]"))
-    return Array.isArray(parsed) ? (parsed as QuizQuestion[]) : []
-  } catch {
-    return []
-  }
-}
-
-export async function listQuizzes(publishedOnly = false): Promise<QuizRecord[]> {
-  requireAppwrite()
-  const queries = [Query.orderDesc("$createdAt"), Query.limit(100)]
-  if (publishedOnly) queries.unshift(Query.equal("published", true))
-  const result = await tables.listRows({
-    databaseId: appwriteConfig.databaseId,
-    tableId: appwriteConfig.quizzesTableId,
-    queries,
-  })
-  return result.rows.map((row) => ({
-    id: row.$id,
-    title: String(row.title || ""),
-    chapter: String(row.chapter || "Chương 1"),
-    videoId: String(row.videoId || ""),
-    published: Boolean(row.published),
-    questions: parseQuestions(row.questions),
-  }))
-}
-
-export async function createQuiz(quiz: Omit<QuizRecord, "id">) {
-  requireAppwrite()
-  const row = await tables.createRow({
-    databaseId: appwriteConfig.databaseId,
-    tableId: appwriteConfig.quizzesTableId,
-    rowId: ID.unique(),
-    data: {
-      title: quiz.title,
-      chapter: quiz.chapter,
-      videoId: quiz.videoId,
-      published: quiz.published,
-      questions: JSON.stringify(quiz.questions),
-    },
-    permissions: adminRowPermissions(quiz.published),
-  })
-  return { ...quiz, id: row.$id }
-}
-
-export async function deleteQuiz(id: string) {
-  requireAppwrite()
-  await tables.deleteRow({
-    databaseId: appwriteConfig.databaseId,
-    tableId: appwriteConfig.quizzesTableId,
-    rowId: id,
-  })
-}
-
 async function isAdminMember(userId: string) {
   const result = await teams.listMemberships({
     teamId: appwriteConfig.adminTeamId,
@@ -526,91 +399,4 @@ export async function logoutAdmin() {
   await account.deleteSession({ sessionId: "current" }).catch(() => undefined)
 }
 
-export async function getQuizUser(): Promise<QuizUser | null> {
-  if (!isAppwriteConfigured) return null
-  try {
-    const user = await account.get()
-    const prefs = await account.getPrefs<Record<string, unknown>>()
-    return {
-      $id: user.$id,
-      name: user.name,
-      email: user.email,
-      quizProfile: normalizeQuizProfile(prefs.quizProfile),
-    }
-  } catch {
-    return null
-  }
-}
-
-export async function registerQuizUser(input: {
-  guardianName: string
-  email: string
-  password: string
-  childNickname: string
-  interests: string[]
-}): Promise<QuizUser> {
-  requireAppwrite()
-  await account.create({
-    userId: ID.unique(),
-    email: input.email.trim(),
-    password: input.password,
-    name: input.guardianName.trim(),
-  })
-  await account.createEmailPasswordSession({
-    email: input.email.trim(),
-    password: input.password,
-  })
-  const prefs = await account.getPrefs<Record<string, unknown>>()
-  await account.updatePrefs({
-    prefs: {
-      ...prefs,
-      quizProfile: normalizeQuizProfile({
-        childNickname: input.childNickname,
-        interests: input.interests,
-        bestScores: {},
-      }),
-    },
-  })
-  const user = await getQuizUser()
-  if (!user) throw new Error("Đã tạo tài khoản nhưng chưa tải được hồ sơ quiz.")
-  return user
-}
-
-export async function loginQuizUser(email: string, password: string) {
-  requireAppwrite()
-  await account.createEmailPasswordSession({ email: email.trim(), password })
-  const user = await getQuizUser()
-  if (!user) throw new Error("Không tải được hồ sơ quiz sau khi đăng nhập.")
-  return user
-}
-
-export async function updateQuizProfile(profile: QuizProfile) {
-  requireAppwrite()
-  const prefs = await account.getPrefs<Record<string, unknown>>()
-  await account.updatePrefs({
-    prefs: { ...prefs, quizProfile: normalizeQuizProfile(profile) },
-  })
-  const user = await getQuizUser()
-  if (!user) throw new Error("Không tải được hồ sơ quiz đã cập nhật.")
-  return user
-}
-
-export async function saveQuizResult(quizKey: string, score: number) {
-  requireAppwrite()
-  const prefs = await account.getPrefs<Record<string, unknown>>()
-  const profile = normalizeQuizProfile(prefs.quizProfile)
-  profile.bestScores[quizKey] = Math.max(
-    profile.bestScores[quizKey] || 0,
-    Math.max(0, Math.floor(score)),
-  )
-  await account.updatePrefs({ prefs: { ...prefs, quizProfile: profile } })
-  const user = await getQuizUser()
-  if (!user) throw new Error("Không tải được tiến độ quiz đã lưu.")
-  return user
-}
-
-export async function logoutQuizUser() {
-  if (!isAppwriteConfigured) return
-  await account.deleteSession({ sessionId: "current" }).catch(() => undefined)
-}
 

@@ -4,9 +4,9 @@ import {
   BookOpen,
   Check,
   ChevronRight,
-  Gamepad2,
   Package,
   QrCode,
+  ScanLine,
   ShieldCheck,
   ShoppingBag,
   Sparkles,
@@ -98,7 +98,7 @@ export default function BookShop({
               <QrCode size={19} strokeWidth={1.7} /> QR & video
             </span>
             <span className="flex flex-col items-center gap-1.5">
-              <Gamepad2 size={19} strokeWidth={1.7} /> Quiz tương tác
+              <ScanLine size={19} strokeWidth={1.7} /> Trải nghiệm AR
             </span>
           </div>
         </div>
@@ -343,9 +343,9 @@ export default function BookShop({
               text: "Quét QR để câu chuyện tiếp tục qua những video sinh động.",
             },
             {
-              icon: Gamepad2,
-              title: "Chơi & ghi nhớ",
-              text: "Thử sức với quiz, lưu lại những điều mới bé vừa học được.",
+              icon: Sparkles,
+              title: "Khám phá AR",
+              text: "Quét mã để mở thêm trải nghiệm sống động cùng Riko.",
             },
           ].map((step, index) => (
             <div key={step.title}>

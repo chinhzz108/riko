@@ -94,7 +94,7 @@ export default function BookCatalog() {
             strokeWidth={1.6}
             className="shrink-0 text-[#537CAE]"
           />{" "}
-          Sách giấy kết hợp video và quiz
+          Sách giấy kết hợp video và AR
         </span>
         <span className="flex items-center gap-3">
           <Check

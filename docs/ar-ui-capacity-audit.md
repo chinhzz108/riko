@@ -14,9 +14,8 @@ remain; actionable errors are still shown when playback or camera access fails.
 - The scanner loads static model, WASM, book targets and media from Cloudflare
   Pages. Active users do not share a central recognition queue. Once video opens,
   recognition pauses; X resumes it using the compiled detector.
-- The global application checks the quiz account once on startup. It does not
-  put Appwrite requests in the camera processing loop or block AR on authentication.
-  This audit does not load-test order, quiz or admin services.
+- The scanner does not put Appwrite requests in the camera processing loop or
+  block AR on authentication. This audit does not load-test order or admin services.
 
 ## Bounded production delivery check
 
