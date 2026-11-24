@@ -13,15 +13,16 @@ import {
 } from "lucide-react"
 import { Link } from "react-router"
 import type { ReactNode } from "react"
-import { bookProducts, type BookProduct } from "../data/bookProducts"
+import {
+  bookProducts,
+  bundleSavings,
+  getBookProduct,
+  type BookProduct,
+} from "../data/bookProducts"
 import BookArtwork from "./BookArtwork"
 import BookCollection from "./BookCollection"
 
 const money = (value: number) => `${value.toLocaleString("vi-VN")}đ`
-const singleBookTotal = bookProducts
-  .filter((book) => !book.isCombo)
-  .reduce((total, book) => total + book.price, 0)
-
 export default function BookShop({
   product,
   quantityControl,
@@ -35,7 +36,7 @@ export default function BookShop({
   onAddToCart: () => void
   onCheckout: () => void
 }) {
-  const saving = product.isCombo ? singleBookTotal - product.price : 0
+  const saving = product.isCombo ? bundleSavings : 0
   const selectFromCollection = (id: string) => {
     onSelect(id)
     document.getElementById("book-order")?.scrollIntoView({ block: "start" })
@@ -299,7 +300,8 @@ export default function BookShop({
                 Thêm nhiều khám phá với trọn bộ 3 quyển
               </span>
               <span className="mt-1 block text-xs font-medium text-[#806D4D]">
-                799.000đ / bộ · Tiết kiệm 98.000đ so với mua lẻ
+                {money(getBookProduct("combo3").price)} / bộ · Tiết kiệm{" "}
+                {money(bundleSavings)} so với mua lẻ
               </span>
             </span>
           </span>

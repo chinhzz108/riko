@@ -1,5 +1,6 @@
 import { ArrowRight, BookOpen, Check, Package } from "lucide-react"
 import { Link } from "react-router"
+import { bundleSavings, getBookProduct } from "../data/bookProducts"
 import BookCollection from "./BookCollection"
 
 export default function HomeBookSection() {
@@ -65,7 +66,8 @@ export default function HomeBookSection() {
                 <Check size={14} className="text-[#FBD48D]" /> Đủ 3 quyển
               </span>
               <span className="flex items-center gap-1.5">
-                <Check size={14} className="text-[#FBD48D]" /> Tiết kiệm 98.000đ
+                <Check size={14} className="text-[#FBD48D]" /> Tiết kiệm{" "}
+                {bundleSavings.toLocaleString("vi-VN")}đ
               </span>
               <Link
                 to="/preview"
@@ -79,7 +81,7 @@ export default function HomeBookSection() {
         <div className="relative mt-6 flex flex-wrap items-center gap-5 border-t border-white/15 pt-5 lg:mt-0 lg:shrink-0 lg:border-0 lg:pt-0">
           <div>
             <p className="text-3xl font-bold leading-none tracking-tight text-white">
-              799.000đ
+              {getBookProduct("combo3").price.toLocaleString("vi-VN")}đ
             </p>
             <p className="mt-2 text-xs font-medium text-white/60">
               Combo 3 quyển

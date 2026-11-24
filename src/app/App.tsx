@@ -3591,7 +3591,8 @@ function AdminOther() {
           <div>
             <h3 className="text-3xl">{bookTitle}</h3>
             <p className="my-4 text-sm leading-6">
-              3 chủ đề · 299.000đ/quyển (giá cũ 350.000đ) · Combo 799.000đ
+              3 chủ đề · {money(bookProducts[0].price)}/quyển · Combo{" "}
+              {money(getBookProduct("combo3").price)}
             </p>
             <Button to="/book">Xem sách</Button>
           </div>

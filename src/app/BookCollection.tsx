@@ -1,6 +1,6 @@
 import { ArrowRight, Check } from "lucide-react"
 import { Link } from "react-router"
-import { bookProducts } from "../data/bookProducts"
+import { bookProducts, bundleSavings } from "../data/bookProducts"
 import BookArtwork from "./BookArtwork"
 
 export default function BookCollection({
@@ -62,7 +62,9 @@ export default function BookCollection({
                   }`}
                 >
                   {product.isCombo
-                    ? "Trọn bộ · Tiết kiệm 98.000đ"
+                    ? `Trọn bộ · Tiết kiệm ${bundleSavings.toLocaleString(
+                        "vi-VN",
+                      )}đ`
                     : `${product.chapter} · Khám phá cùng Riko`}
                 </p>
                 <h3
